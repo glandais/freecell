@@ -57,7 +57,7 @@ public class FoundationPile extends Pile {
     }
 
     @Override
-    public List<CardAction> performMovement(Movement movement) {
+    public List<CardAction> getActions(Movement movement) {
         MovableStack movableStack = movement.movableStack();
         if (movableStack.from() == this.pilesEnum) {
             // remove top card

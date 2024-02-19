@@ -74,6 +74,6 @@ public enum CardEnum {
 
     @Override
     public String toString() {
-        return getLabel();
+        return label;
     }
 }

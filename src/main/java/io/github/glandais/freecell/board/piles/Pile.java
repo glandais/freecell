@@ -29,7 +29,7 @@ public abstract class Pile {
 
     public abstract Optional<Movement> accept(Board board, MovableStack movableStack);
 
-    public abstract List<CardAction> performMovement(Movement movement);
+    public abstract List<CardAction> getActions(Movement movement);
 
     @Override
     public String toString() {

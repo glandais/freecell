@@ -1,5 +1,7 @@
-package io.github.glandais.freecell.board;
+package io.github.glandais.freecell.board.printer;
 
+import io.github.glandais.freecell.board.Board;
+import io.github.glandais.freecell.board.Movement;
 import io.github.glandais.freecell.board.enums.PilesEnum;
 import io.github.glandais.freecell.board.enums.TableauPilesEnum;
 import io.github.glandais.freecell.board.piles.Pile;
@@ -8,11 +10,14 @@ import io.github.glandais.freecell.cards.enums.CardEnum;
 import lombok.experimental.UtilityClass;
 import org.fusesource.jansi.Ansi;
 
+import java.util.List;
+
 import static org.fusesource.jansi.Ansi.Color.*;
 import static org.fusesource.jansi.Ansi.ansi;
 
 @UtilityClass
-public class BoardPrinter {
+public class BoardConsolePrinter {
+
     public static void print(Board board) {
 
         printSuite(board, PilesEnum.SUITE_CLUB);
@@ -94,5 +99,16 @@ public class BoardPrinter {
 
     private static Pile getPile(Board board, PilesEnum pilesEnum) {
         return board.getPiles().get(pilesEnum);
+    }
+
+    public static void printMovements(Board board, List<Movement> movements) {
+        if (movements != null) {
+            print(board);
+            for (Movement movement : movements) {
+                board.applyMovement(movement);
+                print(board);
+                System.out.println(movement);
+            }
+        }
     }
 }

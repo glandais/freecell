@@ -18,27 +18,59 @@ import java.util.stream.IntStream;
 
 public class TableauPile extends Pile {
 
-    public TableauPile(TableauPilesEnum tableauPilesEnum) {
+    private final boolean moveIncompleteStacks;
+
+    public TableauPile(TableauPilesEnum tableauPilesEnum, boolean moveIncompleteStacks) {
         super(tableauPilesEnum.getPilesEnum());
+        this.moveIncompleteStacks = moveIncompleteStacks;
     }
 
     public List<MovableStack> getMovableStacks() {
+        if (moveIncompleteStacks) {
+            return getAllStacks();
+        } else {
+            return getStacksSimple();
+        }
+    }
+
+    private List<MovableStack> getAllStacks() {
         return IntStream.range(0, getVisible().size())
                 .mapToObj(c -> {
                     List<CardEnum> cards = List.copyOf(getVisible().subList(c, getVisible().size()));
                     int score;
                     if (c == 0) {
-                        if (getHidden().isEmpty()) {
-                            score = -99;
-                        } else {
-                            score = -getHidden().size();
-                        }
+                        score = getAllStackScore();
                     } else {
                         score = 300;
                     }
                     return new MovableStack(this.pilesEnum, cards, score);
                 })
                 .toList();
+    }
+
+    private int getAllStackScore() {
+        int score;
+        if (getHidden().isEmpty()) {
+            score = -99;
+        } else {
+            score = -getHidden().size();
+        }
+        return score;
+    }
+
+    private List<MovableStack> getStacksSimple() {
+        List<MovableStack> movableStacks = new ArrayList<>(2);
+        // all stack
+        if (!getVisible().isEmpty()) {
+            List<CardEnum> cards = List.copyOf(getVisible());
+            movableStacks.add(new MovableStack(this.pilesEnum, cards, getAllStackScore()));
+        }
+        if (getVisible().size() > 1) {
+            List<CardEnum> cards = List.of(getVisible().getLast());
+            // single card
+            movableStacks.add(new MovableStack(this.pilesEnum, cards, 300));
+        }
+        return movableStacks;
     }
 
     @Override
@@ -80,7 +112,7 @@ public class TableauPile extends Pile {
     }
 
     @Override
-    public List<CardAction> performMovement(Movement movement) {
+    public List<CardAction> getActions(Movement movement) {
         MovableStack movableStack = movement.movableStack();
         List<CardEnum> cards = movableStack.cards();
         List<CardAction> actions = new ArrayList<>(cards.size() + 1);

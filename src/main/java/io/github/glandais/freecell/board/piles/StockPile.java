@@ -38,7 +38,7 @@ public class StockPile extends Pile {
     }
 
     @Override
-    public List<CardAction> performMovement(Movement movement) {
+    public List<CardAction> getActions(Movement movement) {
         MovableStack movableStack = movement.movableStack();
         // a single card
         if (movableStack.from() == this.pilesEnum) {

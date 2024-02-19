@@ -31,18 +31,19 @@ public class Board {
     public Board(long seed) {
         this.seed = seed;
         this.piles = new EnumMap<>(PilesEnum.class);
+        init();
+    }
+
+    public void init() {
+        this.piles.clear();
         this.piles.put(PilesEnum.STOCK, new StockPile());
         for (SuitePilesEnum suitePilesEnum : SuitePilesEnum.values()) {
             this.piles.put(suitePilesEnum.getPilesEnum(), new FoundationPile(suitePilesEnum));
         }
         for (TableauPilesEnum tableauPilesEnum : TableauPilesEnum.values()) {
-            this.piles.put(tableauPilesEnum.getPilesEnum(), new TableauPile(tableauPilesEnum));
+            this.piles.put(tableauPilesEnum.getPilesEnum(), new TableauPile(tableauPilesEnum, false));
         }
-        init(seed);
-    }
-
-    protected void init(long seed) {
-        Random random = new Random(seed);
+        Random random = new Random(this.seed);
         List<CardEnum> cardEnumList = new ArrayList<>(List.of(CardEnum.values()));
         Collections.shuffle(cardEnumList, random);
         for (TableauPilesEnum tableauPilesEnum : TableauPilesEnum.values()) {
@@ -72,19 +73,17 @@ public class Board {
                 }
             }
         }
-        movements.sort(Comparator.comparing(Movement::score));
+        movements.sort(Comparator.comparing(Movement::score).thenComparing(Movement::toString));
         return movements;
     }
 
     public List<CardAction> applyMovement(Movement movement) {
-        PilesEnum fromPilesEnum = movement.movableStack().from();
-        Pile from = getPile(fromPilesEnum);
-        PilesEnum toPilesEnum = movement.to();
-        Pile to = getPile(toPilesEnum);
+        Pile from = getPile(movement.movableStack().from());
+        Pile to = getPile(movement.to());
 
-        List<CardAction> actions = new ArrayList<>(from.performMovement(movement));
+        List<CardAction> actions = new ArrayList<>(from.getActions(movement));
         if (from.getPilesEnum() != to.getPilesEnum()) {
-            actions.addAll(to.performMovement(movement));
+            actions.addAll(to.getActions(movement));
         }
         applyActions(actions);
         return actions;
@@ -104,14 +103,29 @@ public class Board {
         }
     }
 
-    public List<List<CardEnum>> getState() {
-        List<List<CardEnum>> state = new ArrayList<>(24);
-        for (PilesEnum pilesEnum : PilesEnum.values()) {
-            Pile pile = getPiles().get(pilesEnum);
-            state.add(new ArrayList<>(pile.getHidden()));
-            state.add(new ArrayList<>(pile.getVisible()));
+    public State getState() {
+        List<CardEnum> foundations = new ArrayList<>(4);
+        for (int i = 0; i < 4; i++) {
+            Pile pile = getPile(SuitePilesEnum.values()[i].getPilesEnum());
+            if (pile.getVisible().isEmpty()) {
+                foundations.add(null);
+            } else {
+                foundations.add(pile.getVisible().getLast());
+            }
         }
-        return state;
+        Set<TableauState> tableauSet = new HashSet<>();
+        for (int i = 0; i < 7; i++) {
+            Pile pile = getPile(TableauPilesEnum.values()[i].getPilesEnum());
+            tableauSet.add(new TableauState(
+                    pile.getHidden(),
+                    pile.getVisible()
+            ));
+        }
+        return new State(
+                getPile(PilesEnum.STOCK).getVisible(),
+                foundations,
+                tableauSet
+        );
     }
 
     public boolean isFinished() {
