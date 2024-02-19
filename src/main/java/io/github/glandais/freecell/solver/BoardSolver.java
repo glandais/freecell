@@ -2,6 +2,7 @@ package io.github.glandais.freecell.solver;
 
 import io.github.glandais.freecell.board.Board;
 import io.github.glandais.freecell.board.Movement;
+import io.github.glandais.freecell.board.Movements;
 import io.github.glandais.freecell.board.State;
 import io.github.glandais.freecell.board.execution.CardAction;
 
@@ -14,19 +15,19 @@ import java.util.concurrent.atomic.AtomicLong;
 public class BoardSolver {
 
     private final Board board;
-    private Map<State, Integer> states = new HashMap<>();
+    private final Map<State, Integer> states = new HashMap<>();
 
     int level = 0;
     int bestLevel = 100_000;
-    List<Movement> bestMovements = null;
+    Movements bestMovements = null;
 
     // current path in tree
-    List<Movement> movementsStack = new ArrayList<>();
+    Movements movementsStack = new Movements();
     // actions performed in tree
     List<List<CardAction>> actionsStack = new ArrayList<>();
 
     // branches to explore in tree
-    Map<Integer, List<Movement>> movementsToExplore = new HashMap<>();
+    Map<Integer, Movements> movementsToExplore = new HashMap<>();
 
     long movements = 0;
     Map<Integer, AtomicLong> movementsPerLevel = new HashMap<>();
@@ -35,7 +36,7 @@ public class BoardSolver {
         this.board = board;
     }
 
-    public List<Movement> solve() {
+    public Movements solve() {
         // do while root has not been completely explored
         do {
             // we are trying to explore a suboptimal level
@@ -44,7 +45,7 @@ public class BoardSolver {
                 rollback();
             }
             // current unexplored movements at level
-            List<Movement> levelMovements = movementsToExplore.get(level);
+            Movements levelMovements = movementsToExplore.get(level);
             // no movements set for current level
             if (levelMovements == null) {
                 // get possible movements for current level
@@ -76,14 +77,16 @@ public class BoardSolver {
                         System.out.println("New best level : " + level + " at iteration " + movements);
                         // track best
                         bestLevel = level;
-                        bestMovements = new ArrayList<>(movementsStack);
+                        bestMovements = new Movements(movementsStack);
                     }
                 }
             } else {
                 // rollback, move level up
                 rollback();
             }
-        } while (movementsToExplore.get(0) != null && movements < 100_000);
+        } while (movementsToExplore.get(0) != null && movements < 1_000_000);
+
+        printStatus();
 
         this.board.init();
         return bestMovements;
@@ -93,16 +96,20 @@ public class BoardSolver {
         movements++;
         movementsPerLevel.computeIfAbsent(level, i -> new AtomicLong(0)).incrementAndGet();
         if (movements % 100_000 == 0) {
-            System.out.println("movements : " + movements);
-            System.out.println("movementsPerLevel : " + movementsPerLevel);
-            List<Tuple> tuples = movementsToExplore.entrySet().stream()
-                    .map(e -> new Tuple(e.getKey(), e.getValue().size()))
-                    .toList();
-            System.out.println("movementsToExplore count : " + tuples);
-            System.out.println("movementsToExplore : " + movementsToExplore);
-            System.out.println("movementsStack : " + movementsStack);
-            System.out.println("Best level : " + bestLevel + " at iteration " + bestMovements);
+            printStatus();
         }
+    }
+
+    private void printStatus() {
+        System.out.println("movements : " + movements);
+        System.out.println("movementsPerLevel : " + movementsPerLevel);
+        List<Tuple> tuples = movementsToExplore.entrySet().stream()
+                .map(e -> new Tuple(e.getKey(), e.getValue().size()))
+                .toList();
+        System.out.println("movementsToExplore count : " + tuples);
+        System.out.println("movementsToExplore : " + movementsToExplore);
+        System.out.println("movementsStack : " + movementsStack);
+        System.out.println("Best level : " + bestLevel + " : " + bestMovements);
     }
 
     private void rollback() {

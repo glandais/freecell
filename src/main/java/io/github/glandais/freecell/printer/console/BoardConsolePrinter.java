@@ -1,24 +1,23 @@
-package io.github.glandais.freecell.board.printer;
+package io.github.glandais.freecell.printer.console;
 
 import io.github.glandais.freecell.board.Board;
 import io.github.glandais.freecell.board.Movement;
+import io.github.glandais.freecell.board.Movements;
 import io.github.glandais.freecell.board.enums.PilesEnum;
 import io.github.glandais.freecell.board.enums.TableauPilesEnum;
 import io.github.glandais.freecell.board.piles.Pile;
 import io.github.glandais.freecell.cards.enums.CardColorEnum;
 import io.github.glandais.freecell.cards.enums.CardEnum;
-import lombok.experimental.UtilityClass;
+import io.github.glandais.freecell.printer.BoardPrinter;
 import org.fusesource.jansi.Ansi;
-
-import java.util.List;
 
 import static org.fusesource.jansi.Ansi.Color.*;
 import static org.fusesource.jansi.Ansi.ansi;
 
-@UtilityClass
-public class BoardConsolePrinter {
+public class BoardConsolePrinter implements BoardPrinter {
 
-    public static void print(Board board) {
+    @Override
+    public void print(Board board) {
 
         printSuite(board, PilesEnum.SUITE_CLUB);
         System.out.print(" ");
@@ -47,7 +46,7 @@ public class BoardConsolePrinter {
         }
     }
 
-    private static boolean printTableau(Board board, int row, PilesEnum pilesEnum) {
+    private boolean printTableau(Board board, int row, PilesEnum pilesEnum) {
         Pile pile = getPile(board, pilesEnum);
         if (row < pile.getHidden().size()) {
             printCard(pile.getHidden().get(row), true);
@@ -64,7 +63,7 @@ public class BoardConsolePrinter {
         return false;
     }
 
-    private static void printCard(CardEnum cardEnum, boolean hidden) {
+    private void printCard(CardEnum cardEnum, boolean hidden) {
         if (hidden) {
             System.out.print(cardEnum.getLabel());
         } else {
@@ -78,7 +77,7 @@ public class BoardConsolePrinter {
         }
     }
 
-    private static void printStock(Board board) {
+    private void printStock(Board board) {
         Pile pile = getPile(board, PilesEnum.STOCK);
         boolean first = true;
         for (CardEnum cardEnum : pile.getVisible().reversed()) {
@@ -88,7 +87,7 @@ public class BoardConsolePrinter {
         }
     }
 
-    private static void printSuite(Board board, PilesEnum pilesEnum) {
+    private void printSuite(Board board, PilesEnum pilesEnum) {
         Pile pile = getPile(board, pilesEnum);
         if (pile.getVisible().isEmpty()) {
             System.out.print("    ");
@@ -97,11 +96,12 @@ public class BoardConsolePrinter {
         }
     }
 
-    private static Pile getPile(Board board, PilesEnum pilesEnum) {
+    private Pile getPile(Board board, PilesEnum pilesEnum) {
         return board.getPiles().get(pilesEnum);
     }
 
-    public static void printMovements(Board board, List<Movement> movements) {
+    @Override
+    public void printMovements(Board board, Movements movements) {
         if (movements != null) {
             print(board);
             for (Movement movement : movements) {

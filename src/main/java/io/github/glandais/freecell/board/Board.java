@@ -63,8 +63,8 @@ public class Board {
         return piles.get(pilesEnum);
     }
 
-    public List<Movement> getPossibleMovements() {
-        List<Movement> movements = new ArrayList<>();
+    public Movements getPossibleMovements() {
+        Movements movements = new Movements();
         for (Pile from : piles.values()) {
             List<MovableStack> movableStacks = from.getMovableStacks();
             for (MovableStack movableStack : movableStacks) {
