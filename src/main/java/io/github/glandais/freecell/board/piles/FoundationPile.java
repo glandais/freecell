@@ -16,22 +16,23 @@ import java.util.Optional;
 
 public class FoundationPile extends Pile {
     private final CardSuiteEnum cardSuiteEnum;
+    private final boolean moveFromPile;
 
-    public FoundationPile(SuitePilesEnum suitePilesEnum) {
+    public FoundationPile(SuitePilesEnum suitePilesEnum, boolean moveFromPile) {
         super(suitePilesEnum.getPilesEnum());
         this.cardSuiteEnum = suitePilesEnum.getCardSuiteEnum();
+        this.moveFromPile = moveFromPile;
     }
 
     @Override
     public List<MovableStack> getMovableStacks() {
-        if (!getVisible().isEmpty()) {
+        if (moveFromPile && !getVisible().isEmpty()) {
             // top card can be used
             return List.of(
-                    new MovableStack(this.pilesEnum, List.of(getVisible().getLast()), 150)
+                    new MovableStack(this.pilesEnum, List.of(getVisible().getLast()))
             );
-        } else {
-            return List.of();
         }
+        return List.of();
     }
 
     @Override

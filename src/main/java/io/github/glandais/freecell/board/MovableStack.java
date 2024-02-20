@@ -5,5 +5,5 @@ import io.github.glandais.freecell.cards.enums.CardEnum;
 
 import java.util.List;
 
-public record MovableStack(PilesEnum from, List<CardEnum> cards, int score) {
+public record MovableStack(PilesEnum from, List<CardEnum> cards) {
 }

@@ -20,7 +20,7 @@ public class StockPile extends Pile {
     public List<MovableStack> getMovableStacks() {
         if (!getVisible().isEmpty()) {
             return List.of(
-                    new MovableStack(this.pilesEnum, List.of(getVisible().getLast()), 0)
+                    new MovableStack(this.pilesEnum, List.of(getVisible().getLast()))
             );
         } else {
             return List.of();

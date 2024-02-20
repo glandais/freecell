@@ -1,10 +1,8 @@
 package io.github.glandais.freecell.solver;
 
-import io.github.glandais.freecell.board.Board;
-import io.github.glandais.freecell.board.Movement;
-import io.github.glandais.freecell.board.Movements;
-import io.github.glandais.freecell.board.State;
+import io.github.glandais.freecell.board.*;
 import io.github.glandais.freecell.board.execution.CardAction;
+import io.github.glandais.freecell.cards.enums.StateCardEnum;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +27,11 @@ public class BoardSolver {
     // branches to explore in tree
     Map<Integer, Movements> movementsToExplore = new HashMap<>();
 
+    long loops = 0;
     long movements = 0;
+    long rollbacks = 0;
+    long newStates = 0;
+    long existingStates = 0;
     Map<Integer, AtomicLong> movementsPerLevel = new HashMap<>();
 
     public BoardSolver(Board board) {
@@ -84,7 +86,11 @@ public class BoardSolver {
                 // rollback, move level up
                 rollback();
             }
-        } while (movementsToExplore.get(0) != null && movements < 1_000_000);
+            loops++;
+            if (loops % 100_000 == 0) {
+                printStatus();
+            }
+        } while (movementsToExplore.get(0) != null && movements < 1_000_000 && bestMovements == null);
 
         printStatus();
 
@@ -95,13 +101,16 @@ public class BoardSolver {
     private void incMovements() {
         movements++;
         movementsPerLevel.computeIfAbsent(level, i -> new AtomicLong(0)).incrementAndGet();
-        if (movements % 100_000 == 0) {
-            printStatus();
-        }
     }
 
     private void printStatus() {
+        System.out.println("**************************************************");
+        System.out.println("loops : " + loops);
         System.out.println("movements : " + movements);
+        System.out.println("rollbacks : " + rollbacks);
+        System.out.println("newStates : " + newStates);
+        System.out.println("existingStates : " + existingStates);
+        System.out.println("states : " + states.size());
         System.out.println("movementsPerLevel : " + movementsPerLevel);
         List<Tuple> tuples = movementsToExplore.entrySet().stream()
                 .map(e -> new Tuple(e.getKey(), e.getValue().size()))
@@ -109,6 +118,7 @@ public class BoardSolver {
         System.out.println("movementsToExplore count : " + tuples);
         System.out.println("movementsToExplore : " + movementsToExplore);
         System.out.println("movementsStack : " + movementsStack);
+        System.out.println("level : " + level);
         System.out.println("Best level : " + bestLevel + " : " + bestMovements);
     }
 
@@ -123,18 +133,21 @@ public class BoardSolver {
         board.revertMovement(actions);
         // decrease level
         level = level - 1;
+        rollbacks++;
     }
 
     public boolean hasState() {
         State state = board.getState();
         Integer existingLevel = states.get(state);
+        if (existingLevel != null && existingLevel < 10) {
+            System.out.println(level);
+        }
         if (existingLevel == null || level < existingLevel) {
+            newStates++;
             states.put(state, level);
             return false;
         }
-        if (states.size() % 100_000 == 0) {
-            System.out.println("States : " + states.size());
-        }
+        existingStates++;
         return true;
     }
 

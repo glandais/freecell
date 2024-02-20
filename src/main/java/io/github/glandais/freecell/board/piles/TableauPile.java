@@ -3,6 +3,7 @@ package io.github.glandais.freecell.board.piles;
 import io.github.glandais.freecell.board.Board;
 import io.github.glandais.freecell.board.MovableStack;
 import io.github.glandais.freecell.board.Movement;
+import io.github.glandais.freecell.board.enums.PilesEnum;
 import io.github.glandais.freecell.board.enums.TableauPilesEnum;
 import io.github.glandais.freecell.board.execution.ActionEnum;
 import io.github.glandais.freecell.board.execution.CardAction;
@@ -37,25 +38,9 @@ public class TableauPile extends Pile {
         return IntStream.range(0, getVisible().size())
                 .mapToObj(c -> {
                     List<CardEnum> cards = List.copyOf(getVisible().subList(c, getVisible().size()));
-                    int score;
-                    if (c == 0) {
-                        score = getAllStackScore();
-                    } else {
-                        score = 300;
-                    }
-                    return new MovableStack(this.pilesEnum, cards, score);
+                    return new MovableStack(this.pilesEnum, cards);
                 })
                 .toList();
-    }
-
-    private int getAllStackScore() {
-        int score;
-        if (getHidden().isEmpty()) {
-            score = -99;
-        } else {
-            score = -getHidden().size();
-        }
-        return score;
     }
 
     private List<MovableStack> getStacksSimple() {
@@ -63,12 +48,12 @@ public class TableauPile extends Pile {
         // all stack
         if (!getVisible().isEmpty()) {
             List<CardEnum> cards = List.copyOf(getVisible());
-            movableStacks.add(new MovableStack(this.pilesEnum, cards, getAllStackScore()));
+            movableStacks.add(new MovableStack(this.pilesEnum, cards));
         }
         if (getVisible().size() > 1) {
             List<CardEnum> cards = List.of(getVisible().getLast());
             // single card
-            movableStacks.add(new MovableStack(this.pilesEnum, cards, 300));
+            movableStacks.add(new MovableStack(this.pilesEnum, cards));
         }
         return movableStacks;
     }
@@ -79,35 +64,67 @@ public class TableauPile extends Pile {
         if (movableStack.from() == this.pilesEnum) {
             return Optional.empty();
         }
-        // no visible -> empty tableau
         CardEnum first = movableStack.cards().getFirst();
-        if (getVisible().isEmpty()) {
-            // only for kings
-            if (first.getCardOrderEnum() == CardOrderEnum.KING) {
-                if (movableStack.cards().size() == board.getPile(movableStack.from()).getVisible().size() &&
-                        board.getPile(movableStack.from()).getHidden().isEmpty()
-                ) {
-                    // no need to move if king is already at the top
-                    return Optional.empty();
+        return switch (movableStack.from().getPileTypeEnum()) {
+            case STOCK -> {
+                if (isPossible(first)) {
+                    if (first.getCardOrderEnum() == CardOrderEnum.KING) {
+                        // king
+                        // seed 467230168 ?
+                        yield Optional.of(new Movement(movableStack, this.pilesEnum, -90));
+                    } else {
+                        yield Optional.of(new Movement(movableStack, this.pilesEnum, 0));
+                    }
                 } else {
-                    return Optional.of(new Movement(movableStack, this.pilesEnum, -100));
+                    yield Optional.empty();
                 }
-            } else {
-                return Optional.empty();
             }
+            case SUITE -> {
+                if (isPossible(first)) {
+                    yield Optional.of(new Movement(movableStack, this.pilesEnum, 150));
+                } else {
+                    yield Optional.empty();
+                }
+            }
+            case TABLEAU -> {
+                if (isPossible(first)) {
+                    if (movableStack.cards().size() == board.getPile(movableStack.from()).getVisible().size() &&
+                            board.getPile(movableStack.from()).getHidden().isEmpty()
+                    ) {
+                        // no need to move if king is already at the top
+                        yield Optional.empty();
+                    } else if (movableStack.cards().size() < board.getPile(movableStack.from()).getVisible().size()) {
+                        // do not move a sub list of visible cards
+                        yield Optional.empty();
+                    } else {
+                        if (first.getCardOrderEnum() == CardOrderEnum.KING) {
+                            // king
+                            yield Optional.of(new Movement(movableStack, this.pilesEnum, -100));
+                        } else {
+                            int hidden = board.getPile(movableStack.from()).getHidden().size();
+                            yield Optional.of(new Movement(movableStack, this.pilesEnum, -hidden));
+                        }
+                    }
+                } else {
+                    yield Optional.empty();
+                }
+            }
+        };
+    }
+
+    private boolean isPossible(CardEnum first) {
+        if (getVisible().isEmpty()) {
+            return first.getCardOrderEnum() == CardOrderEnum.KING;
         }
         CardEnum last = getVisible().getLast();
         CardColorEnum lastColor = last.getCardColorEnum();
         CardColorEnum firstColor = first.getCardColorEnum();
         if (lastColor == firstColor) {
-            return Optional.empty();
-        }
-        int lastOrder = last.getCardOrderEnum().getOrder();
-        int firstOrder = first.getCardOrderEnum().getOrder();
-        if (firstOrder + 1 == lastOrder) {
-            return Optional.of(new Movement(movableStack, this.pilesEnum, movableStack.score()));
+            return false;
         } else {
-            return Optional.empty();
+            int lastOrder = last.getCardOrderEnum().getOrder();
+            int firstOrder = first.getCardOrderEnum().getOrder();
+            return firstOrder + 1 == lastOrder;
         }
     }
 

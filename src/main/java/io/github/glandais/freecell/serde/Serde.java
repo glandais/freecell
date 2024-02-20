@@ -1,7 +1,6 @@
 package io.github.glandais.freecell.serde;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.glandais.freecell.BoardMovements;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 

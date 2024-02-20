@@ -1,5 +1,6 @@
 package io.github.glandais.freecell.board;
 
+import io.github.glandais.freecell.board.enums.PileTypeEnum;
 import io.github.glandais.freecell.board.enums.PilesEnum;
 import io.github.glandais.freecell.board.enums.SuitePilesEnum;
 import io.github.glandais.freecell.board.enums.TableauPilesEnum;
@@ -9,6 +10,7 @@ import io.github.glandais.freecell.board.piles.Pile;
 import io.github.glandais.freecell.board.piles.StockPile;
 import io.github.glandais.freecell.board.piles.TableauPile;
 import io.github.glandais.freecell.cards.enums.CardEnum;
+import io.github.glandais.freecell.cards.enums.CardOrderEnum;
 import lombok.Getter;
 
 import java.security.SecureRandom;
@@ -38,7 +40,7 @@ public class Board {
         this.piles.clear();
         this.piles.put(PilesEnum.STOCK, new StockPile());
         for (SuitePilesEnum suitePilesEnum : SuitePilesEnum.values()) {
-            this.piles.put(suitePilesEnum.getPilesEnum(), new FoundationPile(suitePilesEnum));
+            this.piles.put(suitePilesEnum.getPilesEnum(), new FoundationPile(suitePilesEnum, false));
         }
         for (TableauPilesEnum tableauPilesEnum : TableauPilesEnum.values()) {
             this.piles.put(tableauPilesEnum.getPilesEnum(), new TableauPile(tableauPilesEnum, false));
@@ -64,29 +66,40 @@ public class Board {
     }
 
     public Movements getPossibleMovements() {
-        Movements movements = new Movements();
-        for (Pile from : piles.values()) {
-            List<MovableStack> movableStacks = from.getMovableStacks();
-            for (MovableStack movableStack : movableStacks) {
-                for (Pile to : piles.values()) {
-                    to.accept(this, movableStack).ifPresent(movements::add);
+        synchronized (this) {
+            Movements movements = new Movements();
+            for (Pile from : piles.values()) {
+                List<MovableStack> movableStacks = from.getMovableStacks();
+                for (MovableStack movableStack : movableStacks) {
+                    for (Pile to : piles.values()) {
+                        to.accept(this, movableStack).ifPresent(movements::add);
+                    }
                 }
             }
+            movements.sort(Comparator.comparing(Movement::score).thenComparing(Movement::toString));
+            Optional<Movement> kingMovement = movements.stream()
+                    .filter(m -> m.movableStack().from() == PilesEnum.STOCK && m.to().getPileTypeEnum() == PileTypeEnum.TABLEAU && m.movableStack().cards().getLast().getCardOrderEnum() == CardOrderEnum.KING)
+                    .findAny();
+            if (kingMovement.isPresent()) {
+                return new Movements(List.of(kingMovement.get()));
+            } else {
+            return movements;
+            }
         }
-        movements.sort(Comparator.comparing(Movement::score).thenComparing(Movement::toString));
-        return movements;
     }
 
     public List<CardAction> applyMovement(Movement movement) {
-        Pile from = getPile(movement.movableStack().from());
-        Pile to = getPile(movement.to());
+        synchronized (this) {
+            Pile from = getPile(movement.movableStack().from());
+            Pile to = getPile(movement.to());
 
-        List<CardAction> actions = new ArrayList<>(from.getActions(movement));
-        if (from.getPilesEnum() != to.getPilesEnum()) {
-            actions.addAll(to.getActions(movement));
+            List<CardAction> actions = new ArrayList<>(from.getActions(movement));
+            if (from.getPilesEnum() != to.getPilesEnum()) {
+                actions.addAll(to.getActions(movement));
+            }
+            applyActions(actions);
+            return actions;
         }
-        applyActions(actions);
-        return actions;
     }
 
     private void applyActions(List<CardAction> actions) {
@@ -97,49 +110,46 @@ public class Board {
     }
 
     public void revertMovement(List<CardAction> actions) {
-        for (CardAction action : actions.reversed()) {
-            Pile pile = getPile(action.pilesEnum());
-            action.revert(pile);
+        synchronized (this) {
+            for (CardAction action : actions.reversed()) {
+                Pile pile = getPile(action.pilesEnum());
+                action.revert(pile);
+            }
         }
     }
 
     public State getState() {
-        List<CardEnum> foundations = new ArrayList<>(4);
-        for (int i = 0; i < 4; i++) {
-            Pile pile = getPile(SuitePilesEnum.values()[i].getPilesEnum());
-            if (pile.getVisible().isEmpty()) {
-                foundations.add(null);
-            } else {
-                foundations.add(pile.getVisible().getLast());
+        synchronized (this) {
+            Integer[] result = new Integer[76];
+            int i = 0;
+            for (Pile pile : piles.values()) {
+                for (CardEnum cardEnum : pile.getHidden()) {
+                    result[i++] = cardEnum.ordinal();
+                }
+                result[i++] = 255;
+                for (CardEnum cardEnum : pile.getVisible()) {
+                    result[i++] = cardEnum.ordinal();
+                }
+                result[i++] = 255;
             }
+            return new State(Arrays.asList(result));
         }
-        Set<TableauState> tableauSet = new HashSet<>();
-        for (int i = 0; i < 7; i++) {
-            Pile pile = getPile(TableauPilesEnum.values()[i].getPilesEnum());
-            tableauSet.add(new TableauState(
-                    pile.getHidden(),
-                    pile.getVisible()
-            ));
-        }
-        return new State(
-                getPile(PilesEnum.STOCK).getVisible(),
-                foundations,
-                tableauSet
-        );
     }
 
     public boolean isFinished() {
-        Pile pile = getPile(PilesEnum.STOCK);
-        if (pile.getVisible().size() > 1) {
-            return false;
-        }
-        for (TableauPilesEnum tableauPilesEnum : TableauPilesEnum.values()) {
-            pile = getPile(tableauPilesEnum.getPilesEnum());
-            if (!pile.getHidden().isEmpty()) {
+        synchronized (this) {
+            Pile pile = getPile(PilesEnum.STOCK);
+            if (pile.getVisible().size() > 1) {
                 return false;
             }
+            for (TableauPilesEnum tableauPilesEnum : TableauPilesEnum.values()) {
+                pile = getPile(tableauPilesEnum.getPilesEnum());
+                if (!pile.getHidden().isEmpty()) {
+                    return false;
+                }
+            }
+            return true;
         }
-        return true;
     }
 
 }

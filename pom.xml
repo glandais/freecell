@@ -16,6 +16,7 @@
         <lombok.version>1.18.30</lombok.version>
         <jansi.version>2.4.1</jansi.version>
         <jackson-databind.version>2.16.1</jackson-databind.version>
+        <SypherEngine.version>v0.5.0-M1.1</SypherEngine.version>
     </properties>
 
     <dependencies>
@@ -34,5 +35,16 @@
             <artifactId>jackson-databind</artifactId>
             <version>${jackson-databind.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.SypherEngine</groupId>
+            <artifactId>SypherEngine</artifactId>
+            <version>${SypherEngine.version}</version>
+        </dependency>
     </dependencies>
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
 </project>
