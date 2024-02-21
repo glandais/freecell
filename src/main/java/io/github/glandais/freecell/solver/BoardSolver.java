@@ -90,7 +90,8 @@ public class BoardSolver {
             if (loops % 100_000 == 0) {
                 printStatus();
             }
-        } while (movementsToExplore.get(0) != null && movements < 1_000_000 && bestMovements == null);
+        } while (movementsToExplore.get(0) != null && movements < 1_000_000);
+//    } while (movementsToExplore.get(0) != null && movements < 1_000_000 && bestMovements == null);
 
         printStatus();
 
