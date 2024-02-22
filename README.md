@@ -1,4 +1,4 @@
-# freecell
+# Solitaire Klondike
 
 ## Scores
 
