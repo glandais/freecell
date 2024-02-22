@@ -22,6 +22,8 @@ public class BoardConsolePrinter implements BoardPrinter {
     @Override
     public void print(Board board) {
 
+        Logger.infoln(board.getScore());
+        Logger.infoln(board.getState());
         printFoundation(board, PilesEnum.FOUNDATION_CLUB);
         Logger.info(" ");
         printFoundation(board, PilesEnum.FOUNDATION_HEART);
@@ -61,22 +63,26 @@ public class BoardConsolePrinter implements BoardPrinter {
                 return true;
             }
         }
-        Logger.info("    ");
+        Logger.info("  ");
         return false;
     }
 
     private void printCard(CardEnum cardEnum, boolean hidden) {
         if (hidden) {
-            Logger.info(cardEnum.getLabel());
+            Logger.info("XX");
         } else {
-            Ansi ansi = ansi();
-            if (cardEnum.getColorEnum() == ColorEnum.BLACK) {
-                ansi = ansi.fg(WHITE).bg(BLACK);
-            } else {
-                ansi = ansi.fg(BLACK).bg(RED);
-            }
-            Logger.info(ansi.a(cardEnum.getLabel()).reset());
+            Logger.info(getAnsi(cardEnum).a(cardEnum.getLabel()).reset());
         }
+    }
+
+    private static Ansi getAnsi(CardEnum cardEnum) {
+        Ansi ansi = ansi();
+        if (cardEnum.getColorEnum() == ColorEnum.BLACK) {
+            ansi = ansi.fg(WHITE).bg(BLACK);
+        } else {
+            ansi = ansi.fg(BLACK).bg(RED);
+        }
+        return ansi;
     }
 
     private void printStock(Board board) {

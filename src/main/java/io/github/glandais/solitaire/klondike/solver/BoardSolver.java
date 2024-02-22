@@ -67,21 +67,22 @@ public class BoardSolver {
                 if (hasState()) {
                     // already met state, rollback actions
                     board.revertMovement(actions);
-                } else {
-                    incMovements();
-                    // go deeper :
-                    // add movement to stack
-                    movementsStack.add(movement);
-                    // add actions to stack
-                    actionsStack.add(actions);
-                    // deeper level
-                    level = level + 1;
-
+                } else
                     // board finished and better ?
                     if (board.isFinished() && level < bestLevel) {
                         newBestLevel();
+                        // rollback actions
+                        board.revertMovement(actions);
+                    } else {
+                        incMovements();
+                        // go deeper :
+                        // add movement to stack
+                        movementsStack.add(movement);
+                        // add actions to stack
+                        actionsStack.add(actions);
+                        // deeper level
+                        level = level + 1;
                     }
-                }
             } else {
                 // rollback, move level up
                 rollback();
@@ -102,6 +103,7 @@ public class BoardSolver {
 
     private void newBestLevel() {
         Logger.infoln("New best level : " + level + " at iteration " + movements);
+        Logger.infoln(bestMovements);
         // track best
         bestLevel = level;
         bestMovements = new ArrayList<>(movementsStack);

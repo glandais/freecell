@@ -11,6 +11,7 @@ import io.github.glandais.solitaire.klondike.board.piles.StockPile;
 import io.github.glandais.solitaire.klondike.board.piles.TableauPile;
 import io.github.glandais.solitaire.klondike.cards.enums.CardEnum;
 import io.github.glandais.solitaire.klondike.cards.enums.OrderEnum;
+import io.github.glandais.solitaire.klondike.cards.enums.StateCardEnum;
 import lombok.Getter;
 
 import java.security.SecureRandom;
@@ -172,7 +173,9 @@ public class Board {
     }
 
     private void appendCard(StringBuilder sb, CardEnum cardEnum) {
-        sb.append((char) (32 + cardEnum.getStateCardEnum().ordinal()));
+        StateCardEnum stateCardEnum = cardEnum.getStateCardEnum();
+        sb.append(stateCardEnum.getColor().getLabel());
+        sb.append(stateCardEnum.getOrder().getLabel());
     }
 
     public boolean isFinished() {

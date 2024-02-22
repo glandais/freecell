@@ -1,5 +1,10 @@
 package io.github.glandais.solitaire.klondike.cards.enums;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+@Getter
 public enum StateCardEnum {
     ACE_BLACK(OrderEnum.ACE, ColorEnum.BLACK),
     ACE_RED(OrderEnum.ACE, ColorEnum.RED),
@@ -32,8 +37,4 @@ public enum StateCardEnum {
 
     final ColorEnum color;
 
-    StateCardEnum(OrderEnum order, ColorEnum color) {
-        this.order = order;
-        this.color = color;
-    }
 }

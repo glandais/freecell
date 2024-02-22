@@ -72,7 +72,7 @@ public enum CardEnum {
         this.suiteEnum = suiteEnum;
         this.colorEnum = colorEnum;
         this.stateCardEnum = stateCardEnum;
-        this.label = suiteEnum.getLabel() + " " + orderEnum.getLabel();
+        this.label = suiteEnum.getLabel() + orderEnum.getLabel();
     }
 
     @Override
