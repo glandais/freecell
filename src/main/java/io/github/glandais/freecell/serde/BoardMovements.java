@@ -1,6 +1,8 @@
 package io.github.glandais.freecell.serde;
 
-import io.github.glandais.freecell.board.Movements;
+import io.github.glandais.freecell.board.MovementScore;
 
-public record BoardMovements(long seed, Movements movements) {
+import java.util.List;
+
+public record BoardMovements(long seed, List<MovementScore> movements) {
 }

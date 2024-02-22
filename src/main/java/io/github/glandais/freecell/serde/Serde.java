@@ -12,12 +12,17 @@ public class Serde {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @SneakyThrows
-    public static void save(BoardMovements boardMovements) {
-        objectMapper.writeValue(new File("board.json"), boardMovements);
+    public static void save(String fileName, Object o) {
+        objectMapper.writeValue(new File(fileName), o);
     }
 
     @SneakyThrows
-    public static BoardMovements load() {
-        return objectMapper.readValue(new File("board.json"), BoardMovements.class);
+    public static String toJson(Object o) {
+        return objectMapper.writeValueAsString(o);
+    }
+
+    @SneakyThrows
+    public static <T> T load(String fileName, Class<T> clazz) {
+        return objectMapper.readValue(new File(fileName), clazz);
     }
 }

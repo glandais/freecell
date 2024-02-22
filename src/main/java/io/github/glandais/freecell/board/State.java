@@ -1,10 +1,6 @@
 package io.github.glandais.freecell.board;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Set;
 
-public class State extends ArrayList<Integer> {
-    public State(Collection<Integer> c) {
-        super(c);
-    }
+public record State(String piles, Set<String> tableauSet) {
 }

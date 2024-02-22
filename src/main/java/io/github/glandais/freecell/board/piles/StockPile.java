@@ -31,7 +31,7 @@ public class StockPile extends Pile {
     public Optional<Movement> accept(Board board, MovableStack movableStack) {
         if (movableStack.from() == this.pilesEnum) {
             // card can be discarded
-            return Optional.of(new Movement(movableStack, this.pilesEnum, 100));
+            return Optional.of(new Movement(movableStack, this.pilesEnum));
         }
         // no card can be moved to stock pile
         return Optional.empty();

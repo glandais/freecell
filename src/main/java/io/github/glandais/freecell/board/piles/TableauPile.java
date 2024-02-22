@@ -3,7 +3,6 @@ package io.github.glandais.freecell.board.piles;
 import io.github.glandais.freecell.board.Board;
 import io.github.glandais.freecell.board.MovableStack;
 import io.github.glandais.freecell.board.Movement;
-import io.github.glandais.freecell.board.enums.PilesEnum;
 import io.github.glandais.freecell.board.enums.TableauPilesEnum;
 import io.github.glandais.freecell.board.execution.ActionEnum;
 import io.github.glandais.freecell.board.execution.CardAction;
@@ -19,19 +18,21 @@ import java.util.stream.IntStream;
 
 public class TableauPile extends Pile {
 
-    private final boolean moveIncompleteStacks;
+//    private final boolean moveIncompleteStacks;
 
-    public TableauPile(TableauPilesEnum tableauPilesEnum, boolean moveIncompleteStacks) {
+    public TableauPile(TableauPilesEnum tableauPilesEnum
+//            , boolean moveIncompleteStacks
+    ) {
         super(tableauPilesEnum.getPilesEnum());
-        this.moveIncompleteStacks = moveIncompleteStacks;
+//        this.moveIncompleteStacks = moveIncompleteStacks;
     }
 
     public List<MovableStack> getMovableStacks() {
-        if (moveIncompleteStacks) {
-            return getAllStacks();
-        } else {
-            return getStacksSimple();
-        }
+//        if (moveIncompleteStacks) {
+//            return getAllStacks();
+//        } else {
+        return getStacksSimple();
+//        }
     }
 
     private List<MovableStack> getAllStacks() {
@@ -64,55 +65,33 @@ public class TableauPile extends Pile {
         if (movableStack.from() == this.pilesEnum) {
             return Optional.empty();
         }
-        CardEnum first = movableStack.cards().getFirst();
+        if (!isPossible(movableStack)) {
+            return Optional.empty();
+        }
         return switch (movableStack.from().getPileTypeEnum()) {
-            case STOCK -> {
-                if (isPossible(first)) {
-                    if (first.getCardOrderEnum() == CardOrderEnum.KING) {
-                        // king
-                        // seed 467230168 ?
-                        yield Optional.of(new Movement(movableStack, this.pilesEnum, -90));
-                    } else {
-                        yield Optional.of(new Movement(movableStack, this.pilesEnum, 0));
-                    }
-                } else {
-                    yield Optional.empty();
-                }
-            }
-            case SUITE -> {
-                if (isPossible(first)) {
-                    yield Optional.of(new Movement(movableStack, this.pilesEnum, 150));
-                } else {
-                    yield Optional.empty();
-                }
-            }
-            case TABLEAU -> {
-                if (isPossible(first)) {
-                    if (movableStack.cards().size() == board.getPile(movableStack.from()).getVisible().size() &&
-                            board.getPile(movableStack.from()).getHidden().isEmpty()
-                    ) {
-                        // no need to move if king is already at the top
-                        yield Optional.empty();
-                    } else if (movableStack.cards().size() < board.getPile(movableStack.from()).getVisible().size()) {
-                        // do not move a sub list of visible cards
-                        yield Optional.empty();
-                    } else {
-                        if (first.getCardOrderEnum() == CardOrderEnum.KING) {
-                            // king
-                            yield Optional.of(new Movement(movableStack, this.pilesEnum, -100));
-                        } else {
-                            int hidden = board.getPile(movableStack.from()).getHidden().size();
-                            yield Optional.of(new Movement(movableStack, this.pilesEnum, -hidden));
-                        }
-                    }
-                } else {
-                    yield Optional.empty();
-                }
-            }
+            case STOCK, SUITE -> Optional.of(new Movement(movableStack, this.pilesEnum));
+            case TABLEAU -> acceptFromTableau(board, movableStack);
         };
     }
 
-    private boolean isPossible(CardEnum first) {
+    private Optional<Movement> acceptFromTableau(Board board, MovableStack movableStack) {
+        // accept only full stacks
+        if (movableStack.cards().size() != board.getPile(movableStack.from()).getVisible().size()) {
+            return Optional.empty();
+        }
+        // do not move a king starting stack without hidden cards
+        if (
+                movableStack.cards().getFirst().getCardOrderEnum() == CardOrderEnum.KING &&
+                        board.getPile(movableStack.from()).getHidden().isEmpty()
+        ) {
+            return Optional.empty();
+        } else {
+            return Optional.of(new Movement(movableStack, this.pilesEnum));
+        }
+    }
+
+    private boolean isPossible(MovableStack movableStack) {
+        CardEnum first = movableStack.cards().getFirst();
         if (getVisible().isEmpty()) {
             return first.getCardOrderEnum() == CardOrderEnum.KING;
         }

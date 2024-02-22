@@ -9,7 +9,7 @@ import io.github.glandais.freecell.serde.Serde;
 public class Print {
 
     public static void main(String[] args) {
-        BoardMovements boardMovements = Serde.load();
+        BoardMovements boardMovements = Serde.load("board.json", BoardMovements.class);
         Board board = new Board(boardMovements.seed());
         BoardPrinter boardPrinter = new BoardGuiPrinter();
         boardPrinter.printMovements(board, boardMovements.movements());

@@ -1,11 +1,13 @@
 package io.github.glandais.freecell.cards.enums;
 
+import io.github.glandais.freecell.Logger;
+
 public class GenerateCards {
 
     public static void main(String[] args) {
         for (CardOrderEnum cardOrderEnum : CardOrderEnum.values()) {
             for (CardColorEnum cardColorEnum : CardColorEnum.values()) {
-                System.out.println(cardOrderEnum.name() + "_" + cardColorEnum.name() + "(" +
+                Logger.infoln(cardOrderEnum.name() + "_" + cardColorEnum.name() + "(" +
                         "CardOrderEnum." + cardOrderEnum.name() + "," +
                         "CardColorEnum." + cardColorEnum.name() +
                         "),");
@@ -13,12 +15,12 @@ public class GenerateCards {
             }
         }
 
-        System.out.println();
-        System.out.println();
+        Logger.infoln();
+        Logger.infoln();
 
         for (CardOrderEnum cardOrderEnum : CardOrderEnum.values()) {
             for (CardSuiteEnum cardSuiteEnum : CardSuiteEnum.values()) {
-                System.out.println(cardOrderEnum.name() + "_" + cardSuiteEnum.name() + "(" +
+                Logger.infoln(cardOrderEnum.name() + "_" + cardSuiteEnum.name() + "(" +
                         "CardOrderEnum." + cardOrderEnum.name() + "," +
                         "CardSuiteEnum." + cardSuiteEnum.name() + "," +
                         "CardColorEnum." + cardSuiteEnum.getCardColorEnum().name() + "," +
