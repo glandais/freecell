@@ -1,12 +1,12 @@
 package io.github.glandais.solitaire.klondike.printer.gui;
 
 import dev.aurumbyte.sypherengine.util.math.Vector2;
-import io.github.glandais.solitaire.klondike.board.Board;
-import io.github.glandais.solitaire.klondike.board.enums.FoundationPilesEnum;
-import io.github.glandais.solitaire.klondike.board.enums.PilesEnum;
-import io.github.glandais.solitaire.klondike.board.enums.TableauPilesEnum;
-import io.github.glandais.solitaire.klondike.board.piles.Pile;
-import io.github.glandais.solitaire.klondike.cards.enums.CardEnum;
+import io.github.glandais.solitaire.common.board.Board;
+import io.github.glandais.solitaire.common.board.Pile;
+import io.github.glandais.solitaire.common.cards.CardEnum;
+import io.github.glandais.solitaire.klondike.enums.FoundationPilesEnum;
+import io.github.glandais.solitaire.klondike.enums.KlondikePilesEnum;
+import io.github.glandais.solitaire.klondike.enums.TableauPilesEnum;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -23,38 +23,38 @@ public class PrintableBoard extends ArrayList<PrintableCard> {
         super(c);
     }
 
-    public PrintableBoard(Board board) {
+    public PrintableBoard(Board<KlondikePilesEnum> board) {
         super();
         synchronized (board) {
             addCards(board);
         }
     }
 
-    private void addCards(Board board) {
+    private void addCards(Board<KlondikePilesEnum> board) {
         for (FoundationPilesEnum foundationPilesEnum : FoundationPilesEnum.values()) {
-            Pile pile = board.getPile(foundationPilesEnum.getPilesEnum());
+            Pile<KlondikePilesEnum> pile = board.getPile(foundationPilesEnum.getKlondikePilesEnum());
             int i = 0;
-            for (CardEnum cardEnum : pile.getVisible()) {
+            for (CardEnum cardEnum : pile.visible()) {
                 add(new PrintableCard(cardEnum, getFoundationPosition(foundationPilesEnum.ordinal(), i++), true, -i));
             }
         }
-        Pile stock = board.getPile(PilesEnum.STOCK);
-        for (int i = 0; i < stock.getVisible().size(); i++) {
-            CardEnum cardEnum = stock.getVisible().get(i);
-            if (i == stock.getVisible().size() - 1) {
-                add(new PrintableCard(cardEnum, getStockVisiblePosition(), true, -i));
-            } else {
-                add(new PrintableCard(cardEnum, getStackHiddenPosition(i), false, i == 0 ? 100 : -i));
-            }
+        Pile<KlondikePilesEnum> stock = board.getPile(KlondikePilesEnum.STOCK);
+        for (int i = 0; i < stock.visible().size(); i++) {
+            CardEnum cardEnum = stock.visible().get(i);
+            add(new PrintableCard(cardEnum, getStockVisiblePosition(), true, 100));
+        }
+        for (int i = 0; i < stock.hidden().size(); i++) {
+            CardEnum cardEnum = stock.hidden().get(i);
+            add(new PrintableCard(cardEnum, getStackHiddenPosition(i), false, -i));
         }
         for (TableauPilesEnum tableauPilesEnum : TableauPilesEnum.values()) {
-            Pile pile = board.getPile(tableauPilesEnum.getPilesEnum());
+            Pile<KlondikePilesEnum> pile = board.getPile(tableauPilesEnum.getKlondikePilesEnum());
             int i = 0;
-            for (CardEnum cardEnum : pile.getHidden()) {
+            for (CardEnum cardEnum : pile.hidden()) {
                 add(new PrintableCard(cardEnum, getTableauPosition(tableauPilesEnum.ordinal(), i), false, 10));
                 i++;
             }
-            for (CardEnum cardEnum : pile.getVisible()) {
+            for (CardEnum cardEnum : pile.visible()) {
                 add(new PrintableCard(cardEnum, getTableauPosition(tableauPilesEnum.ordinal(), i), true, -i));
                 i++;
             }

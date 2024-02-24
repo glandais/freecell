@@ -1,6 +1,9 @@
 package io.github.glandais.solitaire.klondike.cards.enums;
 
-import io.github.glandais.solitaire.klondike.Logger;
+import io.github.glandais.solitaire.common.cards.ColorEnum;
+import io.github.glandais.solitaire.common.cards.OrderEnum;
+import io.github.glandais.solitaire.common.cards.SuiteEnum;
+import io.github.glandais.solitaire.common.Logger;
 
 public class GenerateCards {
 
