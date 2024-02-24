@@ -7,12 +7,16 @@ import io.github.glandais.solitaire.klondike.Klondike;
 import io.github.glandais.solitaire.klondike.enums.KlondikePilesEnum;
 import io.github.glandais.solitaire.klondike.printer.console.KlondikeConsolePrinter;
 import io.github.glandais.solitaire.klondike.serde.Serde;
+import picocli.CommandLine.Command;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
-public class Debug {
+@Command(name = "debug", mixinStandardHelpOptions = true)
+public class Debug implements Callable<Integer> {
 
-    public static void main(String[] args) {
+    @Override
+    public Integer call() {
         Board<KlondikePilesEnum> board = Serde.loadBoard("debug.json");
         new KlondikeConsolePrinter().print(board);
         Logger.infoln(Klondike.INSTANCE.getScore(board));
@@ -21,6 +25,7 @@ public class Debug {
         for (Movement<KlondikePilesEnum> possibleMovement : possibleMovements) {
             Logger.infoln(possibleMovement);
         }
+        return 0;
     }
 
 }

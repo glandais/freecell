@@ -24,7 +24,7 @@ import static org.fusesource.jansi.Ansi.ansi;
 public class KlondikeConsolePrinter implements SolitairePrinter<KlondikePilesEnum> {
 
     int cardHeight = 3;
-    int cardWidth = 3;
+    int cardWidth = 4;
 
     @Override
     public void stop() {
@@ -34,10 +34,8 @@ public class KlondikeConsolePrinter implements SolitairePrinter<KlondikePilesEnu
     @Override
     public void printMovements(Board<KlondikePilesEnum> board, List<MovementScore<KlondikePilesEnum>> moves) {
         if (moves != null) {
-            Logger.infoln(ansi().eraseScreen());
             print(board);
             for (Move<KlondikePilesEnum> move : moves) {
-                Logger.infoln(ansi().eraseScreen());
                 board.applyMovement(move);
                 print(board);
                 Logger.infoln(move);
@@ -130,22 +128,25 @@ public class KlondikeConsolePrinter implements SolitairePrinter<KlondikePilesEnu
             if (printableCard.hidden()) {
                 if (i + j < 2) {
                     Logger.info("░");
-                } else if (i + j >= 3) {
+                } else if (i + j >= 4) {
                     Logger.info("▒");
                 } else {
                     Logger.info("▓");
                 }
             } else {
                 String label = " ";
-                if ((i == 0 && j == 0) || (i == 2 && j == 2)) {
+                if (
+                        (i == 0 && (j == 0 || j == 2)) ||
+                                (i == 2 && j == 1)
+                ) {
                     label = printableCard.card().getSuiteEnum().getLabel();
                 } else if (printableCard.card().getOrderEnum() == OrderEnum.TEN) {
-                    if ((i == 1 && j == 0) || (i == 0 && j == 2)) {
+                    if (i == 2 && (j == 0 || j == 2)) {
                         label = "1";
-                    } else if ((i == 2 && j == 0) || (i == 1 && j == 2)) {
+                    } else if (i == 3 && (j == 0 || j == 2)) {
                         label = "0";
                     }
-                } else if ((i == 2 && j == 0) || (i == 0 && j == 2)) {
+                } else if (i == 3 && (j == 0 || j == 2)) {
                     label = "" + printableCard.card().getOrderEnum().getLabel();
                 }
                 Logger.info(ansi().bgBright(Ansi.Color.WHITE).fgBright(printableCard.card().getColorEnum() == ColorEnum.RED ? Ansi.Color.RED : Ansi.Color.BLACK).a(label).reset());

@@ -7,16 +7,23 @@ import io.github.glandais.solitaire.klondike.printer.console.KlondikeConsolePrin
 import io.github.glandais.solitaire.klondike.printer.gui.KlondikeGuiPrinter;
 import io.github.glandais.solitaire.klondike.serde.BoardMoves;
 import io.github.glandais.solitaire.klondike.serde.Serde;
+import picocli.CommandLine;
 
-public class Print {
+import java.util.concurrent.Callable;
 
-    public static void main(String[] args) {
+@CommandLine.Command(name = "print", mixinStandardHelpOptions = true)
+public class Print implements Callable<Integer> {
+
+    @Override
+    public Integer call() {
         BoardMoves boardMoves = Serde.load("board.json", BoardMoves.class);
         Board<KlondikePilesEnum> board = boardMoves.board();
-        SolitairePrinter<KlondikePilesEnum> solitairePrinter = new KlondikeConsolePrinter();
-        solitairePrinter.printMovements(board.copy(), boardMoves.moves());
-        solitairePrinter = new KlondikeGuiPrinter();
-        solitairePrinter.printMovements(board.copy(), boardMoves.moves());
+        KlondikeConsolePrinter klondikeConsolePrinter = new KlondikeConsolePrinter();
+        klondikeConsolePrinter.printMovements(board.copy(), boardMoves.moves());
+        KlondikeGuiPrinter klondikeGuiPrinter = new KlondikeGuiPrinter();
+        klondikeGuiPrinter.printMovements(board.copy(), boardMoves.moves());
+        klondikeGuiPrinter.awaitExit();
+        return 0;
     }
 
 }

@@ -17,8 +17,10 @@ import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
+import lombok.SneakyThrows;
 
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 public class KlondikeGuiPrinter extends GameManager implements SolitairePrinter<KlondikePilesEnum> {
 
@@ -38,6 +40,9 @@ public class KlondikeGuiPrinter extends GameManager implements SolitairePrinter<
 
     private final Map<CardEnum, Image> cards;
 
+    private final CountDownLatch cdl = new CountDownLatch(1);
+
+    @SneakyThrows
     public KlondikeGuiPrinter() {
         this.originalBoard = Klondike.INSTANCE.getRandomBoard();
         this.board = this.originalBoard.copy();
@@ -54,8 +59,14 @@ public class KlondikeGuiPrinter extends GameManager implements SolitairePrinter<
         SypherEngine.init(this, engineConfig);
         new Thread(() -> {
             SypherEngine.run();
+            cdl.countDown();
             System.exit(0);
         }).start();
+    }
+
+    @SneakyThrows
+    public void awaitExit() {
+        cdl.await();
     }
 
     private Image getImage(CardEnum cardEnum) {
@@ -174,4 +185,5 @@ public class KlondikeGuiPrinter extends GameManager implements SolitairePrinter<
     public void stop() {
         Platform.exit();
     }
+
 }

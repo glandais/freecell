@@ -2,3 +2,4 @@
 *.iml
 /target/
 board.json
+/dependency-reduced-pom.xml

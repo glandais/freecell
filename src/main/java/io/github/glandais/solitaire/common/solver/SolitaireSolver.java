@@ -19,6 +19,7 @@ public class SolitaireSolver<T extends PileType<T>> {
 
     private final Solitaire<T> solitaire;
     private final Board<T> originalBoard;
+    private final boolean follow;
     private Board<T> board;
     private final SolitairePrinter<T> printer;
     private final Map<State, Integer> states = new HashMap<>();
@@ -42,11 +43,12 @@ public class SolitaireSolver<T extends PileType<T>> {
     long existingStates = 0;
     Map<Integer, AtomicLong> movementsPerLevel = new HashMap<>();
 
-    public SolitaireSolver(Solitaire<T> solitaire, Board<T> board, SolitairePrinter<T> printer) {
+    public SolitaireSolver(Solitaire<T> solitaire, Board<T> board, SolitairePrinter<T> printer, boolean follow) {
         this.solitaire = solitaire;
         this.originalBoard = board.copy();
         this.board = originalBoard.copy();
         this.printer = printer;
+        this.follow = follow;
     }
 
     public List<MovementScore<T>> solve() {
@@ -97,6 +99,9 @@ public class SolitaireSolver<T extends PileType<T>> {
                 rollback();
             }
             loops++;
+            if (follow && loops % 10_000 == 0) {
+                printer.print(board);
+            }
             if (loops % 100_000 == 0) {
                 printStatus();
             }
@@ -147,6 +152,7 @@ public class SolitaireSolver<T extends PileType<T>> {
     private void newBestLevel() {
         Logger.infoln("New best level : " + level + " at iteration " + movements);
         Logger.infoln(bestMovements);
+        printer.print(board);
         // track best
         bestLevel = level;
         bestMovements = new ArrayList<>(movementsStack);
