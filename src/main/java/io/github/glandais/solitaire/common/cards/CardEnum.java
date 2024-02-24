@@ -65,6 +65,8 @@ public enum CardEnum {
 
     final StateCardEnum stateCardEnum;
 
+    final String longLabel;
+
     final String label;
 
     CardEnum(OrderEnum orderEnum, SuiteEnum suiteEnum, ColorEnum colorEnum, StateCardEnum stateCardEnum) {
@@ -72,7 +74,14 @@ public enum CardEnum {
         this.suiteEnum = suiteEnum;
         this.colorEnum = colorEnum;
         this.stateCardEnum = stateCardEnum;
-        this.label = suiteEnum.getLabel() + orderEnum.getLabel();
+        this.longLabel = suiteEnum.getLabel() + orderEnum.getLabel();
+        int suiteOrdinal = suiteEnum.ordinal();
+        int orderOrdinal = orderEnum.ordinal();
+        if (orderOrdinal > 10) {
+            orderOrdinal = orderOrdinal + 1;
+        }
+        int unicode = 0x1F0A1 + suiteOrdinal * 16 + orderOrdinal;
+        this.label = new String(Character.toChars(unicode));
     }
 
     @Override

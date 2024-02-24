@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum SuiteEnum {
-    HEART(ColorEnum.RED, "♡"),
-    DIAMOND(ColorEnum.RED, "♢"),
-    CLUB(ColorEnum.BLACK, "♧"),
-    SPADE(ColorEnum.BLACK, "♤");
+    SPADE(ColorEnum.BLACK, "♠"),
+    HEART(ColorEnum.RED, "♥"),
+    DIAMOND(ColorEnum.RED, "♦"),
+    CLUB(ColorEnum.BLACK, "♣");
 
     final ColorEnum colorEnum;
 
