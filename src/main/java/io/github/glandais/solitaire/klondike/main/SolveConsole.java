@@ -17,12 +17,12 @@ public class SolveConsole {
         // 1126119823
         Board<KlondikePilesEnum> board = Klondike.INSTANCE.getBoard(0);
         KlondikeConsolePrinter boardConsolePrinter = new KlondikeConsolePrinter();
-        boardConsolePrinter.print(board);
-        SolitaireSolver<KlondikePilesEnum> solitaireSolver = new SolitaireSolver<>(Klondike.INSTANCE, board, boardConsolePrinter);
+        boardConsolePrinter.print(board.copy());
+        SolitaireSolver<KlondikePilesEnum> solitaireSolver = new SolitaireSolver<>(Klondike.INSTANCE, board.copy(), boardConsolePrinter);
         List<MovementScore<KlondikePilesEnum>> moves = solitaireSolver.solve();
-        Serde.save("board.json", new BoardMoves(board, moves));
+        Serde.save("board.json", new BoardMoves(board.copy(), moves));
         if (moves != null) {
-            boardConsolePrinter.printMovements(board, moves);
+            boardConsolePrinter.printMovements(board.copy(), moves);
         }
     }
 

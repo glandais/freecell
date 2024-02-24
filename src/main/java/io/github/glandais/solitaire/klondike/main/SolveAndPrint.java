@@ -20,11 +20,11 @@ public class SolveAndPrint {
         Board<KlondikePilesEnum> board = Klondike.INSTANCE.getBoard(0);
         SolitairePrinter<KlondikePilesEnum> solitairePrinter = new KlondikeGuiPrinter();
         solitairePrinter.print(board);
-        SolitaireSolver<KlondikePilesEnum> solitaireSolver = new SolitaireSolver<>(Klondike.INSTANCE, board, new KlondikeConsolePrinter());
+        SolitaireSolver<KlondikePilesEnum> solitaireSolver = new SolitaireSolver<>(Klondike.INSTANCE, board.copy(), new KlondikeConsolePrinter());
         List<MovementScore<KlondikePilesEnum>> moves = solitaireSolver.solve();
         if (moves != null) {
-            Serde.save("board.json", new BoardMoves(board, moves));
-            solitairePrinter.printMovements(board, moves);
+            Serde.save("board.json", new BoardMoves(board.copy(), moves));
+            solitairePrinter.printMovements(board.copy(), moves);
         } else {
             solitairePrinter.stop();
         }

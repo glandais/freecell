@@ -19,13 +19,13 @@ public class SolveNoPrint {
         // 1126119823
         Board<KlondikePilesEnum> board = Klondike.INSTANCE.getBoard(0);
         KlondikeConsolePrinter klondikeConsolePrinter = new KlondikeConsolePrinter();
-        klondikeConsolePrinter.print(board);
-        SolitaireSolver<KlondikePilesEnum> solitaireSolver = new SolitaireSolver<>(Klondike.INSTANCE, board, klondikeConsolePrinter);
+        klondikeConsolePrinter.print(board.copy());
+        SolitaireSolver<KlondikePilesEnum> solitaireSolver = new SolitaireSolver<>(Klondike.INSTANCE, board.copy(), klondikeConsolePrinter);
         List<MovementScore<KlondikePilesEnum>> moves = solitaireSolver.solve();
-        Serde.save("board.json", new BoardMoves(board, moves));
+        Serde.save("board.json", new BoardMoves(board.copy(), moves));
         if (moves != null) {
             SolitairePrinter<KlondikePilesEnum> solitairePrinter = new KlondikeGuiPrinter();
-            solitairePrinter.printMovements(board, moves);
+            solitairePrinter.printMovements(board.copy(), moves);
         }
     }
 

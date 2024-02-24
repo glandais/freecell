@@ -14,9 +14,9 @@ public class Print {
         BoardMoves boardMoves = Serde.load("board.json", BoardMoves.class);
         Board<KlondikePilesEnum> board = boardMoves.board();
         SolitairePrinter<KlondikePilesEnum> solitairePrinter = new KlondikeConsolePrinter();
-        solitairePrinter.printMovements(board, boardMoves.moves());
+        solitairePrinter.printMovements(board.copy(), boardMoves.moves());
         solitairePrinter = new KlondikeGuiPrinter();
-        solitairePrinter.printMovements(board, boardMoves.moves());
+        solitairePrinter.printMovements(board.copy(), boardMoves.moves());
     }
 
 }

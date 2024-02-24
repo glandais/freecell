@@ -34,10 +34,10 @@ public class KlondikeConsolePrinter implements SolitairePrinter<KlondikePilesEnu
     @Override
     public void printMovements(Board<KlondikePilesEnum> board, List<MovementScore<KlondikePilesEnum>> moves) {
         if (moves != null) {
-            Logger.infoln();
+            Logger.infoln(ansi().eraseScreen());
             print(board);
             for (Move<KlondikePilesEnum> move : moves) {
-                Logger.infoln();
+                Logger.infoln(ansi().eraseScreen());
                 board.applyMovement(move);
                 print(board);
                 Logger.infoln(move);
