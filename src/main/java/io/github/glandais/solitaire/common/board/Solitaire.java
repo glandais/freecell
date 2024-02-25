@@ -13,7 +13,7 @@ public interface Solitaire<T extends PileType<T>> {
 
     Board<T> getBoard(long seed);
 
-    boolean isFinished(Board<T> board);
+    int movesToFinish(Board<T> board);
 
     List<MovementScore<T>> getMovementScores(Board<T> board, List<Movement<T>> possibleMovements);
 

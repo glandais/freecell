@@ -144,8 +144,10 @@ public class SolitaireSolver<T extends PileType<T>> {
                     board.revertMovement(actions);
                 } else
                     // board finished and better ?
-                    if (solitaire.isFinished(board) && level < bestLevel) {
-                        newBestLevel(movement);
+                {
+                    int movesToFinish = solitaire.movesToFinish(board);
+                    if (movesToFinish != 10000 && level + 1 + movesToFinish < bestLevel) {
+                        newBestLevel(movement, movesToFinish);
                         // rollback actions
                         board.revertMovement(actions);
                     } else {
@@ -158,6 +160,7 @@ public class SolitaireSolver<T extends PileType<T>> {
                         // deeper level
                         level = level + 1;
                     }
+                }
             } else {
                 // rollback, move level up
                 rollback();
@@ -186,16 +189,16 @@ public class SolitaireSolver<T extends PileType<T>> {
         return orderedMovements;
     }
 
-    private void newBestLevel(MovementScore<T> movement) {
+    private void newBestLevel(MovementScore<T> movement, int movesToFinish) {
         level++;
         // track best
-        bestLevel = level;
+        bestLevel = level + movesToFinish;
         bestMovements = new ArrayList<>(movementsStack);
         bestMovements.add(movement);
-        states.values().removeIf(l -> l > bestLevel);
+        states.values().removeIf(l -> l > level);
 
         Logger.infoln("****************");
-        Logger.infoln("New best level : " + level + " at iteration " + movements);
+        Logger.infoln("New best level : " + bestLevel + " at iteration " + movements);
         for (MovementScore<T> bestMovement : bestMovements) {
             Logger.infoln(bestMovement);
         }
