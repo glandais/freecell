@@ -26,6 +26,10 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
     }
 
     public List<CardAction<T>> applyMovement(Move<T> move) {
+        return applyMovement(move, true);
+    }
+
+    public List<CardAction<T>> applyMovement(Move<T> move, boolean reveal) {
         synchronized (this) {
 
             T fromPileType = move.from();
@@ -36,9 +40,9 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
             PlayablePile<T> to = toPileType.playablePile();
             Pile<T> pileTo = getPile(toPileType);
 
-            List<CardAction<T>> actions = new ArrayList<>(from.getActions(this, pileFrom, move));
+            List<CardAction<T>> actions = new ArrayList<>(from.getActions(this, pileFrom, move, reveal));
             if (fromPileType != toPileType) {
-                actions.addAll(to.getActions(this, pileTo, move));
+                actions.addAll(to.getActions(this, pileTo, move, reveal));
             }
             applyActions(actions);
             return actions;

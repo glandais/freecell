@@ -1,5 +1,6 @@
 package io.github.glandais.solitaire.klondike.main;
 
+import io.github.glandais.solitaire.klondike.Klondike;
 import io.github.glandais.solitaire.klondike.printer.gui.KlondikeGuiPrinter;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -15,6 +16,7 @@ public class Play implements Callable<Integer> {
     @Override
     public Integer call() {
         KlondikeGuiPrinter guiSolitairePrinter = new KlondikeGuiPrinter(true);
+        guiSolitairePrinter.print(Klondike.INSTANCE.getBoard(this.seed));
         guiSolitairePrinter.awaitExit();
         return 0;
     }

@@ -24,6 +24,8 @@ public class KlondikeGuiPrinter implements SolitairePrinter<KlondikePilesEnum> {
 
     private static final Image BACK = new Image(Objects.requireNonNull(KlondikeGuiPrinter.class.getResourceAsStream("/images/back.png")));
 
+    private static final Image WHITE = new Image(Objects.requireNonNull(KlondikeGuiPrinter.class.getResourceAsStream("/images/white.png")));
+
     private Board<KlondikePilesEnum> board;
     private List<MovementScore<KlondikePilesEnum>> moves;
     private float elapsed = 0.0f;
@@ -94,6 +96,7 @@ public class KlondikeGuiPrinter implements SolitairePrinter<KlondikePilesEnum> {
     }
 
     private void reset(Board<KlondikePilesEnum> board) {
+        System.out.println(board);
         this.board = board;
         this.printableBoardFrom = null;
         this.printableBoardTo = null;
@@ -206,17 +209,23 @@ public class KlondikeGuiPrinter implements SolitairePrinter<KlondikePilesEnum> {
     public void render(GraphicsContext renderer) {
         synchronized (this) {
             if (this.printableBoard != null) {
+                for (PrintableCard printableCard : printableBoard.getStarts()) {
+                    drawPrintableCard(renderer, printableCard);
+                }
                 for (PrintableCard printableCard : printableBoard) {
-                    Image image;
-                    if (printableCard.isFaceUp()) {
-                        image = cards.get(printableCard.getCard());
-                    } else {
-                        image = BACK;
-                    }
-                    renderer.drawImage(image, printableCard.getPosition().x, printableCard.getPosition().y, Constants.CARD_WIDTH, Constants.CARD_HEIGHT);
+                    drawPrintableCard(renderer, printableCard);
                 }
             }
         }
+    }
+
+    private void drawPrintableCard(GraphicsContext renderer, PrintableCard printableCard) {
+        Image image = switch (printableCard.getFace()) {
+            case FRONT -> cards.get(printableCard.getCard());
+            case BACK -> BACK;
+            case WHITE -> WHITE;
+        };
+        renderer.drawImage(image, printableCard.getPosition().x, printableCard.getPosition().y, Constants.CARD_WIDTH, Constants.CARD_HEIGHT);
     }
 
     @Override
@@ -248,4 +257,15 @@ public class KlondikeGuiPrinter implements SolitairePrinter<KlondikePilesEnum> {
         }
     }
 
+    public void undo() {
+        if (playable) {
+            playableBoard.undo();
+        }
+    }
+
+    public void redo() {
+        if (playable) {
+            playableBoard.redo();
+        }
+    }
 }

@@ -8,14 +8,15 @@ public class PrintableCard {
     CardEnum card;
     Vector2 position;
     Vector2 speed;
-    boolean faceUp;
+    PrintableCardFace face;
     int zIndex;
+    boolean dragged = false;
 
-    public PrintableCard(CardEnum card, Vector2 position, Vector2 speed, boolean faceUp, int zIndex) {
+    public PrintableCard(CardEnum card, Vector2 position, Vector2 speed, PrintableCardFace face, int zIndex) {
         this.card = card;
         this.position = position;
         this.speed = speed;
-        this.faceUp = faceUp;
+        this.face = face;
         this.zIndex = zIndex;
     }
 }

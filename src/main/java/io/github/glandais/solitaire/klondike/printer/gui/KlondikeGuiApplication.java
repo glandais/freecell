@@ -4,10 +4,10 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.scene.Group;
-import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -32,12 +32,24 @@ public class KlondikeGuiApplication extends Application {
     public void start(Stage stage) {
 
         // Sets everything needed for the objects to render
-        Group group = new Group();
-        Scene scene = new Scene(group, Constants.WIDTH, Constants.HEIGHT);
-        scene.setOnMouseClicked(e -> klondikeGuiPrinter.mouseClicked(e.getSceneX(), e.getSceneY(), e.getClickCount()));
-        scene.setOnMousePressed(e -> klondikeGuiPrinter.mousePressed(e.getSceneX(), e.getSceneY()));
-        scene.setOnMouseDragged(e -> klondikeGuiPrinter.mouseDragged(e.getSceneX(), e.getSceneY()));
-        scene.setOnMouseReleased(e -> klondikeGuiPrinter.mouseReleased(e.getSceneX(), e.getSceneY()));
+//        BorderPane root = new BorderPane();
+//        Button undo = new Button("Undo");
+//        undo.setOnAction(e -> klondikeGuiPrinter.undo());
+//        root.setBottom(new ToolBar(undo));
+        Group root = new Group();
+        Scene scene = new Scene(root, Constants.WIDTH, Constants.HEIGHT);
+        scene.setOnMouseClicked(e -> {
+            if (e.getButton() == MouseButton.BACK) {
+                klondikeGuiPrinter.undo();
+            } else if (e.getButton() == MouseButton.FORWARD) {
+                klondikeGuiPrinter.redo();
+            } else if (e.getButton() == MouseButton.PRIMARY) {
+                klondikeGuiPrinter.mouseClicked(e.getX(), e.getY(), e.getClickCount());
+            }
+        });
+        scene.setOnMousePressed(e -> klondikeGuiPrinter.mousePressed(e.getX(), e.getY()));
+        scene.setOnMouseDragged(e -> klondikeGuiPrinter.mouseDragged(e.getX(), e.getY()));
+        scene.setOnMouseReleased(e -> klondikeGuiPrinter.mouseReleased(e.getX(), e.getY()));
         scene.setOnKeyReleased(e -> klondikeGuiPrinter.keyReleased(e.getCode()));
 
         // The canvas to be rendered upon
@@ -51,16 +63,13 @@ public class KlondikeGuiApplication extends Application {
         Timeline gameLoop = new Timeline();
         gameLoop.setCycleCount(Timeline.INDEFINITE);
 
-        PerspectiveCamera camera = new PerspectiveCamera(false);
-        group.getChildren().add(canvas);
-        group.getChildren().add(camera);
+        root.getChildren().add(canvas);
 
         KeyFrame keyFrame = new KeyFrame(
                 Duration.seconds(1.0f / 60.0f), // 60 FPS
                 ae -> {
                     graphicsContext.setFill(Color.DARKGREEN);
                     graphicsContext.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-                    scene.setCamera(camera);
 
                     klondikeGuiPrinter.update(1.0f / 60.0f);
                     klondikeGuiPrinter.render(graphicsContext);

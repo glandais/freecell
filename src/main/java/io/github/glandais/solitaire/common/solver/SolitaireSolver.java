@@ -143,7 +143,7 @@ public class SolitaireSolver<T extends PileType<T>> {
                     // already met state, rollback actions
                     board.revertMovement(actions);
                 } else
-                    // board finished and better ?
+                // board finished and better ?
                 {
                     int movesToFinish = solitaire.movesToFinish(board);
                     if (movesToFinish != 10000 && level + 1 + movesToFinish < bestLevel) {
@@ -236,7 +236,8 @@ public class SolitaireSolver<T extends PileType<T>> {
         Logger.infoln("movementsToExplore : " + movementsToExplore);
         Logger.infoln("movementsStack : " + movementsStack);
         Logger.infoln("level : " + level);
-        Logger.infoln("Best level : " + bestLevel + " : " + bestMovements);
+        Logger.infoln("Best level : " + bestLevel + ", bestMovements : ");
+        Logger.infoln(bestMovements);
     }
 
     private void rollback() {

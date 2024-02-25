@@ -44,7 +44,7 @@ public class StockPile implements PlayablePile<KlondikePilesEnum> {
     }
 
     @Override
-    public List<CardAction<KlondikePilesEnum>> getActions(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, Move<KlondikePilesEnum> move) {
+    public List<CardAction<KlondikePilesEnum>> getActions(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, Move<KlondikePilesEnum> move, boolean reveal) {
         // a single card
         if (move.from() == KlondikePilesEnum.STOCK) {
             List<CardAction<KlondikePilesEnum>> actions = new ArrayList<>(4);
@@ -53,14 +53,14 @@ public class StockPile implements PlayablePile<KlondikePilesEnum> {
             if (!pile.visible().isEmpty() && cardEnum == pile.visible().getLast()) {
                 // remove top visible card
                 actions.add(new CardAction<>(KlondikePilesEnum.STOCK, TargetEnum.VISIBLE_LAST, ActionEnum.REMOVE, cardEnum));
-                if (move.to() == KlondikePilesEnum.STOCK) {
+                if (move.to() == KlondikePilesEnum.STOCK && reveal) {
                     // discard card
                     actions.add(new CardAction<>(KlondikePilesEnum.STOCK, TargetEnum.HIDDEN_FIRST, ActionEnum.ADD, cardEnum));
                 }
             }
 
             // put new card
-            if (!pile.hidden().isEmpty()) {
+            if (!pile.hidden().isEmpty() && reveal) {
                 CardEnum last = pile.hidden().getLast();
                 actions.add(new CardAction<>(KlondikePilesEnum.STOCK, TargetEnum.HIDDEN_LAST, ActionEnum.REMOVE, last));
                 actions.add(new CardAction<>(KlondikePilesEnum.STOCK, TargetEnum.VISIBLE_FIRST, ActionEnum.ADD, last));

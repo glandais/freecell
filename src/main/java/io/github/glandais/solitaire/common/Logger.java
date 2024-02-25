@@ -1,6 +1,17 @@
 package io.github.glandais.solitaire.common;
 
+import io.github.glandais.solitaire.common.cards.CardEnum;
+import io.github.glandais.solitaire.common.cards.ColorEnum;
+import io.github.glandais.solitaire.common.move.MovableStack;
+import io.github.glandais.solitaire.common.move.Move;
+import io.github.glandais.solitaire.common.move.Movement;
+import io.github.glandais.solitaire.common.move.MovementScore;
 import lombok.experimental.UtilityClass;
+import org.fusesource.jansi.Ansi;
+
+import java.util.Collection;
+
+import static org.fusesource.jansi.Ansi.ansi;
 
 @UtilityClass
 public class Logger {
@@ -9,12 +20,48 @@ public class Logger {
 
     public void debug(Object s) {
         if (DEBUG) {
-            System.out.println(s);
+            infoln(s);
         }
     }
 
     public void info(Object s) {
-        System.out.print(s);
+        if (s instanceof String str) {
+            System.out.print(str);
+        } else if (s instanceof CardEnum cardEnum) {
+            String label = cardEnum.getSuiteEnum().getLabel() + cardEnum.getOrderEnum().getLabel();
+            info(ansi().bgBright(Ansi.Color.WHITE).fgBright(cardEnum.getColorEnum() == ColorEnum.RED ? Ansi.Color.RED : Ansi.Color.BLACK).a(label).reset().toString());
+        } else if (s instanceof Collection<?> collection) {
+            info("[");
+            boolean first = true;
+            for (Object o : collection) {
+                if (!first) {
+                    info(",");
+                }
+                info(o);
+                first = false;
+            }
+            info("]");
+        } else if (s instanceof MovableStack<?> movableStack) {
+            info(movableStack.from());
+            info(" ");
+            info(movableStack.cards());
+        } else if (s instanceof MovementScore<?> movement) {
+            info(movement.from());
+            info("->");
+            info(movement.to());
+            info(" ");
+            info(movement.cards());
+            info(" ");
+            info(movement.score());
+        } else if (s instanceof Move<?> movement) {
+            info(movement.from());
+            info("->");
+            info(movement.to());
+            info(" ");
+            info(movement.cards());
+        } else {
+            System.out.print(s);
+        }
     }
 
     public void infoln() {
@@ -22,7 +69,8 @@ public class Logger {
     }
 
     public void infoln(Object s) {
-        System.out.println(s);
+        info(s);
+        infoln();
     }
 
 }
