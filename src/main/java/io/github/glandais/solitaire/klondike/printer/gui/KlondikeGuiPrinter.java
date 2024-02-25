@@ -29,8 +29,6 @@ public class KlondikeGuiPrinter extends GameManager implements SolitairePrinter<
     private static final Random R = new SecureRandom();
 
     private static final Image BACK = new Image(Objects.requireNonNull(KlondikeGuiPrinter.class.getResourceAsStream("/images/back.png")));
-    public static final int Y_BOUND = 960 - Constants.CARD_HEIGHT;
-    public static final int X_BOUND = 1280 - Constants.CARD_WIDTH;
 
     private Board<KlondikePilesEnum> originalBoard;
     private Board<KlondikePilesEnum> board;
@@ -57,7 +55,7 @@ public class KlondikeGuiPrinter extends GameManager implements SolitairePrinter<
         }
 
         EngineConfig engineConfig = new EngineConfig();
-        engineConfig.setWindowResolution(1280, 960);
+        engineConfig.setWindowResolution(Constants.WIDTH, Constants.HEIGHT);
         engineConfig.setTitle("klondike");
 
         SypherEngine.init(this, engineConfig);
@@ -186,8 +184,8 @@ public class KlondikeGuiPrinter extends GameManager implements SolitairePrinter<
                             );
                             printableCard.setSpeed(newSpeed);
                         }
-                        if (newPosition.xPos > X_BOUND) {
-                            newPosition.xPos = newPosition.xPos - (newPosition.xPos - X_BOUND);
+                        if (newPosition.xPos > Constants.X_BOUND) {
+                            newPosition.xPos = newPosition.xPos - (newPosition.xPos - Constants.X_BOUND);
                             newSpeed = new Vector2(
                                     -newSpeed.xPos,
                                     newSpeed.yPos
@@ -202,8 +200,8 @@ public class KlondikeGuiPrinter extends GameManager implements SolitairePrinter<
                             );
                             printableCard.setSpeed(newSpeed);
                         }
-                        if (newPosition.yPos > Y_BOUND) {
-                            newPosition.yPos = newPosition.yPos - (newPosition.yPos - Y_BOUND);
+                        if (newPosition.yPos > Constants.Y_BOUND) {
+                            newPosition.yPos = newPosition.yPos - (newPosition.yPos - Constants.Y_BOUND);
                             newSpeed = new Vector2(
                                     newSpeed.xPos * 0.9f,
                                     -newSpeed.yPos * 0.9f
