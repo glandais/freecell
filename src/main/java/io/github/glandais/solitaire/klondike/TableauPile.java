@@ -71,6 +71,9 @@ public class TableauPile implements PlayablePile<KlondikePilesEnum> {
     }
 
     private boolean isPossible(Pile<KlondikePilesEnum> pile, MovableStack<KlondikePilesEnum> movableStack) {
+        if (movableStack.cards().isEmpty()) {
+            return false;
+        }
         CardEnum first = movableStack.cards().getFirst();
         if (pile.visible().isEmpty()) {
             return first.getOrderEnum() == OrderEnum.KING;

@@ -18,7 +18,8 @@ public class Debug implements Callable<Integer> {
     @Override
     public Integer call() {
         Board<KlondikePilesEnum> board = Serde.loadBoard("debug.json");
-        new KlondikeConsolePrinter().print(board);
+        KlondikeConsolePrinter klondikeConsolePrinter = new KlondikeConsolePrinter();
+        klondikeConsolePrinter.print(board);
         Logger.infoln(Klondike.INSTANCE.getScore(board));
         Logger.infoln("possibleMovements");
         List<Movement<KlondikePilesEnum>> possibleMovements = board.computePossibleMovements();

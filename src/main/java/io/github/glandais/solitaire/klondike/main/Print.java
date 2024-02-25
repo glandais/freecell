@@ -19,9 +19,9 @@ public class Print implements Callable<Integer> {
         BoardMoves boardMoves = Serde.load("board.json", BoardMoves.class);
         Board<KlondikePilesEnum> board = boardMoves.board();
         KlondikeConsolePrinter klondikeConsolePrinter = new KlondikeConsolePrinter();
-        klondikeConsolePrinter.printMovements(board.copy(), boardMoves.moves());
+        klondikeConsolePrinter.printMovements(board, boardMoves.moves());
         KlondikeGuiPrinter klondikeGuiPrinter = new KlondikeGuiPrinter();
-        klondikeGuiPrinter.printMovements(board.copy(), boardMoves.moves());
+        klondikeGuiPrinter.printMovements(board, boardMoves.moves());
         klondikeGuiPrinter.awaitExit();
         return 0;
     }

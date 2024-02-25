@@ -40,7 +40,6 @@ public class Klondike implements Solitaire<KlondikePilesEnum> {
             pile.visible().add(cardEnum);
         }
         Pile<KlondikePilesEnum> pile = piles.get(KlondikePilesEnum.STOCK);
-        pile.visible().add(cardEnumList.removeLast());
         pile.hidden().addAll(cardEnumList);
         return new Board<>(piles);
     }
@@ -64,6 +63,9 @@ public class Klondike implements Solitaire<KlondikePilesEnum> {
 
     public int getScore(Board<KlondikePilesEnum> board) {
         int score = 0;
+        if (!board.getPile(KlondikePilesEnum.STOCK).visible().isEmpty()) {
+            score = score - 1_000_000;
+        }
         for (FoundationPilesEnum foundationPilesEnum : FoundationPilesEnum.values()) {
             Pile<?> pile = board.getPile(foundationPilesEnum.getKlondikePilesEnum());
             score = score - pile.visible().size() * 10_000;

@@ -39,13 +39,14 @@ public class PrintableBoard extends ArrayList<PrintableCard> {
             }
         }
         Pile<KlondikePilesEnum> stock = board.getPile(KlondikePilesEnum.STOCK);
+        int z = 0;
         for (int i = 0; i < stock.visible().size(); i++) {
             CardEnum cardEnum = stock.visible().get(i);
             add(new PrintableCard(cardEnum, getStockVisiblePosition(), true, 100));
         }
         for (int i = 0; i < stock.hidden().size(); i++) {
             CardEnum cardEnum = stock.hidden().get(i);
-            add(new PrintableCard(cardEnum, getStackHiddenPosition(i), false, -i));
+            add(new PrintableCard(cardEnum, getStackHiddenPosition(stock.hidden().size() - i), false, 200 + z--));
         }
         for (TableauPilesEnum tableauPilesEnum : TableauPilesEnum.values()) {
             Pile<KlondikePilesEnum> pile = board.getPile(tableauPilesEnum.getKlondikePilesEnum());
@@ -79,7 +80,7 @@ public class PrintableBoard extends ArrayList<PrintableCard> {
     }
 
     public PrintableBoard interpolate(PrintableBoard printableBoardTo, float delta) {
-        List<PrintableCard> cards = new ArrayList<>();
+         List<PrintableCard> cards = new ArrayList<>();
         Map<CardEnum, PrintableCard> toCards = printableBoardTo.stream()
                 .collect(Collectors.toMap(PrintableCard::card, Function.identity()));
         for (PrintableCard from : this) {
@@ -100,7 +101,7 @@ public class PrintableBoard extends ArrayList<PrintableCard> {
                         to.card(),
                         interpolate(from.position(), to.position(), delta),
                         delta < 0.5 ? from.faceUp() : to.faceUp(),
-                        to.zIndex() - 100
+                        to.zIndex() - 1000
                 ));
             }
         }

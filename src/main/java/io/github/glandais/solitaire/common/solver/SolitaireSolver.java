@@ -18,8 +18,6 @@ import java.util.stream.Collectors;
 public class SolitaireSolver<T extends PileType<T>> {
 
     private final Solitaire<T> solitaire;
-    private final Board<T> originalBoard;
-    private final boolean follow;
     private Board<T> board;
     private final SolitairePrinter<T> printer;
     private final Map<State, Integer> states = new HashMap<>();
@@ -43,12 +41,10 @@ public class SolitaireSolver<T extends PileType<T>> {
     long existingStates = 0;
     Map<Integer, AtomicLong> movementsPerLevel = new HashMap<>();
 
-    public SolitaireSolver(Solitaire<T> solitaire, Board<T> board, SolitairePrinter<T> printer, boolean follow) {
+    public SolitaireSolver(Solitaire<T> solitaire, Board<T> board, SolitairePrinter<T> printer) {
         this.solitaire = solitaire;
-        this.originalBoard = board.copy();
-        this.board = originalBoard.copy();
+        this.board = board;
         this.printer = printer;
-        this.follow = follow;
     }
 
     public List<MovementScore<T>> solve() {
@@ -99,19 +95,19 @@ public class SolitaireSolver<T extends PileType<T>> {
                 rollback();
             }
             loops++;
-            if (follow && loops % 10_000 == 0) {
-                printer.print(board);
-            }
             if (loops % 100_000 == 0) {
                 printStatus();
             }
 //            sleep(500);
-        } while (movementsToExplore.get(0) != null && loops < 10_000_000);
+        } while (movementsToExplore.get(0) != null && loops < 2_000_000);
 //        } while (movementsToExplore.get(0) != null && loops < 1_000_000 && bestMovements == null);
 
         printStatus();
+        while (!actionsStack.isEmpty()) {
+            rollback();
+        }
+        printStatus();
 
-        this.board = this.originalBoard.copy();
         return bestMovements;
     }
 
@@ -135,16 +131,15 @@ public class SolitaireSolver<T extends PileType<T>> {
     }
 
     private MovementScore<T> getMovementScoreWithMovementScore(Movement<T> movement) {
-        Board<T> oldBoard = board.copy();
         List<CardAction<T>> actions = board.applyMovement(movement);
         Board<T> newBoard = board.copy();
         board.revertMovement(actions);
 
-        int score = solitaire.getMovementScore(movement, newBoard, oldBoard);
+        int score = solitaire.getMovementScore(movement, newBoard, board);
         if (score == 0) {
             Logger.infoln("Unsupported movement ! " + movement);
 //            printer.print();
-            solitaire.getMovementScore(movement, newBoard, oldBoard);
+            solitaire.getMovementScore(movement, newBoard, board);
         }
         return new MovementScore<>(movement, score);
     }

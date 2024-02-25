@@ -2,7 +2,6 @@ package io.github.glandais.solitaire.klondike.main;
 
 import io.github.glandais.solitaire.common.board.Board;
 import io.github.glandais.solitaire.common.move.MovementScore;
-import io.github.glandais.solitaire.common.printer.SolitairePrinter;
 import io.github.glandais.solitaire.common.solver.SolitaireSolver;
 import io.github.glandais.solitaire.klondike.Klondike;
 import io.github.glandais.solitaire.klondike.enums.KlondikePilesEnum;
@@ -32,13 +31,17 @@ public class Solve implements Callable<Integer> {
         KlondikeGuiPrinter guiSolitairePrinter = new KlondikeGuiPrinter();
         KlondikeConsolePrinter klondikeConsolePrinter = new KlondikeConsolePrinter();
         klondikeConsolePrinter.print(board);
-        guiSolitairePrinter.print(board);
-        SolitaireSolver<KlondikePilesEnum> solitaireSolver = new SolitaireSolver<>(Klondike.INSTANCE, board.copy(), guiSolitairePrinter, follow);
+        if (follow) {
+            guiSolitairePrinter.print(board);
+        } else {
+            guiSolitairePrinter.print(board.copy());
+        }
+        SolitaireSolver<KlondikePilesEnum> solitaireSolver = new SolitaireSolver<>(Klondike.INSTANCE, board, guiSolitairePrinter);
         List<MovementScore<KlondikePilesEnum>> moves = solitaireSolver.solve();
         if (moves != null) {
-            Serde.save("board.json", new BoardMoves(board.copy(), moves));
-            klondikeConsolePrinter.printMovements(board.copy(), moves);
-            guiSolitairePrinter.printMovements(board.copy(), moves);
+            Serde.save("board.json", new BoardMoves(board, moves));
+            klondikeConsolePrinter.printMovements(board, moves);
+            guiSolitairePrinter.printMovements(board, moves);
         } else {
             guiSolitairePrinter.stop();
         }

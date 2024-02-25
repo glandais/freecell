@@ -32,8 +32,9 @@ public class KlondikeConsolePrinter implements SolitairePrinter<KlondikePilesEnu
     }
 
     @Override
-    public void printMovements(Board<KlondikePilesEnum> board, List<MovementScore<KlondikePilesEnum>> moves) {
+    public void printMovements(Board<KlondikePilesEnum> boardParam, List<MovementScore<KlondikePilesEnum>> moves) {
         if (moves != null) {
+            Board<KlondikePilesEnum> board = boardParam.copy();
             print(board);
             for (Move<KlondikePilesEnum> move : moves) {
                 board.applyMovement(move);
@@ -66,6 +67,8 @@ public class KlondikeConsolePrinter implements SolitairePrinter<KlondikePilesEnu
         if (!stock.visible().isEmpty()) {
             CardEnum visible = stock.visible().getFirst();
             printableCards.add(new PrintableCard(8 * (cardWidth + 1), 0, 0, false, visible, false));
+        } else {
+            printableCards.add(new PrintableCard(8 * (cardWidth + 1), 0, 0, true, null, false));
         }
         int di = 0;
         for (CardEnum hidden : stock.hidden()) {

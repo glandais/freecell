@@ -24,6 +24,10 @@ public class StockPile implements PlayablePile<KlondikePilesEnum> {
             return List.of(
                     new MovableStack<>(KlondikePilesEnum.STOCK, List.of(pile.visible().getLast()))
             );
+        } else if (!pile.hidden().isEmpty()) {
+            return List.of(
+                    new MovableStack<>(KlondikePilesEnum.STOCK, List.of())
+            );
         } else {
             return List.of();
         }
@@ -32,7 +36,7 @@ public class StockPile implements PlayablePile<KlondikePilesEnum> {
     @Override
     public Optional<Movement<KlondikePilesEnum>> accept(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, MovableStack<KlondikePilesEnum> movableStack) {
         if (movableStack.from() == KlondikePilesEnum.STOCK) {
-            // card can be discarded
+            // card can be discarded/picked
             return Optional.of(new Movement<>(movableStack, KlondikePilesEnum.STOCK));
         }
         // no card can be moved to stock pile
@@ -43,13 +47,15 @@ public class StockPile implements PlayablePile<KlondikePilesEnum> {
     public List<CardAction<KlondikePilesEnum>> getActions(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, Move<KlondikePilesEnum> move) {
         // a single card
         if (move.from() == KlondikePilesEnum.STOCK) {
-            CardEnum cardEnum = move.cards().getLast();
             List<CardAction<KlondikePilesEnum>> actions = new ArrayList<>(4);
-            // remove top visible card
-            actions.add(new CardAction<>(KlondikePilesEnum.STOCK, TargetEnum.VISIBLE_LAST, ActionEnum.REMOVE, cardEnum));
-            if (move.to() == KlondikePilesEnum.STOCK) {
-                // discard card
-                actions.add(new CardAction<>(KlondikePilesEnum.STOCK, TargetEnum.HIDDEN_FIRST, ActionEnum.ADD, cardEnum));
+            if (!move.cards().isEmpty()) {
+                CardEnum cardEnum = move.cards().getLast();
+                // remove top visible card
+                actions.add(new CardAction<>(KlondikePilesEnum.STOCK, TargetEnum.VISIBLE_LAST, ActionEnum.REMOVE, cardEnum));
+                if (move.to() == KlondikePilesEnum.STOCK) {
+                    // discard card
+                    actions.add(new CardAction<>(KlondikePilesEnum.STOCK, TargetEnum.HIDDEN_FIRST, ActionEnum.ADD, cardEnum));
+                }
             }
             // put new card
             if (!pile.hidden().isEmpty()) {

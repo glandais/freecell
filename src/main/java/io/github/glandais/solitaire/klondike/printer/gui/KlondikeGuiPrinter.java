@@ -44,9 +44,7 @@ public class KlondikeGuiPrinter extends GameManager implements SolitairePrinter<
 
     @SneakyThrows
     public KlondikeGuiPrinter() {
-        this.originalBoard = Klondike.INSTANCE.getRandomBoard();
-        this.board = this.originalBoard.copy();
-        this.moves = new ArrayList<>();
+        printMovements(Klondike.INSTANCE.getRandomBoard(), new ArrayList<>());
         cards = new EnumMap<>(CardEnum.class);
         for (CardEnum cardEnum : CardEnum.values()) {
             cards.put(cardEnum, getImage(cardEnum));
@@ -112,8 +110,8 @@ public class KlondikeGuiPrinter extends GameManager implements SolitairePrinter<
     }
 
     private void reset(Board<KlondikePilesEnum> board) {
+        this.board = board;
         this.originalBoard = board.copy();
-        this.board = this.originalBoard.copy();
         this.printableBoardFrom = null;
         this.printableBoardTo = null;
         this.printableBoard = null;
