@@ -34,10 +34,11 @@ public class KlondikeGuiApplication extends Application {
         // Sets everything needed for the objects to render
         Group group = new Group();
         Scene scene = new Scene(group, Constants.WIDTH, Constants.HEIGHT);
-        scene.setOnMouseClicked(e -> klondikeGuiPrinter.clicked(e.getSceneX(), e.getSceneY(), e.getClickCount()));
-        scene.setOnMousePressed(e -> klondikeGuiPrinter.pressed(e.getSceneX(), e.getSceneY()));
-        scene.setOnMouseDragged(e -> klondikeGuiPrinter.dragged(e.getSceneX(), e.getSceneY()));
-        scene.setOnMouseReleased(e -> klondikeGuiPrinter.released(e.getSceneX(), e.getSceneY()));
+        scene.setOnMouseClicked(e -> klondikeGuiPrinter.mouseClicked(e.getSceneX(), e.getSceneY(), e.getClickCount()));
+        scene.setOnMousePressed(e -> klondikeGuiPrinter.mousePressed(e.getSceneX(), e.getSceneY()));
+        scene.setOnMouseDragged(e -> klondikeGuiPrinter.mouseDragged(e.getSceneX(), e.getSceneY()));
+        scene.setOnMouseReleased(e -> klondikeGuiPrinter.mouseReleased(e.getSceneX(), e.getSceneY()));
+        scene.setOnKeyReleased(e -> klondikeGuiPrinter.keyReleased(e.getCode()));
 
         // The canvas to be rendered upon
         Canvas canvas = new Canvas(Constants.WIDTH, Constants.HEIGHT);

@@ -12,6 +12,7 @@ import io.github.glandais.solitaire.klondike.serde.Serde;
 import javafx.application.Platform;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import lombok.SneakyThrows;
 
 import java.security.SecureRandom;
@@ -23,8 +24,6 @@ public class KlondikeGuiPrinter implements SolitairePrinter<KlondikePilesEnum> {
 
     private static final Image BACK = new Image(Objects.requireNonNull(KlondikeGuiPrinter.class.getResourceAsStream("/images/back.png")));
 
-    boolean isRunning = false;
-
     private Board<KlondikePilesEnum> board;
     private List<MovementScore<KlondikePilesEnum>> moves;
     private float elapsed = 0.0f;
@@ -33,21 +32,17 @@ public class KlondikeGuiPrinter implements SolitairePrinter<KlondikePilesEnum> {
     PrintableBoard printableBoardFrom = null;
     PrintableBoard printableBoardTo = null;
     PrintableBoard printableBoard = null;
-    boolean spacePressed = false;
     boolean paused = false;
 
     private boolean playable;
+    private PlayableBoard playableBoard;
 
     private final Map<CardEnum, Image> cards;
 
     @SneakyThrows
     public KlondikeGuiPrinter(boolean playable) {
         this.playable = playable;
-        if (playable) {
-            reset(Klondike.INSTANCE.getRandomBoard());
-        } else {
-            printMovements(Klondike.INSTANCE.getRandomBoard(), new ArrayList<>());
-        }
+        print(Klondike.INSTANCE.getRandomBoard());
         cards = new EnumMap<>(CardEnum.class);
         for (CardEnum cardEnum : CardEnum.values()) {
             cards.put(cardEnum, getImage(cardEnum));
@@ -105,33 +100,24 @@ public class KlondikeGuiPrinter implements SolitairePrinter<KlondikePilesEnum> {
         this.printableBoard = new PrintableBoard(board);
         this.tick = -1;
         this.elapsed = 0.0f;
+        if (playable) {
+            playableBoard = new PlayableBoard(board, printableBoard);
+        }
     }
 
     public void update(float v) {
-        if (playable) {
-            updatePlayable(v);
-        } else {
+        if (!playable) {
             updateReplay(v);
         }
     }
 
-    private void updatePlayable(float v) {
-//        if (getInputHandler().mouseListener.isDown(MouseButton.PRIMARY)) {
-//            Point2D mousePos = getInputHandler().mouseListener.getMousePos();
-//            System.out.println(mousePos);
-//        }
+    public void keyReleased(KeyCode code) {
+        if (code == KeyCode.SPACE) {
+            paused = !paused;
+        }
     }
 
     private void updateReplay(float v) {
-//        boolean newSpacePressed = getInputHandler().keyListener.isDown(KeyCode.SPACE);
-        boolean newSpacePressed = false;
-        if (spacePressed != newSpacePressed) {
-            if (!newSpacePressed) {
-                paused = !paused;
-            }
-        }
-        spacePressed = newSpacePressed;
-
         if (paused) {
             return;
         }
@@ -238,67 +224,28 @@ public class KlondikeGuiPrinter implements SolitairePrinter<KlondikePilesEnum> {
         Platform.exit();
     }
 
-    public void clicked(double x, double y, int clickCount) {
-        if (clickCount == 2) {
-            System.out.println(getCardAt(x, y));
-        }
-    }
-
-    double startX, startY;
-    double origX, origY;
-    int origZ;
-    PrintableCard dragged = null;
-
-    public void pressed(double x, double y) {
+    public void mouseClicked(double x, double y, int clickCount) {
         if (playable) {
-            startX = x;
-            startY = y;
-            dragged = getCardAt(x, y);
-            if (dragged != null) {
-                origX = dragged.position.x;
-                origY = dragged.position.y;
-                origZ = dragged.zIndex;
-            }
+            playableBoard.mouseClicked(x, y, clickCount);
         }
     }
 
-    public void dragged(double x, double y) {
+    public void mousePressed(double x, double y) {
         if (playable) {
-            if (dragged != null) {
-                dragged.position.x = origX + (x - startX);
-                dragged.position.y = origY + (y - startY);
-                dragged.zIndex = -10000;
-                printableBoard.sort();
-            }
+            playableBoard.mousePressed(x, y);
         }
     }
 
-    public void released(double x, double y) {
+    public void mouseDragged(double x, double y) {
         if (playable) {
-            if (dragged != null) {
-                dragged.position.x = origX;
-                dragged.position.y = origY;
-                dragged.zIndex = origZ;
-                printableBoard.sort();
-            }
+            playableBoard.mouseDragged(x, y);
         }
     }
 
-    private PrintableCard getCardAt(double x, double y) {
-        for (PrintableCard printableCard : this.printableBoard.reversed()) {
-            if (inBounds(printableCard, x, y)) {
-                return printableCard;
-            }
+    public void mouseReleased(double x, double y) {
+        if (playable) {
+            playableBoard.mouseReleased(x, y);
         }
-        return null;
-    }
-
-    private boolean inBounds(PrintableCard printableCard, double x, double y) {
-        Vector2 position = printableCard.position;
-        return position.x <= x &&
-                x <= position.x + Constants.CARD_WIDTH &&
-                position.y <= y &&
-                y <= position.y + Constants.CARD_HEIGHT;
     }
 
 }

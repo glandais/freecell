@@ -73,15 +73,21 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
     }
 
     private void computePilesMovements(List<Movement<T>> movements) {
-        for (Pile<T> from : piles.values()) {
-            List<MovableStack<T>> movableStacks = from.pileType().playablePile().getMovableStacks(this, from);
-            computePileMovements(movements, from, movableStacks);
-        }
+        List<MovableStack<T>> movableStacks = getMovableStacks();
+        computePileMovements(movements, movableStacks);
     }
 
-    private void computePileMovements(List<Movement<T>> movements, Pile<T> from, List<MovableStack<T>> movableStacks) {
+    public List<MovableStack<T>> getMovableStacks() {
+        List<MovableStack<T>> movableStacks = new ArrayList<>();
+        for (Pile<T> from : piles.values()) {
+            movableStacks.addAll(from.pileType().playablePile().getMovableStacks(this, from));
+        }
+        return movableStacks;
+    }
+
+    private void computePileMovements(List<Movement<T>> movements, List<MovableStack<T>> movableStacks) {
         if (Logger.DEBUG) {
-            Logger.debug(from.pileType() + " movableStacks : " + movableStacks);
+            Logger.debug("movableStacks : " + movableStacks);
         }
         for (MovableStack<T> movableStack : movableStacks) {
             for (Pile<T> to : piles.values()) {
