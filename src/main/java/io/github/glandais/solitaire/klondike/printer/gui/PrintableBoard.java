@@ -1,6 +1,5 @@
 package io.github.glandais.solitaire.klondike.printer.gui;
 
-import dev.aurumbyte.sypherengine.util.math.Vector2;
 import io.github.glandais.solitaire.common.board.Board;
 import io.github.glandais.solitaire.common.board.Pile;
 import io.github.glandais.solitaire.common.cards.CardEnum;
@@ -19,8 +18,15 @@ import static io.github.glandais.solitaire.klondike.printer.gui.Constants.*;
 
 public class PrintableBoard extends ArrayList<PrintableCard> {
 
+    public static final Comparator<PrintableCard> COMPARATOR = Comparator.comparing(PrintableCard::getZIndex).reversed();
+
     protected PrintableBoard(List<PrintableCard> c) {
         super(c);
+        this.sort();
+    }
+
+    public void sort() {
+        sort(COMPARATOR);
     }
 
     public PrintableBoard(Board<KlondikePilesEnum> board) {
@@ -42,7 +48,7 @@ public class PrintableBoard extends ArrayList<PrintableCard> {
         int z = 0;
         for (int i = 0; i < stock.visible().size(); i++) {
             CardEnum cardEnum = stock.visible().get(i);
-            add(new PrintableCard(cardEnum, getStockVisiblePosition(), null, true, 100));
+            add(new PrintableCard(cardEnum, getStockVisiblePosition(), null, true, 100-i));
         }
         for (int i = 0; i < stock.hidden().size(); i++) {
             CardEnum cardEnum = stock.hidden().get(i);
@@ -52,7 +58,7 @@ public class PrintableBoard extends ArrayList<PrintableCard> {
             Pile<KlondikePilesEnum> pile = board.getPile(tableauPilesEnum.getKlondikePilesEnum());
             int i = 0;
             for (CardEnum cardEnum : pile.hidden()) {
-                add(new PrintableCard(cardEnum, getTableauPosition(tableauPilesEnum.ordinal(), i), null, false, 10));
+                add(new PrintableCard(cardEnum, getTableauPosition(tableauPilesEnum.ordinal(), i), null, false, 50-i));
                 i++;
             }
             for (CardEnum cardEnum : pile.visible()) {
@@ -60,7 +66,7 @@ public class PrintableBoard extends ArrayList<PrintableCard> {
                 i++;
             }
         }
-        sort(Comparator.comparing(PrintableCard::getZIndex).reversed());
+        sort(COMPARATOR);
     }
 
     private Vector2 getTableauPosition(int ordinal, int i) {
@@ -80,12 +86,12 @@ public class PrintableBoard extends ArrayList<PrintableCard> {
     }
 
     public PrintableBoard interpolate(PrintableBoard printableBoardTo, float delta) {
-         List<PrintableCard> cards = new ArrayList<>();
+        List<PrintableCard> cards = new ArrayList<>();
         Map<CardEnum, PrintableCard> toCards = printableBoardTo.stream()
                 .collect(Collectors.toMap(PrintableCard::getCard, Function.identity()));
         for (PrintableCard from : this) {
             PrintableCard to = toCards.get(from.getCard());
-            if (Vector2.distance(from.getPosition(), to.getPosition()) < 0.1) {
+            if (from.getPosition().distance(to.getPosition()) < 0.1) {
                 cards.add(new PrintableCard(
                         to.getCard(),
                         to.getPosition(),
@@ -97,7 +103,7 @@ public class PrintableBoard extends ArrayList<PrintableCard> {
         }
         for (PrintableCard from : this) {
             PrintableCard to = toCards.get(from.getCard());
-            if (Vector2.distance(from.getPosition(), to.getPosition()) >= 0.1) {
+            if (from.getPosition().distance(to.getPosition()) >= 0.1) {
                 cards.add(new PrintableCard(
                         to.getCard(),
                         interpolate(from.getPosition(), to.getPosition(), delta),
@@ -107,13 +113,12 @@ public class PrintableBoard extends ArrayList<PrintableCard> {
                 ));
             }
         }
-        cards.sort(Comparator.comparing(PrintableCard::getZIndex).reversed());
         return new PrintableBoard(cards);
     }
 
     private Vector2 interpolate(Vector2 from, Vector2 to, float delta) {
-        float x = from.xPos + (to.xPos - from.xPos) * delta;
-        float y = from.yPos + (to.yPos - from.yPos) * delta;
+        double x = from.x + (to.x - from.x) * delta;
+        double y = from.y + (to.y - from.y) * delta;
         return new Vector2(x, y);
     }
 }

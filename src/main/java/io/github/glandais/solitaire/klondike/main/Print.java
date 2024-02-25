@@ -19,7 +19,7 @@ public class Print implements Callable<Integer> {
         Board<KlondikePilesEnum> board = boardMoves.board();
         KlondikeConsolePrinter klondikeConsolePrinter = new KlondikeConsolePrinter();
         klondikeConsolePrinter.printMovements(board, boardMoves.moves());
-        KlondikeGuiPrinter klondikeGuiPrinter = new KlondikeGuiPrinter();
+        KlondikeGuiPrinter klondikeGuiPrinter = new KlondikeGuiPrinter(false);
         klondikeGuiPrinter.printMovements(board, boardMoves.moves());
         klondikeGuiPrinter.awaitExit();
         return 0;

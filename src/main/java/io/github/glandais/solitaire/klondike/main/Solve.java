@@ -28,7 +28,7 @@ public class Solve implements Callable<Integer> {
     public Integer call() {
         // 1126119823
         Board<KlondikePilesEnum> board = Klondike.INSTANCE.getBoard(this.seed);
-        KlondikeGuiPrinter guiSolitairePrinter = new KlondikeGuiPrinter();
+        KlondikeGuiPrinter guiSolitairePrinter = new KlondikeGuiPrinter(false);
         KlondikeConsolePrinter klondikeConsolePrinter = new KlondikeConsolePrinter();
         klondikeConsolePrinter.print(board);
         if (follow) {

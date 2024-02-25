@@ -6,7 +6,7 @@ import picocli.CommandLine.Command;
 import java.util.concurrent.Callable;
 
 @Command(name = "klondike", mixinStandardHelpOptions = true, subcommands = {Debug.class,
-        Print.class, Solve.class})
+        Print.class, Solve.class, Play.class})
 public class KlondikeCommands implements Callable<Integer> {
 
     @CommandLine.Spec

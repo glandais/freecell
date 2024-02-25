@@ -16,8 +16,8 @@
         <lombok.version>1.18.30</lombok.version>
         <jansi.version>2.4.1</jansi.version>
         <jackson-databind.version>2.16.1</jackson-databind.version>
-        <SypherEngine.version>v0.5.0-M1.1</SypherEngine.version>
         <picocli.version>4.7.5</picocli.version>
+        <javafx.version>21.0.2</javafx.version>
     </properties>
 
     <dependencies>
@@ -38,9 +38,9 @@
             <version>${jackson-databind.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.SypherEngine</groupId>
-            <artifactId>SypherEngine</artifactId>
-            <version>${SypherEngine.version}</version>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>info.picocli</groupId>
