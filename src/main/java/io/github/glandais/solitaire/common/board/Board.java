@@ -8,6 +8,8 @@ import io.github.glandais.solitaire.common.move.Move;
 import io.github.glandais.solitaire.common.move.Movement;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
 
@@ -92,10 +94,10 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
         }
     }
 
-    public State computeState() {
+    public String computeState() {
         synchronized (this) {
             List<String> orderedTiles = new ArrayList<>();
-            Set<String> unorderedTiles = new HashSet<>();
+            List<String> unorderedTiles = new ArrayList<>();
             for (Map.Entry<T, Pile<T>> entry : piles.entrySet()) {
                 String pileState = computeState(entry.getValue());
                 if (entry.getKey().isSwappable()) {
@@ -104,7 +106,11 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
                     orderedTiles.add(pileState);
                 }
             }
-            return new State(orderedTiles, unorderedTiles);
+            return Stream.concat(
+                            unorderedTiles.stream().sorted(),
+                            orderedTiles.stream()
+                    )
+                    .collect(Collectors.joining());
         }
     }
 
@@ -113,7 +119,7 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
         for (CardEnum cardEnum : pile.hidden()) {
             stringBuilder.append(cardEnum.toString());
         }
-        stringBuilder.append("z");
+        stringBuilder.append(",");
         for (CardEnum cardEnum : pile.visible()) {
             stringBuilder.append(cardEnum.toString());
         }

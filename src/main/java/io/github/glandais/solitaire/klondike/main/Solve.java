@@ -25,7 +25,7 @@ public class Solve implements Callable<Integer> {
     boolean follow;
 
     @Override
-    public Integer call() throws Exception {
+    public Integer call() {
         // 1126119823
         Board<KlondikePilesEnum> board = Klondike.INSTANCE.getBoard(this.seed);
         KlondikeGuiPrinter guiSolitairePrinter = new KlondikeGuiPrinter();
@@ -36,12 +36,13 @@ public class Solve implements Callable<Integer> {
         } else {
             guiSolitairePrinter.print(board.copy());
         }
-        SolitaireSolver<KlondikePilesEnum> solitaireSolver = new SolitaireSolver<>(Klondike.INSTANCE, board, guiSolitairePrinter);
+        SolitaireSolver<KlondikePilesEnum> solitaireSolver = new SolitaireSolver<>(Klondike.INSTANCE, board);
         List<MovementScore<KlondikePilesEnum>> moves = solitaireSolver.solve();
         if (moves != null) {
             Serde.save("board.json", new BoardMoves(board, moves));
             klondikeConsolePrinter.printMovements(board, moves);
             guiSolitairePrinter.printMovements(board, moves);
+            guiSolitairePrinter.awaitExit();
         } else {
             guiSolitairePrinter.stop();
         }

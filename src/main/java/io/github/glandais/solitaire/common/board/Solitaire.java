@@ -1,8 +1,10 @@
 package io.github.glandais.solitaire.common.board;
 
 import io.github.glandais.solitaire.common.move.Movement;
+import io.github.glandais.solitaire.common.move.MovementScore;
 
 import java.security.SecureRandom;
+import java.util.List;
 
 public interface Solitaire<T extends PileType<T>> {
     default Board<T> getRandomBoard() {
@@ -13,7 +15,7 @@ public interface Solitaire<T extends PileType<T>> {
 
     boolean isFinished(Board<T> board);
 
-    int getScore(Board<T> board);
+    List<MovementScore<T>> getMovementScores(Board<T> board, List<Movement<T>> possibleMovements);
 
-    int getMovementScore(Movement<T> movement, Board<T> newBoard, Board<T> oldBoard);
+    int getScore(Board<T> board);
 }
