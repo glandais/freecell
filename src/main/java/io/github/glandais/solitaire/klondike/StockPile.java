@@ -26,7 +26,7 @@ public class StockPile implements PlayablePile<KlondikePilesEnum> {
             );
         } else if (!pile.hidden().isEmpty()) {
             return List.of(
-                    new MovableStack<>(KlondikePilesEnum.STOCK, List.of())
+                    new MovableStack<>(KlondikePilesEnum.STOCK, List.of(pile.hidden().getFirst()))
             );
         } else {
             return List.of();
@@ -48,8 +48,9 @@ public class StockPile implements PlayablePile<KlondikePilesEnum> {
         // a single card
         if (move.from() == KlondikePilesEnum.STOCK) {
             List<CardAction<KlondikePilesEnum>> actions = new ArrayList<>(4);
-            if (!move.cards().isEmpty()) {
-                CardEnum cardEnum = move.cards().getLast();
+
+            CardEnum cardEnum = move.cards().getLast();
+            if (!pile.visible().isEmpty() && cardEnum == pile.visible().getLast()) {
                 // remove top visible card
                 actions.add(new CardAction<>(KlondikePilesEnum.STOCK, TargetEnum.VISIBLE_LAST, ActionEnum.REMOVE, cardEnum));
                 if (move.to() == KlondikePilesEnum.STOCK) {
@@ -57,6 +58,7 @@ public class StockPile implements PlayablePile<KlondikePilesEnum> {
                     actions.add(new CardAction<>(KlondikePilesEnum.STOCK, TargetEnum.HIDDEN_FIRST, ActionEnum.ADD, cardEnum));
                 }
             }
+
             // put new card
             if (!pile.hidden().isEmpty()) {
                 CardEnum last = pile.hidden().getLast();
