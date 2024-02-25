@@ -21,12 +21,16 @@ public class StockPile implements PlayablePile<KlondikePilesEnum> {
     @Override
     public List<MovableStack<KlondikePilesEnum>> getMovableStacks(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile) {
         if (!pile.visible().isEmpty()) {
-            return List.of(
-                    new MovableStack<>(KlondikePilesEnum.STOCK, List.of(pile.visible().getLast()))
-            );
+            if (pile.hidden().isEmpty() && pile.visible().size() == 1) {
+                return List.of();
+            } else {
+                return List.of(
+                        new MovableStack<>(KlondikePilesEnum.STOCK, List.of(pile.visible().getLast()))
+                );
+            }
         } else if (!pile.hidden().isEmpty()) {
             return List.of(
-                    new MovableStack<>(KlondikePilesEnum.STOCK, List.of(pile.hidden().getFirst()))
+                    new MovableStack<>(KlondikePilesEnum.STOCK, List.of(pile.hidden().getLast()))
             );
         } else {
             return List.of();

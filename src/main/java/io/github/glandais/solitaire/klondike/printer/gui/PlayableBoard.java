@@ -9,6 +9,7 @@ import io.github.glandais.solitaire.klondike.enums.KlondikePilesEnum;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class PlayableBoard {
 
@@ -66,6 +67,15 @@ public class PlayableBoard {
 
     public void mouseClicked(double x, double y, int clickCount) {
         if (clickCount == 2) {
+            if (printableBoard.getPileEnum(x, y) == KlondikePilesEnum.STOCK) {
+                Optional<Movement<KlondikePilesEnum>> stockToStock = possibleMovements.stream()
+                        .filter(m -> m.from() == KlondikePilesEnum.STOCK && m.to() == KlondikePilesEnum.STOCK)
+                        .findFirst();
+                if (stockToStock.isPresent()) {
+                    apply(stockToStock.get());
+                    return;
+                }
+            }
             PrintableCard cardAt = printableBoard.getCardAt(x, y);
             if (cardAt != null) {
                 List<Movement<KlondikePilesEnum>> matchedMovements = possibleMovements
@@ -89,11 +99,13 @@ public class PlayableBoard {
     public void mousePressed(double x, double y) {
         dragX = x;
         dragY = y;
+        initDrag();
+    }
 
-        dragged = null;
+    public void initDrag() {
+        this.dragged = null;
         this.draggedStack = null;
-        PrintableCard cardAt = printableBoard.getCardAt(x, y);
-        System.out.println(cardAt);
+        PrintableCard cardAt = printableBoard.getCardAt(dragX, dragY);
         if (cardAt != null) {
             List<MovableStack<KlondikePilesEnum>> matchedMovements = movableStacks
                     .stream()
@@ -116,11 +128,11 @@ public class PlayableBoard {
                 Logger.infoln("invalid !");
             }
         }
-        System.out.println(this.draggedStack);
     }
 
     public void mouseDragged(double x, double y) {
         if (dragged != null) {
+            printableBoard.stockToStockDrag = false;
             boolean fixed = false;
             Movement<KlondikePilesEnum> movement = getMovement(x, y);
             if (movement == null) {
@@ -130,6 +142,12 @@ public class PlayableBoard {
                 List<CardAction<KlondikePilesEnum>> actions = board.applyMovement(movement, false);
                 printableBoard.setCardsPosition();
                 board.revertMovement(actions);
+
+                if (board.getPile(KlondikePilesEnum.STOCK).visible().isEmpty() &&
+                        movement.from() == KlondikePilesEnum.STOCK && movement.to() == KlondikePilesEnum.STOCK) {
+                    printableBoard.stockToStockDrag = true;
+                }
+
             }
             setDragged();
             if (!fixed) {
@@ -165,11 +183,16 @@ public class PlayableBoard {
 
     public void mouseReleased(double x, double y) {
         if (dragged != null) {
-            Movement<KlondikePilesEnum> movement = getMovement(x, y);
-            apply(movement);
+            printableBoard.stockToStockDrag = false;
+            if (Math.hypot(x - dragX, y - dragY) > 20) {
+                Movement<KlondikePilesEnum> movement = getMovement(x, y);
+                apply(movement);
+            }
             for (DraggedCard draggedCard : dragged) {
+                draggedCard.printableCard().zIndex = draggedCard.origZ();
                 draggedCard.printableCard().dragged = false;
             }
+            printableBoard.setCardsPosition();
             dragged = null;
         }
     }

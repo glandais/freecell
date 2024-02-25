@@ -47,9 +47,21 @@ public class KlondikeGuiApplication extends Application {
                 klondikeGuiPrinter.mouseClicked(e.getX(), e.getY(), e.getClickCount());
             }
         });
-        scene.setOnMousePressed(e -> klondikeGuiPrinter.mousePressed(e.getX(), e.getY()));
-        scene.setOnMouseDragged(e -> klondikeGuiPrinter.mouseDragged(e.getX(), e.getY()));
-        scene.setOnMouseReleased(e -> klondikeGuiPrinter.mouseReleased(e.getX(), e.getY()));
+        scene.setOnMousePressed(e -> {
+            if (e.getButton() == MouseButton.PRIMARY) {
+                klondikeGuiPrinter.mousePressed(e.getX(), e.getY());
+            }
+        });
+        scene.setOnMouseDragged(e -> {
+            if (e.getButton() == MouseButton.PRIMARY) {
+                klondikeGuiPrinter.mouseDragged(e.getX(), e.getY());
+            }
+        });
+        scene.setOnMouseReleased(e -> {
+            if (e.getButton() == MouseButton.PRIMARY) {
+                klondikeGuiPrinter.mouseReleased(e.getX(), e.getY());
+            }
+        });
         scene.setOnKeyReleased(e -> klondikeGuiPrinter.keyReleased(e.getCode()));
 
         // The canvas to be rendered upon

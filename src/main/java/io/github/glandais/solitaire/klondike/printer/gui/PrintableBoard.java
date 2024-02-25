@@ -19,6 +19,8 @@ public class PrintableBoard extends ArrayList<PrintableCard> {
     private Board<KlondikePilesEnum> board;
     private Map<CardEnum, PrintableCard> cardsMap;
 
+    public boolean stockToStockDrag = false;
+
     // only for replay
     protected PrintableBoard(List<PrintableCard> c) {
         super(c);
@@ -49,7 +51,11 @@ public class PrintableBoard extends ArrayList<PrintableCard> {
         for (FoundationPilesEnum foundationPilesEnum : FoundationPilesEnum.values()) {
             starts.add(new PrintableCard(CardEnum.KING_CLUB, getFoundationPosition(foundationPilesEnum.ordinal(), 0), null, PrintableCardFace.WHITE, 0));
         }
-        starts.add(new PrintableCard(CardEnum.KING_CLUB, getStockVisiblePosition(), null, PrintableCardFace.WHITE, 0));
+        if (stockToStockDrag) {
+            starts.add(new PrintableCard(CardEnum.KING_CLUB, getStockVisiblePosition(), null, PrintableCardFace.BACK, 0));
+        } else {
+            starts.add(new PrintableCard(CardEnum.KING_CLUB, getStockVisiblePosition(), null, PrintableCardFace.WHITE, 0));
+        }
         return starts;
     }
 
