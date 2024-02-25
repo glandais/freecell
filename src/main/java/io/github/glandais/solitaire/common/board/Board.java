@@ -110,18 +110,18 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
                             unorderedTiles.stream().sorted(),
                             orderedTiles.stream()
                     )
-                    .collect(Collectors.joining());
+                    .collect(Collectors.joining("|"));
         }
     }
 
     private String computeState(Pile<T> pile) {
         StringBuilder stringBuilder = new StringBuilder(52 * 2);
         for (CardEnum cardEnum : pile.hidden()) {
-            stringBuilder.append(cardEnum.toString());
+            stringBuilder.append(cardEnum.getSortableLabel());
         }
         stringBuilder.append(",");
         for (CardEnum cardEnum : pile.visible()) {
-            stringBuilder.append(cardEnum.toString());
+            stringBuilder.append(cardEnum.getSortableLabel());
         }
         return stringBuilder.toString();
     }

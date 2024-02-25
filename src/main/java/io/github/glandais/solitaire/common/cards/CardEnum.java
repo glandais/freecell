@@ -67,6 +67,8 @@ public enum CardEnum {
 
     final String longLabel;
 
+    final String sortableLabel;
+
     final String label;
 
     CardEnum(OrderEnum orderEnum, SuiteEnum suiteEnum, ColorEnum colorEnum, StateCardEnum stateCardEnum) {
@@ -80,6 +82,13 @@ public enum CardEnum {
         if (orderOrdinal > 10) {
             orderOrdinal = orderOrdinal + 1;
         }
+        int base = switch (suiteEnum) {
+            case SPADE -> 'a';
+            case HEART -> 'n';
+            case DIAMOND -> 'A';
+            case CLUB -> 'N';
+        };
+        this.sortableLabel = "" + (char) (base + orderEnum.ordinal());
         int unicode = 0x1F0A1 + suiteOrdinal * 16 + orderOrdinal;
         this.label = new String(Character.toChars(unicode));
     }
