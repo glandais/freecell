@@ -4,6 +4,7 @@ import io.github.glandais.solitaire.common.move.Movement;
 import io.github.glandais.solitaire.common.move.MovementScore;
 
 import java.security.SecureRandom;
+import java.util.Collection;
 import java.util.List;
 
 public interface Solitaire<T extends PileType<T>> {
@@ -18,4 +19,6 @@ public interface Solitaire<T extends PileType<T>> {
     List<MovementScore<T>> getMovementScores(Board<T> board, List<Movement<T>> possibleMovements);
 
     int getScore(Board<T> board);
+
+    List<MovementScore<T>> getFinishMovements(Board<T> board);
 }

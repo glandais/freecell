@@ -195,6 +195,9 @@ public class SolitaireSolver<T extends PileType<T>> {
         bestLevel = level + movesToFinish;
         bestMovements = new ArrayList<>(movementsStack);
         bestMovements.add(movement);
+
+        bestMovements.addAll(solitaire.getFinishMovements(board));
+
         states.values().removeIf(l -> l > level);
 
         Logger.infoln("****************");

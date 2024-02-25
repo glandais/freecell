@@ -1,7 +1,6 @@
 package io.github.glandais.solitaire.klondike.main;
 
 import io.github.glandais.solitaire.common.board.Board;
-import io.github.glandais.solitaire.common.printer.SolitairePrinter;
 import io.github.glandais.solitaire.klondike.enums.KlondikePilesEnum;
 import io.github.glandais.solitaire.klondike.printer.console.KlondikeConsolePrinter;
 import io.github.glandais.solitaire.klondike.printer.gui.KlondikeGuiPrinter;

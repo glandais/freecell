@@ -35,32 +35,32 @@ public class PrintableBoard extends ArrayList<PrintableCard> {
             Pile<KlondikePilesEnum> pile = board.getPile(foundationPilesEnum.getKlondikePilesEnum());
             int i = 0;
             for (CardEnum cardEnum : pile.visible()) {
-                add(new PrintableCard(cardEnum, getFoundationPosition(foundationPilesEnum.ordinal(), i++), true, -i));
+                add(new PrintableCard(cardEnum, getFoundationPosition(foundationPilesEnum.ordinal(), i++), null, true, -i));
             }
         }
         Pile<KlondikePilesEnum> stock = board.getPile(KlondikePilesEnum.STOCK);
         int z = 0;
         for (int i = 0; i < stock.visible().size(); i++) {
             CardEnum cardEnum = stock.visible().get(i);
-            add(new PrintableCard(cardEnum, getStockVisiblePosition(), true, 100));
+            add(new PrintableCard(cardEnum, getStockVisiblePosition(), null, true, 100));
         }
         for (int i = 0; i < stock.hidden().size(); i++) {
             CardEnum cardEnum = stock.hidden().get(i);
-            add(new PrintableCard(cardEnum, getStackHiddenPosition(stock.hidden().size() - i), false, 200 + z--));
+            add(new PrintableCard(cardEnum, getStackHiddenPosition(stock.hidden().size() - i), null, false, 200 + z--));
         }
         for (TableauPilesEnum tableauPilesEnum : TableauPilesEnum.values()) {
             Pile<KlondikePilesEnum> pile = board.getPile(tableauPilesEnum.getKlondikePilesEnum());
             int i = 0;
             for (CardEnum cardEnum : pile.hidden()) {
-                add(new PrintableCard(cardEnum, getTableauPosition(tableauPilesEnum.ordinal(), i), false, 10));
+                add(new PrintableCard(cardEnum, getTableauPosition(tableauPilesEnum.ordinal(), i), null, false, 10));
                 i++;
             }
             for (CardEnum cardEnum : pile.visible()) {
-                add(new PrintableCard(cardEnum, getTableauPosition(tableauPilesEnum.ordinal(), i), true, -i));
+                add(new PrintableCard(cardEnum, getTableauPosition(tableauPilesEnum.ordinal(), i), null, true, -i));
                 i++;
             }
         }
-        sort(Comparator.comparing(PrintableCard::zIndex).reversed());
+        sort(Comparator.comparing(PrintableCard::getZIndex).reversed());
     }
 
     private Vector2 getTableauPosition(int ordinal, int i) {
@@ -82,30 +82,32 @@ public class PrintableBoard extends ArrayList<PrintableCard> {
     public PrintableBoard interpolate(PrintableBoard printableBoardTo, float delta) {
          List<PrintableCard> cards = new ArrayList<>();
         Map<CardEnum, PrintableCard> toCards = printableBoardTo.stream()
-                .collect(Collectors.toMap(PrintableCard::card, Function.identity()));
+                .collect(Collectors.toMap(PrintableCard::getCard, Function.identity()));
         for (PrintableCard from : this) {
-            PrintableCard to = toCards.get(from.card());
-            if (Vector2.distance(from.position(), to.position()) < 0.1) {
+            PrintableCard to = toCards.get(from.getCard());
+            if (Vector2.distance(from.getPosition(), to.getPosition()) < 0.1) {
                 cards.add(new PrintableCard(
-                        to.card(),
-                        to.position(),
-                        delta < 0.5 ? from.faceUp() : to.faceUp(),
-                        to.zIndex()
+                        to.getCard(),
+                        to.getPosition(),
+                        null,
+                        delta < 0.5 ? from.isFaceUp() : to.isFaceUp(),
+                        to.getZIndex()
                 ));
             }
         }
         for (PrintableCard from : this) {
-            PrintableCard to = toCards.get(from.card());
-            if (Vector2.distance(from.position(), to.position()) >= 0.1) {
+            PrintableCard to = toCards.get(from.getCard());
+            if (Vector2.distance(from.getPosition(), to.getPosition()) >= 0.1) {
                 cards.add(new PrintableCard(
-                        to.card(),
-                        interpolate(from.position(), to.position(), delta),
-                        delta < 0.5 ? from.faceUp() : to.faceUp(),
-                        to.zIndex() - 1000
+                        to.getCard(),
+                        interpolate(from.getPosition(), to.getPosition(), delta),
+                        null,
+                        delta < 0.5 ? from.isFaceUp() : to.isFaceUp(),
+                        to.getZIndex() - 1000
                 ));
             }
         }
-        cards.sort(Comparator.comparing(PrintableCard::zIndex).reversed());
+        cards.sort(Comparator.comparing(PrintableCard::getZIndex).reversed());
         return new PrintableBoard(cards);
     }
 

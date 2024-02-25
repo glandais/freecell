@@ -2,7 +2,21 @@ package io.github.glandais.solitaire.klondike.printer.gui;
 
 import dev.aurumbyte.sypherengine.util.math.Vector2;
 import io.github.glandais.solitaire.common.cards.CardEnum;
+import lombok.Data;
 
-public record PrintableCard(CardEnum card, Vector2 position, boolean faceUp, int zIndex) {
+@Data
+public class PrintableCard {
+    CardEnum card;
+    Vector2 position;
+    Vector2 speed;
+    boolean faceUp;
+    int zIndex;
 
+    public PrintableCard(CardEnum card, Vector2 position, Vector2 speed, boolean faceUp, int zIndex) {
+        this.card = card;
+        this.position = position;
+        this.speed = speed;
+        this.faceUp = faceUp;
+        this.zIndex = zIndex;
+    }
 }

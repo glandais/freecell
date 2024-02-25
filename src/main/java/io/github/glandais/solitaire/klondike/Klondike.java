@@ -203,4 +203,20 @@ public class Klondike implements Solitaire<KlondikePilesEnum> {
         return -300_000 - firstOrder + stockMalus;
     }
 
+    @Override
+    public List<MovementScore<KlondikePilesEnum>> getFinishMovements(Board<KlondikePilesEnum> boardParam) {
+        Board<KlondikePilesEnum> board = boardParam.copy();
+        List<MovementScore<KlondikePilesEnum>> movements = new ArrayList<>();
+        List<Movement<KlondikePilesEnum>> possibleMovements;
+        do {
+            possibleMovements = board.computePossibleMovements();
+            if (!possibleMovements.isEmpty()) {
+                Movement<KlondikePilesEnum> movement = possibleMovements.getFirst();
+                movements.add(new MovementScore<>(movement, 0));
+                board.applyMovement(movement);
+            }
+        } while (!possibleMovements.isEmpty());
+        return movements;
+    }
+
 }

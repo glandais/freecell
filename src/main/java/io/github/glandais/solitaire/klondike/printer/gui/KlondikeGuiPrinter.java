@@ -4,6 +4,7 @@ import dev.aurumbyte.sypherengine.core.GameManager;
 import dev.aurumbyte.sypherengine.core.SypherEngine;
 import dev.aurumbyte.sypherengine.core.config.EngineConfig;
 import dev.aurumbyte.sypherengine.core.graphics.Renderer;
+import dev.aurumbyte.sypherengine.util.math.Vector2;
 import io.github.glandais.solitaire.common.Logger;
 import io.github.glandais.solitaire.common.board.Board;
 import io.github.glandais.solitaire.common.cards.CardEnum;
@@ -19,12 +20,17 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import lombok.SneakyThrows;
 
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 public class KlondikeGuiPrinter extends GameManager implements SolitairePrinter<KlondikePilesEnum> {
 
+    private static final Random R = new SecureRandom();
+
     private static final Image BACK = new Image(Objects.requireNonNull(KlondikeGuiPrinter.class.getResourceAsStream("/images/back.png")));
+    public static final int Y_BOUND = 960 - Constants.CARD_HEIGHT;
+    public static final int X_BOUND = 1280 - Constants.CARD_WIDTH;
 
     private Board<KlondikePilesEnum> originalBoard;
     private Board<KlondikePilesEnum> board;
@@ -114,7 +120,7 @@ public class KlondikeGuiPrinter extends GameManager implements SolitairePrinter<
         this.originalBoard = board.copy();
         this.printableBoardFrom = null;
         this.printableBoardTo = null;
-        this.printableBoard = null;
+        this.printableBoard = new PrintableBoard(board);
         this.tick = -1;
         this.elapsed = 0.0f;
     }
@@ -139,27 +145,77 @@ public class KlondikeGuiPrinter extends GameManager implements SolitairePrinter<
             } else {
                 int newTick = (int) Math.round(Math.floor(elapsed / movementDuration));
                 if (newTick != tick) {
-                    int i = newTick % moves.size();
-                    if (i == 0) {
-                        // reset board
-                        this.board = this.originalBoard.copy();
-                        this.printableBoardTo = new PrintableBoard(this.board);
-                    }
-                    this.printableBoardFrom = this.printableBoardTo;
-                    Logger.infoln(Serde.toJson(this.board));
-                    Logger.infoln("possibleMovements");
-                    List<Movement<KlondikePilesEnum>> possibleMovements = this.board.computePossibleMovements();
-                    for (Movement<KlondikePilesEnum> possibleMovement : possibleMovements) {
-                        Logger.infoln(possibleMovement);
-                    }
-                    Logger.infoln("appliedMovement");
-                    Logger.infoln(moves.get(i));
-                    this.board.applyMovement(moves.get(i));
-                    this.printableBoardTo = new PrintableBoard(this.board);
                     tick = newTick;
+                    if (newTick < moves.size()) {
+                        this.printableBoardFrom = this.printableBoardTo;
+                        Logger.infoln(Serde.toJson(this.board));
+                        Logger.infoln("possibleMovements");
+                        List<Movement<KlondikePilesEnum>> possibleMovements = this.board.computePossibleMovements();
+                        for (Movement<KlondikePilesEnum> possibleMovement : possibleMovements) {
+                            Logger.infoln(possibleMovement);
+                        }
+                        Logger.infoln("appliedMovement");
+                        Logger.infoln(moves.get(tick));
+                        this.board.applyMovement(moves.get(tick));
+                        this.printableBoardTo = new PrintableBoard(this.board);
+                    } else if (newTick == moves.size()) {
+                        this.printableBoard = new PrintableBoard(board);
+                        for (PrintableCard printableCard : this.printableBoard) {
+                            printableCard.setSpeed(new Vector2(R.nextFloat(-500, 500), R.nextFloat(-500, 500)));
+                        }
+                    }
                 }
-                float delta = (elapsed - (tick * movementDuration)) / movementDuration;
-                this.printableBoard = this.printableBoardFrom.interpolate(this.printableBoardTo, delta);
+                if (tick >= moves.size()) {
+                    for (PrintableCard printableCard : this.printableBoard) {
+                        Vector2 speed = printableCard.getSpeed();
+                        Vector2 newSpeed = new Vector2(
+                                speed.xPos,
+                                speed.yPos + 5000f * v
+                        );
+                        printableCard.setSpeed(newSpeed);
+                        Vector2 position = printableCard.getPosition();
+                        Vector2 newPosition = new Vector2(
+                                position.xPos + newSpeed.xPos * v,
+                                position.yPos + newSpeed.yPos * v
+                        );
+                        if (newPosition.xPos < 0) {
+                            newPosition.xPos = -newPosition.xPos;
+                            newSpeed = new Vector2(
+                                    -newSpeed.xPos,
+                                    newSpeed.yPos
+                            );
+                            printableCard.setSpeed(newSpeed);
+                        }
+                        if (newPosition.xPos > X_BOUND) {
+                            newPosition.xPos = newPosition.xPos - (newPosition.xPos - X_BOUND);
+                            newSpeed = new Vector2(
+                                    -newSpeed.xPos,
+                                    newSpeed.yPos
+                            );
+                            printableCard.setSpeed(newSpeed);
+                        }
+                        if (newPosition.yPos < 0) {
+                            newPosition.yPos = -newPosition.yPos;
+                            newSpeed = new Vector2(
+                                    newSpeed.xPos,
+                                    -newSpeed.yPos
+                            );
+                            printableCard.setSpeed(newSpeed);
+                        }
+                        if (newPosition.yPos > Y_BOUND) {
+                            newPosition.yPos = newPosition.yPos - (newPosition.yPos - Y_BOUND);
+                            newSpeed = new Vector2(
+                                    newSpeed.xPos * 0.9f,
+                                    -newSpeed.yPos * 0.9f
+                            );
+                            printableCard.setSpeed(newSpeed);
+                        }
+                        printableCard.setPosition(newPosition);
+                    }
+                } else if (this.printableBoardFrom != null && this.printableBoardTo != null) {
+                    float delta = (elapsed - (tick * movementDuration)) / movementDuration;
+                    this.printableBoard = this.printableBoardFrom.interpolate(this.printableBoardTo, delta);
+                }
             }
         }
     }
@@ -169,10 +225,10 @@ public class KlondikeGuiPrinter extends GameManager implements SolitairePrinter<
         synchronized (this) {
             if (this.printableBoard != null) {
                 for (PrintableCard printableCard : printableBoard) {
-                    if (printableCard.faceUp()) {
-                        renderer.drawImage(cards.get(printableCard.card()), printableCard.position(), Constants.CARD_WIDTH, Constants.CARD_HEIGHT);
+                    if (printableCard.isFaceUp()) {
+                        renderer.drawImage(cards.get(printableCard.getCard()), printableCard.getPosition(), Constants.CARD_WIDTH, Constants.CARD_HEIGHT);
                     } else {
-                        renderer.drawImage(BACK, printableCard.position(), Constants.CARD_WIDTH, Constants.CARD_HEIGHT);
+                        renderer.drawImage(BACK, printableCard.getPosition(), Constants.CARD_WIDTH, Constants.CARD_HEIGHT);
                     }
                 }
             }
