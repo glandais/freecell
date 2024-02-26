@@ -68,7 +68,7 @@ public class KlondikeGuiApplication extends Application {
         Canvas canvas = new Canvas(Constants.WIDTH, Constants.HEIGHT);
         stage.setTitle("klondike");
         stage.setScene(scene);
-        stage.setResizable(false);
+        stage.setResizable(true);
         GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
 
         // The main game loop

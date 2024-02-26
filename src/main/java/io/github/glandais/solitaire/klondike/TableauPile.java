@@ -94,7 +94,7 @@ public class TableauPile implements PlayablePile<KlondikePilesEnum> {
     }
 
     @Override
-    public List<CardAction<KlondikePilesEnum>> getActions(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, Move<KlondikePilesEnum> move, boolean reveal) {
+    public List<CardAction<KlondikePilesEnum>> getActions(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, Move<KlondikePilesEnum> move) {
         List<CardEnum> cards = move.cards();
         List<CardAction<KlondikePilesEnum>> actions = new ArrayList<>(cards.size() + 1);
         if (move.from() == pile.pileType()) {
@@ -103,7 +103,7 @@ public class TableauPile implements PlayablePile<KlondikePilesEnum> {
                 actions.add(new CardAction<>(pile.pileType(), TargetEnum.VISIBLE_LAST, ActionEnum.REMOVE, cardEnum));
             }
             // no more visible card, show last hidden if present
-            if (cards.size() == pile.visible().size() && !pile.hidden().isEmpty() && reveal) {
+            if (cards.size() == pile.visible().size() && !pile.hidden().isEmpty()) {
                 CardEnum last = pile.hidden().getLast();
                 actions.add(new CardAction<>(pile.pileType(), TargetEnum.HIDDEN_LAST, ActionEnum.REMOVE, last));
                 actions.add(new CardAction<>(pile.pileType(), TargetEnum.VISIBLE_LAST, ActionEnum.ADD, last));

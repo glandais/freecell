@@ -13,5 +13,5 @@ public interface PlayablePile<T extends PileType<T>> {
 
     Optional<Movement<T>> accept(Board<T> board, Pile<T> pile, MovableStack<T> movableStack);
 
-    List<CardAction<T>> getActions(Board<T> board, Pile<T> pile, Move<T> move, boolean reveal);
+    List<CardAction<T>> getActions(Board<T> board, Pile<T> pile, Move<T> move);
 }

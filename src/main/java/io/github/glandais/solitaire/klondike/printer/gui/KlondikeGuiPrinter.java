@@ -25,6 +25,12 @@ public class KlondikeGuiPrinter implements SolitairePrinter<KlondikePilesEnum> {
     private static final Image BACK = new Image(Objects.requireNonNull(KlondikeGuiPrinter.class.getResourceAsStream("/images/back.png")));
 
     private static final Image WHITE = new Image(Objects.requireNonNull(KlondikeGuiPrinter.class.getResourceAsStream("/images/white.png")));
+    private static final Image JOCKER = new Image(Objects.requireNonNull(KlondikeGuiPrinter.class.getResourceAsStream("/images/joker.png")));
+
+    private static final Image CLUB = new Image(Objects.requireNonNull(KlondikeGuiPrinter.class.getResourceAsStream("/images/club.png")));
+    private static final Image SPADE = new Image(Objects.requireNonNull(KlondikeGuiPrinter.class.getResourceAsStream("/images/spade.png")));
+    private static final Image HEART = new Image(Objects.requireNonNull(KlondikeGuiPrinter.class.getResourceAsStream("/images/heart.png")));
+    private static final Image DIAMOND = new Image(Objects.requireNonNull(KlondikeGuiPrinter.class.getResourceAsStream("/images/diamond.png")));
 
     private Board<KlondikePilesEnum> board;
     private List<MovementScore<KlondikePilesEnum>> moves;
@@ -96,7 +102,6 @@ public class KlondikeGuiPrinter implements SolitairePrinter<KlondikePilesEnum> {
     }
 
     private void reset(Board<KlondikePilesEnum> board) {
-        System.out.println(board);
         this.board = board;
         this.printableBoardFrom = null;
         this.printableBoardTo = null;
@@ -224,6 +229,11 @@ public class KlondikeGuiPrinter implements SolitairePrinter<KlondikePilesEnum> {
             case FRONT -> cards.get(printableCard.getCard());
             case BACK -> BACK;
             case WHITE -> WHITE;
+            case JOCKER -> JOCKER;
+            case CLUB -> CLUB;
+            case SPADE -> SPADE;
+            case HEART -> HEART;
+            case DIAMOND -> DIAMOND;
         };
         renderer.drawImage(image, printableCard.getPosition().x, printableCard.getPosition().y, Constants.CARD_WIDTH, Constants.CARD_HEIGHT);
     }

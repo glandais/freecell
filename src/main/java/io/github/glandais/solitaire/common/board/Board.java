@@ -1,5 +1,6 @@
 package io.github.glandais.solitaire.common.board;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.glandais.solitaire.common.Logger;
 import io.github.glandais.solitaire.common.cards.CardEnum;
 import io.github.glandais.solitaire.common.execution.CardAction;
@@ -17,6 +18,11 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
         return piles.get(pileType);
     }
 
+    @JsonIgnore
+    public Collection<Pile<T>> getPileValues() {
+        return piles.values();
+    }
+
     public Board<T> copy() {
         SequencedMap<T, Pile<T>> pilesCopy = new LinkedHashMap<>();
         for (Map.Entry<T, Pile<T>> entry : piles.entrySet()) {
@@ -26,10 +32,6 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
     }
 
     public List<CardAction<T>> applyMovement(Move<T> move) {
-        return applyMovement(move, true);
-    }
-
-    public List<CardAction<T>> applyMovement(Move<T> move, boolean reveal) {
         synchronized (this) {
 
             T fromPileType = move.from();
@@ -40,9 +42,9 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
             PlayablePile<T> to = toPileType.playablePile();
             Pile<T> pileTo = getPile(toPileType);
 
-            List<CardAction<T>> actions = new ArrayList<>(from.getActions(this, pileFrom, move, reveal));
+            List<CardAction<T>> actions = new ArrayList<>(from.getActions(this, pileFrom, move));
             if (fromPileType != toPileType) {
-                actions.addAll(to.getActions(this, pileTo, move, reveal));
+                actions.addAll(to.getActions(this, pileTo, move));
             }
             applyActions(actions);
             return actions;
@@ -81,6 +83,7 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
         computePileMovements(movements, movableStacks);
     }
 
+    @JsonIgnore
     public List<MovableStack<T>> getMovableStacks() {
         List<MovableStack<T>> movableStacks = new ArrayList<>();
         for (Pile<T> from : piles.values()) {

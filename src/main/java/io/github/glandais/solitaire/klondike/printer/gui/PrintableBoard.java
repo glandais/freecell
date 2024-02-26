@@ -6,6 +6,7 @@ import io.github.glandais.solitaire.common.cards.CardEnum;
 import io.github.glandais.solitaire.klondike.enums.FoundationPilesEnum;
 import io.github.glandais.solitaire.klondike.enums.KlondikePilesEnum;
 import io.github.glandais.solitaire.klondike.enums.TableauPilesEnum;
+import lombok.Getter;
 
 import java.util.*;
 import java.util.function.Function;
@@ -17,9 +18,8 @@ public class PrintableBoard extends ArrayList<PrintableCard> {
 
     public static final Comparator<PrintableCard> COMPARATOR = Comparator.comparing(PrintableCard::getZIndex).reversed();
     private Board<KlondikePilesEnum> board;
+    @Getter
     private Map<CardEnum, PrintableCard> cardsMap;
-
-    public boolean stockToStockDrag = false;
 
     // only for replay
     protected PrintableBoard(List<PrintableCard> c) {
@@ -48,14 +48,16 @@ public class PrintableBoard extends ArrayList<PrintableCard> {
 
     public List<PrintableCard> getStarts() {
         List<PrintableCard> starts = new ArrayList<>();
-        for (FoundationPilesEnum foundationPilesEnum : FoundationPilesEnum.values()) {
-            starts.add(new PrintableCard(CardEnum.KING_CLUB, getFoundationPosition(foundationPilesEnum.ordinal(), 0), null, PrintableCardFace.WHITE, 0));
+
+        starts.add(new PrintableCard(CardEnum.KING_CLUB, getFoundationPosition(FoundationPilesEnum.SPADE.ordinal(), 0), null, PrintableCardFace.SPADE, 0));
+        starts.add(new PrintableCard(CardEnum.KING_CLUB, getFoundationPosition(FoundationPilesEnum.HEART.ordinal(), 0), null, PrintableCardFace.HEART, 0));
+        starts.add(new PrintableCard(CardEnum.KING_CLUB, getFoundationPosition(FoundationPilesEnum.DIAMOND.ordinal(), 0), null, PrintableCardFace.DIAMOND, 0));
+        starts.add(new PrintableCard(CardEnum.KING_CLUB, getFoundationPosition(FoundationPilesEnum.CLUB.ordinal(), 0), null, PrintableCardFace.CLUB, 0));
+
+        for (TableauPilesEnum tableauPilesEnum : TableauPilesEnum.values()) {
+            starts.add(new PrintableCard(CardEnum.KING_CLUB, getTableauPosition(tableauPilesEnum.ordinal(), 0), null, PrintableCardFace.WHITE, 0));
         }
-        if (stockToStockDrag) {
-            starts.add(new PrintableCard(CardEnum.KING_CLUB, getStockVisiblePosition(), null, PrintableCardFace.BACK, 0));
-        } else {
-            starts.add(new PrintableCard(CardEnum.KING_CLUB, getStockVisiblePosition(), null, PrintableCardFace.WHITE, 0));
-        }
+        starts.add(new PrintableCard(CardEnum.KING_CLUB, getStockVisiblePosition(), null, PrintableCardFace.WHITE, 0));
         return starts;
     }
 
@@ -146,12 +148,9 @@ public class PrintableBoard extends ArrayList<PrintableCard> {
                 return foundationPilesEnum.getKlondikePilesEnum();
             }
         }
-        // FIXME
-        if (inBounds(getStockVisiblePosition(), x, y)) {
-            return KlondikePilesEnum.STOCK;
-        }
         for (TableauPilesEnum tableauPilesEnum : TableauPilesEnum.values()) {
-            if (inBounds(getTableauPosition(tableauPilesEnum.ordinal(), 0), x, y)) {
+            if (board.getPile(tableauPilesEnum.getKlondikePilesEnum()).visible().isEmpty() &&
+                    inBounds(getTableauPosition(tableauPilesEnum.ordinal(), 0), x, y)) {
                 return tableauPilesEnum.getKlondikePilesEnum();
             }
         }
@@ -211,4 +210,28 @@ public class PrintableBoard extends ArrayList<PrintableCard> {
         return new Vector2(x, y);
     }
 
+    public boolean onStockVisible(double x, double y) {
+        return inBounds(getStockVisiblePosition(), x, y);
+    }
+
+    public boolean onStockPickable(double x, double y) {
+        Pile<KlondikePilesEnum> stock = board.getPile(KlondikePilesEnum.STOCK);
+        if (!stock.hidden().isEmpty()) {
+            CardEnum pickable = stock.hidden().getLast();
+            PrintableCard printableCard = cardsMap.get(pickable);
+            return inBounds(printableCard.position, x, y);
+        }
+        return false;
+    }
+
+    public boolean onHiddenStockPickable(double x, double y) {
+        Pile<KlondikePilesEnum> stock = board.getPile(KlondikePilesEnum.STOCK);
+        for (CardEnum cardEnum : stock.hidden()) {
+            PrintableCard printableCard = cardsMap.get(cardEnum);
+            if (inBounds(printableCard.position, x, y)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

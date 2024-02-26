@@ -56,7 +56,7 @@ public class FoundationPile implements PlayablePile<KlondikePilesEnum> {
     }
 
     @Override
-    public List<CardAction<KlondikePilesEnum>> getActions(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, Move<KlondikePilesEnum> move, boolean reveal) {
+    public List<CardAction<KlondikePilesEnum>> getActions(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, Move<KlondikePilesEnum> move) {
         // add to top
         CardEnum cardEnum = move.cards().getFirst();
         return List.of(
