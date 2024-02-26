@@ -26,12 +26,15 @@ public class PlayableBoard {
     private Set<CardEnum> hideCards;
     private List<MovableStack<KlondikePilesEnum>> movableStacks;
     private List<Movement<KlondikePilesEnum>> possibleMovements;
-    private List<List<CardAction<KlondikePilesEnum>>> actionList;
+
+    private int historyIndex;
+    private List<MoveHistory> history;
 
     public PlayableBoard(Board<KlondikePilesEnum> board, PrintableBoard printableBoard) {
         this.board = board;
         this.printableBoard = printableBoard;
-        this.actionList = new ArrayList<>();
+        this.historyIndex = -1;
+        this.history = new ArrayList<>();
         updatedBoard();
     }
 
@@ -52,22 +55,30 @@ public class PlayableBoard {
     private void apply(Movement<KlondikePilesEnum> movement) {
         if (movement != null) {
             List<CardAction<KlondikePilesEnum>> actions = board.applyMovement(movement);
-            actionList.add(actions);
+            historyIndex++;
+            history = history.subList(0, historyIndex);
+            history.add(new MoveHistory(movement, actions));
         }
         updatedBoard();
     }
 
     public void undo() {
-        if (!actionList.isEmpty()) {
-            List<CardAction<KlondikePilesEnum>> actions = actionList.removeLast();
+        if (historyIndex >= 0) {
+            List<CardAction<KlondikePilesEnum>> actions = history.get(historyIndex).actions();
+            historyIndex--;
             board.revertMovement(actions);
-            printableBoard.setCardsPosition();
             updatedBoard();
         }
     }
 
     public void redo() {
-        // FIXME
+        if (historyIndex + 1 < history.size()) {
+            historyIndex++;
+            Movement<KlondikePilesEnum> movement = history.get(historyIndex).movement();
+            board.applyMovement(movement);
+            printableBoard.setCardsPosition();
+            updatedBoard();
+        }
     }
 
     public void mouseClicked(double x, double y, int clickCount) {
