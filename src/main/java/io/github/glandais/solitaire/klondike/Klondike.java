@@ -1,5 +1,6 @@
 package io.github.glandais.solitaire.klondike;
 
+import io.github.glandais.solitaire.common.Logger;
 import io.github.glandais.solitaire.common.board.Board;
 import io.github.glandais.solitaire.common.board.Pile;
 import io.github.glandais.solitaire.common.board.Solitaire;
@@ -23,6 +24,7 @@ public class Klondike implements Solitaire<KlondikePilesEnum> {
 
     @Override
     public Board<KlondikePilesEnum> getBoard(long seed) {
+        Logger.infoln("Board seed : " + seed);
         SequencedMap<KlondikePilesEnum, Pile<KlondikePilesEnum>> piles = new LinkedHashMap<>();
         for (FoundationPilesEnum foundationPilesEnum : FoundationPilesEnum.values()) {
             piles.put(foundationPilesEnum.getKlondikePilesEnum(), new Pile<>(foundationPilesEnum.getKlondikePilesEnum()));

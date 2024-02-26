@@ -1,5 +1,6 @@
 package io.github.glandais.solitaire.klondike.printer.gui;
 
+import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
@@ -31,12 +32,10 @@ public class KlondikeGuiApplication extends Application {
     @Override
     public void start(Stage stage) {
 
-        // Sets everything needed for the objects to render
-//        BorderPane root = new BorderPane();
-//        Button undo = new Button("Undo");
-//        undo.setOnAction(e -> klondikeGuiPrinter.undo());
-//        root.setBottom(new ToolBar(undo));
+        Canvas canvas = new Canvas(Constants.WIDTH, Constants.HEIGHT);
+
         Group root = new Group();
+        root.getChildren().add(canvas);
         Scene scene = new Scene(root, Constants.WIDTH, Constants.HEIGHT);
         scene.setOnMouseClicked(e -> {
             if (e.getButton() == MouseButton.BACK) {
@@ -64,19 +63,15 @@ public class KlondikeGuiApplication extends Application {
         });
         scene.setOnKeyReleased(e -> klondikeGuiPrinter.keyReleased(e.getCode()));
 
-        // The canvas to be rendered upon
-        Canvas canvas = new Canvas(Constants.WIDTH, Constants.HEIGHT);
         stage.setTitle("klondike");
         stage.setScene(scene);
         stage.setResizable(true);
+
         GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
 
         // The main game loop
         Timeline gameLoop = new Timeline();
-        gameLoop.setCycleCount(Timeline.INDEFINITE);
-
-        root.getChildren().add(canvas);
-
+        gameLoop.setCycleCount(Animation.INDEFINITE);
         KeyFrame keyFrame = new KeyFrame(
                 Duration.seconds(1.0f / 60.0f), // 60 FPS
                 ae -> {
@@ -86,7 +81,6 @@ public class KlondikeGuiApplication extends Application {
                     klondikeGuiPrinter.update(1.0f / 60.0f);
                     klondikeGuiPrinter.render(graphicsContext);
                 });
-
         gameLoop.getKeyFrames().add(keyFrame);
         gameLoop.play();
 

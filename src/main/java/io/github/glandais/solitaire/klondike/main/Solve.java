@@ -18,8 +18,8 @@ import java.util.concurrent.Callable;
 @Command(name = "solve", mixinStandardHelpOptions = true)
 public class Solve implements Callable<Integer> {
 
-    @Option(names = {"--seed", "-s"}, defaultValue = "0")
-    int seed;
+    @Option(names = {"--seed", "-s"})
+    Integer seed;
 
     @Option(names = "--follow")
     boolean follow;
@@ -27,7 +27,12 @@ public class Solve implements Callable<Integer> {
     @Override
     public Integer call() {
         // 1126119823
-        Board<KlondikePilesEnum> board = Klondike.INSTANCE.getBoard(this.seed);
+        Board<KlondikePilesEnum> board;
+        if (seed == null) {
+            board = Klondike.INSTANCE.getRandomBoard();
+        } else {
+            board = Klondike.INSTANCE.getBoard(this.seed);
+        }
         KlondikeGuiPrinter guiSolitairePrinter = new KlondikeGuiPrinter(false);
         KlondikeConsolePrinter klondikeConsolePrinter = new KlondikeConsolePrinter();
         klondikeConsolePrinter.print(board);
