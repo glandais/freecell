@@ -41,7 +41,7 @@ public class Solve implements Callable<Integer> {
         } else {
             guiSolitairePrinter.print(board.copy());
         }
-        SolitaireSolver<KlondikePilesEnum> solitaireSolver = new SolitaireSolver<>(Klondike.INSTANCE, board);
+        SolitaireSolver<KlondikePilesEnum> solitaireSolver = new SolitaireSolver<>(Klondike.INSTANCE, board, klondikeConsolePrinter);
         List<MovementScore<KlondikePilesEnum>> moves = solitaireSolver.solve();
         if (moves != null) {
             Serde.save("board.json", new BoardMoves(board, moves));

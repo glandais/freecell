@@ -50,7 +50,6 @@ public class KlondikeGuiPrinter implements SolitairePrinter<KlondikePilesEnum> {
     @SneakyThrows
     public KlondikeGuiPrinter(boolean playable) {
         this.playable = playable;
-        print(Klondike.INSTANCE.getRandomBoard());
         cards = new EnumMap<>(CardEnum.class);
         for (CardEnum cardEnum : CardEnum.values()) {
             cards.put(cardEnum, getImage(cardEnum));
@@ -126,7 +125,7 @@ public class KlondikeGuiPrinter implements SolitairePrinter<KlondikePilesEnum> {
     }
 
     private void updateReplay(float v) {
-        if (paused) {
+        if (paused || board == null) {
             return;
         }
         elapsed = elapsed + v;

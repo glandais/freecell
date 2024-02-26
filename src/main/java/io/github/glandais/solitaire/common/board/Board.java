@@ -34,11 +34,11 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
     public List<CardAction<T>> applyMovement(Move<T> move) {
         synchronized (this) {
 
-            T fromPileType = move.from();
+            T fromPileType = move.getFrom();
             PlayablePile<T> from = fromPileType.playablePile();
             Pile<T> pileFrom = getPile(fromPileType);
 
-            T toPileType = move.to();
+            T toPileType = move.getTo();
             PlayablePile<T> to = toPileType.playablePile();
             Pile<T> pileTo = getPile(toPileType);
 
@@ -69,18 +69,13 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
 
     public List<Movement<T>> computePossibleMovements() {
         synchronized (this) {
-            List<Movement<T>> movements = new ArrayList<>();
-            computePilesMovements(movements);
+            List<MovableStack<T>> movableStacks = getMovableStacks();
+            List<Movement<T>> movements = computePileMovements(movableStacks);
             if (Logger.DEBUG) {
                 Logger.debug("moves : " + movements);
             }
             return movements;
         }
-    }
-
-    private void computePilesMovements(List<Movement<T>> movements) {
-        List<MovableStack<T>> movableStacks = getMovableStacks();
-        computePileMovements(movements, movableStacks);
     }
 
     @JsonIgnore
@@ -92,7 +87,8 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
         return movableStacks;
     }
 
-    private void computePileMovements(List<Movement<T>> movements, List<MovableStack<T>> movableStacks) {
+    private List<Movement<T>> computePileMovements(List<MovableStack<T>> movableStacks) {
+        List<Movement<T>> movements = new ArrayList<>();
         if (Logger.DEBUG) {
             Logger.debug("movableStacks : " + movableStacks);
         }
@@ -105,6 +101,8 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
                 movementOptional.ifPresent(movements::add);
             }
         }
+        
+        return movements;
     }
 
     public String computeState() {

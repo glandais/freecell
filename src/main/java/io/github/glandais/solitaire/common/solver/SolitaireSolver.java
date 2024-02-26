@@ -7,14 +7,18 @@ import io.github.glandais.solitaire.common.board.Solitaire;
 import io.github.glandais.solitaire.common.execution.CardAction;
 import io.github.glandais.solitaire.common.move.Movement;
 import io.github.glandais.solitaire.common.move.MovementScore;
+import io.github.glandais.solitaire.common.printer.SolitairePrinter;
 import lombok.SneakyThrows;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static io.github.glandais.solitaire.common.board.Solitaire.ERASE_OTHER_MOVEMENTS;
+
 public class SolitaireSolver<T extends PileType<T>> {
 
     private final Solitaire<T> solitaire;
+    private final SolitairePrinter<T> debugPrinter;
     private Board<T> board;
     private final Map<String, Integer> states = new TreeMap<>();
 
@@ -37,13 +41,13 @@ public class SolitaireSolver<T extends PileType<T>> {
     long existingStates = 0;
     Map<Integer, AtomicLong> movementsPerLevel = new HashMap<>();
 
-    public SolitaireSolver(Solitaire<T> solitaire, Board<T> board) {
+    public SolitaireSolver(Solitaire<T> solitaire, Board<T> board, SolitairePrinter<T> debugPrinter) {
         this.solitaire = solitaire;
         this.board = board;
+        this.debugPrinter = debugPrinter;
     }
 
-    /*
-    final Map<Integer, AtomicLong> nodeCountPerLevel = new HashMap<>();
+    Map<Integer, AtomicLong> nodeCountPerLevel = new HashMap<>();
     int nodeCount = 0;
     int nodeBestScore = 1_000_000;
     List<MovementScore<T>> nodeBestMovements;
@@ -55,6 +59,14 @@ public class SolitaireSolver<T extends PileType<T>> {
         final String tree;
 
         public Node(int nodeLevel, int maxLevel, String tree) {
+            if (nodeLevel == 0) {
+                nodeCountPerLevel = new HashMap<>();
+                nodeCount = 0;
+                states.clear();
+                nodeBestScore = 1_000_000;
+                nodeBestMovements = null;
+                nodeMovements = new ArrayList<>();
+            }
             this.nodeLevel = nodeLevel;
             this.tree = tree;
             nodeCountPerLevel.computeIfAbsent(nodeLevel, l -> new AtomicLong()).incrementAndGet();
@@ -62,58 +74,80 @@ public class SolitaireSolver<T extends PileType<T>> {
             if (nodeCount % 100_000 == 0) {
                 System.out.println(nodeCount + " nodes");
                 System.out.println(states.size() + " states");
+                System.out.println(nodeCountPerLevel);
             }
 
-            int score = solitaire.getScore(board);
+            int score = solitaire.getScore(null, board);
             if (score < nodeBestScore) {
                 nodeBestScore = score;
                 nodeBestMovements = new ArrayList<>(nodeMovements);
-                System.out.println(tree);
-                System.out.println(nodeCountPerLevel);
-                System.out.println(score);
-                for (MovementScore<T> nodeBestMovement : nodeBestMovements) {
-                    System.out.println(nodeBestMovement);
-                }
+//                System.out.println(tree);
+//                printNodeStatus();
             }
 
             if (nodeLevel < maxLevel) {
-                List<Movement<T>> possibleMovements = board.computePossibleMovements();
-                List<MovementScore<T>> levelMovements = getOrderedMovements(possibleMovements);
+                List<MovementScore<T>> levelMovements = getMovementScored();
                 int i = 0;
                 for (MovementScore<T> movement : levelMovements) {
-                    if (movement.score() <= 0) {
-                        nodeMovements.add(movement);
-                        List<CardAction<T>> actions = board.applyMovement(movement);
-                        level = nodeLevel;
-                        if (!hasState()) {
-                            if (solitaire.isFinished(board)) {
-                                Logger.infoln("!!!!!!!!!!!!!!");
-                            }
-                            new Node(nodeLevel + 1, maxLevel, tree + "->" + i);
-                            i++;
+                    nodeMovements.add(movement);
+                    List<CardAction<T>> actions = board.applyMovement(movement);
+                    level = nodeLevel;
+                    if (!hasState()) {
+                        if (solitaire.movesToFinish(board) != Solitaire.UNSOLVED) {
+                            Logger.infoln("!!!!!!!!!!!!!!");
                         }
-                        board.revertMovement(actions);
-                        nodeMovements.removeLast();
+                        new Node(nodeLevel + 1, maxLevel, tree + "->" + i);
+                        i++;
                     }
+                    board.revertMovement(actions);
+                    nodeMovements.removeLast();
                 }
             }
         }
-
-        public Map<Integer, AtomicLong> getCountPerLevel() {
-            return nodeCountPerLevel;
-        }
     }
 
-    public List<MovementScore<T>> solve() {
-        Node<T> root = new Node<>(0, 20, "root");
-        System.out.println(root.getCountPerLevel());
-        for (Map.Entry<String, Integer> entry : states.entrySet()) {
-            System.out.println(entry.getKey() + " " + entry.getValue());
+    private void printNodeStatus() {
+        System.out.println(nodeCount + " nodes");
+        System.out.println(nodeCountPerLevel);
+        System.out.println(states.size() + " states");
+        System.out.println(nodeBestScore);
+        Board<T> copy = board.copy();
+        debugPrinter.print(copy);
+        int i = 0;
+        for (MovementScore<T> nodeBestMovement : nodeBestMovements) {
+            copy.applyMovement(nodeBestMovement);
+            Logger.infoln(i + " " + solitaire.getScore(null, copy));
+            i++;
         }
-        System.out.println(states.size());
+        debugPrinter.print(copy);
+    }
+
+    public List<MovementScore<T>> solveNodes() {
+        Comparator<Integer> comparator = Comparator.naturalOrder();
+        Map<Integer, Map<Integer, Integer>> allScores = new TreeMap<>();
+        for (int i = 1; i < 10; i++) {
+            new Node<>(0, i * 5, "root");
+
+            int j = 0;
+            Board<T> copy = board.copy();
+            for (MovementScore<T> nodeBestMovement : nodeBestMovements) {
+                copy.applyMovement(nodeBestMovement);
+                allScores.computeIfAbsent(j, k -> new TreeMap<>(comparator.reversed())).put(i * 5, solitaire.getScore(null, copy));
+                j++;
+            }
+
+            for (Map.Entry<Integer, Map<Integer, Integer>> entry : allScores.entrySet()) {
+                System.out.println(entry.getKey() + " : " + entry.getValue());
+            }
+            System.out.println("*****************");
+        }
+//        int maxLevel = 20;
+//        System.out.println("************************");
+//        Node<T> root = new Node<>(0, maxLevel, "root");
+//        printNodeStatus();
+//        System.out.println("************************");
         return List.of();
     }
-     */
 
     public List<MovementScore<T>> solve() {
         // do while root has not been completely explored
@@ -127,9 +161,12 @@ public class SolitaireSolver<T extends PileType<T>> {
             List<MovementScore<T>> levelMovements = movementsToExplore.get(level);
             // no moves set for current level
             if (levelMovements == null) {
-                // get possible moves for current level
-                List<Movement<T>> possibleMovements = board.computePossibleMovements();
-                levelMovements = getOrderedMovements(possibleMovements);
+                if (solitaire.movesToFinish(board) != 10000) {
+                    levelMovements = new ArrayList<>();
+                } else {
+                    // get possible moves for current level
+                    levelMovements = getMovementScored();
+                }
                 // track possible moves
                 movementsToExplore.put(level, levelMovements);
             }
@@ -180,10 +217,20 @@ public class SolitaireSolver<T extends PileType<T>> {
         return bestMovements;
     }
 
+    private List<MovementScore<T>> getMovementScored() {
+        List<Movement<T>> possibleMovements = board.computePossibleMovements();
+        return getOrderedMovements(possibleMovements);
+    }
+
     private List<MovementScore<T>> getOrderedMovements(List<Movement<T>> possibleMovements) {
         List<MovementScore<T>> orderedMovements = solitaire.getMovementScores(board, possibleMovements);
-        orderedMovements.sort(Comparator.comparing(MovementScore::score));
+        orderedMovements.sort(Comparator.comparing(MovementScore::getScore));
+        if (!orderedMovements.isEmpty() && orderedMovements.getFirst().getScore() == ERASE_OTHER_MOVEMENTS) {
+            orderedMovements.removeIf(m -> m.getScore() != ERASE_OTHER_MOVEMENTS);
+        }
+
         if (Logger.DEBUG) {
+            debugPrinter.print(board);
             Logger.debug("orderedMovements : " + orderedMovements);
         }
         return orderedMovements;

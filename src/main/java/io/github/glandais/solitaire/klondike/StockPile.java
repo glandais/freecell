@@ -49,14 +49,14 @@ public class StockPile implements PlayablePile<KlondikePilesEnum> {
     @Override
     public List<CardAction<KlondikePilesEnum>> getActions(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, Move<KlondikePilesEnum> move) {
         // a single card
-        if (move.from() == KlondikePilesEnum.STOCK) {
+        if (move.getFrom() == KlondikePilesEnum.STOCK) {
             List<CardAction<KlondikePilesEnum>> actions = new ArrayList<>(4);
 
-            CardEnum cardEnum = move.cards().getLast();
+            CardEnum cardEnum = move.getCards().getLast();
             if (!pile.visible().isEmpty() && cardEnum == pile.visible().getLast()) {
                 // remove top visible card
                 actions.add(new CardAction<>(KlondikePilesEnum.STOCK, TargetEnum.VISIBLE_LAST, ActionEnum.REMOVE, cardEnum));
-                if (move.to() == KlondikePilesEnum.STOCK) {
+                if (move.getTo() == KlondikePilesEnum.STOCK) {
                     // discard card
                     actions.add(new CardAction<>(KlondikePilesEnum.STOCK, TargetEnum.HIDDEN_FIRST, ActionEnum.ADD, cardEnum));
                 }

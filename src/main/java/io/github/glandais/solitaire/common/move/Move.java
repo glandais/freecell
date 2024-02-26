@@ -6,9 +6,9 @@ import io.github.glandais.solitaire.common.cards.CardEnum;
 import java.util.List;
 
 public interface Move<T extends PileType<T>> {
-    T from();
+    T getFrom();
 
-    T to();
+    T getTo();
 
-    List<CardEnum> cards();
+    List<CardEnum> getCards();
 }

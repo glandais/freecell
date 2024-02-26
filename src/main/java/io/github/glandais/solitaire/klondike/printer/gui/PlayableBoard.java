@@ -85,7 +85,7 @@ public class PlayableBoard {
         if (clickCount == 2) {
             if (printableBoard.onStockVisible(x, y) || printableBoard.onStockPickable(x, y)) {
                 Optional<Movement<KlondikePilesEnum>> stockToStock = possibleMovements.stream()
-                        .filter(m -> m.from() == KlondikePilesEnum.STOCK && m.to() == KlondikePilesEnum.STOCK)
+                        .filter(m -> m.getFrom() == KlondikePilesEnum.STOCK && m.getTo() == KlondikePilesEnum.STOCK)
                         .findFirst();
                 if (stockToStock.isPresent()) {
                     apply(stockToStock.get());
@@ -96,12 +96,12 @@ public class PlayableBoard {
             if (cardAt != null) {
                 List<Movement<KlondikePilesEnum>> matchedMovements = possibleMovements
                         .stream()
-                        .filter(m -> m.cards().contains(cardAt.getCard()))
+                        .filter(m -> m.getCards().contains(cardAt.getCard()))
                         .toList();
                 if (matchedMovements.size() > 1) {
                     matchedMovements = matchedMovements
                             .stream()
-                            .filter(m -> !(m.from() == KlondikePilesEnum.STOCK && m.to() == KlondikePilesEnum.STOCK))
+                            .filter(m -> !(m.getFrom() == KlondikePilesEnum.STOCK && m.getTo() == KlondikePilesEnum.STOCK))
                             .toList();
                 }
                 if (matchedMovements.size() == 1) {
@@ -171,7 +171,7 @@ public class PlayableBoard {
                 board.revertMovement(actions);
 
                 if (board.getPile(KlondikePilesEnum.STOCK).visible().isEmpty() &&
-                        movement.from() == KlondikePilesEnum.STOCK && movement.to() == KlondikePilesEnum.STOCK) {
+                        movement.getFrom() == KlondikePilesEnum.STOCK && movement.getTo() == KlondikePilesEnum.STOCK) {
                 }
             }
             updatePrintableBoard();
@@ -212,7 +212,7 @@ public class PlayableBoard {
         }
         if (returnStock) {
             Optional<Movement<KlondikePilesEnum>> optionalMovement = possibleMovements.stream()
-                    .filter(m -> m.from() == KlondikePilesEnum.STOCK && m.to() == KlondikePilesEnum.STOCK)
+                    .filter(m -> m.getFrom() == KlondikePilesEnum.STOCK && m.getTo() == KlondikePilesEnum.STOCK)
                     .findFirst();
             if (optionalMovement.isPresent()) {
                 return optionalMovement.get();
@@ -220,9 +220,9 @@ public class PlayableBoard {
         }
         if (pilesEnum != null) {
             for (Movement<KlondikePilesEnum> possibleMovement : possibleMovements) {
-                if (possibleMovement.from() == draggedStack.from() &&
-                        possibleMovement.to() == pilesEnum &&
-                        possibleMovement.cards().equals(draggedStack.cards())) {
+                if (possibleMovement.getFrom() == draggedStack.from() &&
+                        possibleMovement.getTo() == pilesEnum &&
+                        possibleMovement.getCards().equals(draggedStack.cards())) {
                     return possibleMovement;
                 }
             }

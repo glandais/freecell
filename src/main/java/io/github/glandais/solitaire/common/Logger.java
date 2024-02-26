@@ -4,7 +4,6 @@ import io.github.glandais.solitaire.common.cards.CardEnum;
 import io.github.glandais.solitaire.common.cards.ColorEnum;
 import io.github.glandais.solitaire.common.move.MovableStack;
 import io.github.glandais.solitaire.common.move.Move;
-import io.github.glandais.solitaire.common.move.Movement;
 import io.github.glandais.solitaire.common.move.MovementScore;
 import lombok.experimental.UtilityClass;
 import org.fusesource.jansi.Ansi;
@@ -46,19 +45,19 @@ public class Logger {
             info(" ");
             info(movableStack.cards());
         } else if (s instanceof MovementScore<?> movement) {
-            info(movement.from());
+            info(movement.getFrom());
             info("->");
-            info(movement.to());
+            info(movement.getTo());
             info(" ");
-            info(movement.cards());
+            info(movement.getCards());
             info(" ");
-            info(movement.score());
+            info(movement.getScore());
         } else if (s instanceof Move<?> movement) {
-            info(movement.from());
+            info(movement.getFrom());
             info("->");
-            info(movement.to());
+            info(movement.getTo());
             info(" ");
-            info(movement.cards());
+            info(movement.getCards());
         } else {
             System.out.print(s);
         }

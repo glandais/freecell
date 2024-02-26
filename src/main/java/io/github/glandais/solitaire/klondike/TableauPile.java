@@ -95,9 +95,9 @@ public class TableauPile implements PlayablePile<KlondikePilesEnum> {
 
     @Override
     public List<CardAction<KlondikePilesEnum>> getActions(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, Move<KlondikePilesEnum> move) {
-        List<CardEnum> cards = move.cards();
+        List<CardEnum> cards = move.getCards();
         List<CardAction<KlondikePilesEnum>> actions = new ArrayList<>(cards.size() + 1);
-        if (move.from() == pile.pileType()) {
+        if (move.getFrom() == pile.pileType()) {
             // remove cards
             for (CardEnum cardEnum : cards.reversed()) {
                 actions.add(new CardAction<>(pile.pileType(), TargetEnum.VISIBLE_LAST, ActionEnum.REMOVE, cardEnum));

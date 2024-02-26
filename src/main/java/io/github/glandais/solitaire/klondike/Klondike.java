@@ -5,7 +5,9 @@ import io.github.glandais.solitaire.common.board.Board;
 import io.github.glandais.solitaire.common.board.Pile;
 import io.github.glandais.solitaire.common.board.Solitaire;
 import io.github.glandais.solitaire.common.cards.CardEnum;
+import io.github.glandais.solitaire.common.cards.ColorEnum;
 import io.github.glandais.solitaire.common.cards.OrderEnum;
+import io.github.glandais.solitaire.common.cards.SuiteEnum;
 import io.github.glandais.solitaire.common.execution.CardAction;
 import io.github.glandais.solitaire.common.move.Movement;
 import io.github.glandais.solitaire.common.move.MovementScore;
@@ -20,7 +22,6 @@ import java.util.stream.Collectors;
 public class Klondike implements Solitaire<KlondikePilesEnum> {
 
     public static final Klondike INSTANCE = new Klondike();
-    public static final int UNSOLVED = 10000;
 
     @Override
     public Board<KlondikePilesEnum> getBoard(long seed) {
@@ -74,26 +75,38 @@ public class Klondike implements Solitaire<KlondikePilesEnum> {
 
     @Override
     public List<MovementScore<KlondikePilesEnum>> getMovementScores(Board<KlondikePilesEnum> board, List<Movement<KlondikePilesEnum>> possibleMovements) {
+        // filter useless movements
+        Pile<KlondikePilesEnum> stock = board.getPile(KlondikePilesEnum.STOCK);
+        if (stock.visible().isEmpty() && !stock.hidden().isEmpty()) {
+            possibleMovements = possibleMovements.stream()
+                    .filter(m -> m.getFrom() == KlondikePilesEnum.STOCK && m.getTo() == KlondikePilesEnum.STOCK)
+                    .collect(Collectors.toList());
+        }
+        if (possibleMovements.size() <= 1) {
+            return possibleMovements.stream().map(m -> new MovementScore<>(m, 0)).collect(Collectors.toList());
+        }
         return possibleMovements.stream().map(m -> getMovementScoreWithBoardScore(board, m)).collect(Collectors.toList());
 //        return getMovementScores2(board, possibleMovements);
     }
 
     private MovementScore<KlondikePilesEnum> getMovementScoreWithBoardScore(Board<KlondikePilesEnum> board, Movement<KlondikePilesEnum> movement) {
         List<CardAction<KlondikePilesEnum>> actions = board.applyMovement(movement);
-        int score = getScore(board);
+        if (Logger.DEBUG) {
+            Logger.infoln(movement);
+        }
+        int score = getScore(movement, board);
         board.revertMovement(actions);
         return new MovementScore<>(movement, score);
     }
 
     @Override
-    public int getScore(Board<KlondikePilesEnum> board) {
-        if (movesToFinish(board) < UNSOLVED) {
-            return -100_000_000;
-        }
-        int score = 0;
-        if (!board.getPile(KlondikePilesEnum.STOCK).visible().isEmpty()) {
-            score = score - 1_000_000;
-        }
+    public int getScore(Movement<KlondikePilesEnum> movement, Board<KlondikePilesEnum> board) {
+        ScoreCard scoreCard = new ScoreCard();
+        scoreCard.setFinished(movesToFinish(board) < UNSOLVED);
+        Pile<KlondikePilesEnum> stock = board.getPile(KlondikePilesEnum.STOCK);
+        scoreCard.setNoStockVisibleAndCanPick(
+                stock.visible().isEmpty() && !stock.hidden().isEmpty()
+        );
 
         int minFoundation = 100;
         int maxFoundation = 0;
@@ -103,39 +116,84 @@ public class Klondike implements Solitaire<KlondikePilesEnum> {
                 int order = pile.visible().getLast().getOrderEnum().getOrder();
                 minFoundation = Math.min(minFoundation, order);
                 maxFoundation = Math.max(maxFoundation, order);
-            }
-        }
-        if (maxFoundation > 0) {
-            if (maxFoundation - minFoundation <= 2) {
-                score = score - maxFoundation * 50_000;
             } else {
-                score = score - maxFoundation * 1_000;
+                minFoundation = 0;
             }
         }
+        if (minFoundation == 100) {
+            minFoundation = 0;
+        }
+        scoreCard.setMinFoundation(minFoundation);
+        scoreCard.setMaxFoundation(maxFoundation);
 
-        int kingsAtTop = 0;
+        int kingSuiteNoHidden = 0;
+        int kingSuiteOnHidden = 0;
+        int emptyTableau = 0;
+        int[] hiddenCount = new int[7];
+        int[] visibleCount = new int[7];
+        CardEnum[] suiteStart = new CardEnum[7];
+        CardEnum[] suiteEnd = new CardEnum[7];
+        int[] suiteColor = new int[7];
+        int i = 0;
         for (TableauPilesEnum tableauPilesEnum : TableauPilesEnum.values()) {
             Pile<?> pile = board.getPile(tableauPilesEnum.getKlondikePilesEnum());
-            if (pile.hidden().isEmpty() && !pile.visible().isEmpty() && pile.visible().getFirst().getOrderEnum() == OrderEnum.KING) {
-                kingsAtTop++;
-            }
-        }
-        for (TableauPilesEnum tableauPilesEnum : TableauPilesEnum.values()) {
-            Pile<?> pile = board.getPile(tableauPilesEnum.getKlondikePilesEnum());
-            List<CardEnum> hidden = pile.hidden();
             List<CardEnum> visible = pile.visible();
-            int hiddenCount = hidden.size();
-            int visibleCount = visible.size();
-            if (hiddenCount == 0 && visibleCount > 0 && visible.getFirst().getOrderEnum() == OrderEnum.KING) {
-                score = score - 100_000;
+            List<CardEnum> hidden = pile.hidden();
+            boolean visibleEmpty = visible.isEmpty();
+            boolean hiddenEmpty = hidden.isEmpty();
+            if (!visibleEmpty && visible.getFirst().getOrderEnum() == OrderEnum.KING) {
+                if (hiddenEmpty) {
+                    kingSuiteNoHidden++;
+                } else {
+                    kingSuiteOnHidden++;
+                }
             }
-            if (hiddenCount == 0 && visibleCount == 0 && kingsAtTop < 4) {
-                score = score - 30_000;
+            if (hiddenEmpty && visibleEmpty) {
+                emptyTableau++;
             }
-            score = score + hiddenCount;
-            for (CardEnum cardEnum : visible) {
-                score = score - cardEnum.getOrderEnum().getOrder();
+            hiddenCount[i] = hidden.size();
+            visibleCount[i] = visible.size();
+            if (!visibleEmpty) {
+                suiteStart[i] = visible.getFirst();
+                suiteEnd[i] = visible.getLast();
             }
+
+            SuiteEnum lastBlack = null;
+            SuiteEnum lastRed = null;
+            int tableauSuiteColor = 0;
+            for (CardEnum cardEnum : visible.reversed()) {
+                SuiteEnum suiteEnum = cardEnum.getSuiteEnum();
+                if (suiteEnum.getColorEnum() == ColorEnum.BLACK) {
+                    if (lastBlack == null) {
+                        lastBlack = suiteEnum;
+                    } else if (lastBlack != suiteEnum) {
+                        break;
+                    }
+                } else {
+                    if (lastRed == null) {
+                        lastRed = suiteEnum;
+                    } else if (lastRed != suiteEnum) {
+                        break;
+                    }
+                }
+                tableauSuiteColor++;
+            }
+            suiteColor[i] = tableauSuiteColor;
+
+            i++;
+        }
+        scoreCard.setKingSuiteNoHidden(kingSuiteNoHidden);
+        scoreCard.setKingSuiteOnHidden(kingSuiteOnHidden);
+        scoreCard.setEmptyTableau(emptyTableau);
+        scoreCard.setHiddenCount(hiddenCount);
+        scoreCard.setVisibleCount(visibleCount);
+        scoreCard.setSuiteStart(suiteStart);
+        scoreCard.setSuiteEnd(suiteEnd);
+        scoreCard.setSuiteColor(suiteColor);
+
+        int score = scoreCard.getScore(movement);
+        if (Logger.DEBUG) {
+            Logger.infoln(score + " " + scoreCard);
         }
         return score;
     }
@@ -151,10 +209,10 @@ public class Klondike implements Solitaire<KlondikePilesEnum> {
 
 
     public int getMovementScore(Board<KlondikePilesEnum> board, Movement<KlondikePilesEnum> possibleMovement, List<Movement<KlondikePilesEnum>> possibleMovements) {
-        KlondikePilesEnum from = possibleMovement.from();
-        KlondikePilesEnum to = possibleMovement.to();
+        KlondikePilesEnum from = possibleMovement.getFrom();
+        KlondikePilesEnum to = possibleMovement.getTo();
         if (from == KlondikePilesEnum.STOCK && to == KlondikePilesEnum.STOCK) {
-            if (possibleMovement.cards().isEmpty()) {
+            if (possibleMovement.getCards().isEmpty()) {
                 // always pick up card
                 return -1_000_000;
             }
@@ -171,7 +229,7 @@ public class Klondike implements Solitaire<KlondikePilesEnum> {
                     }
                 }
             }
-            int order = possibleMovement.cards().getFirst().getOrderEnum().getOrder();
+            int order = possibleMovement.getCards().getFirst().getOrderEnum().getOrder();
             if (order <= maxFoundationOther + 2) {
                 // move to foundation if max - min <= 2 in foundations
                 return -500_000;
@@ -200,7 +258,7 @@ public class Klondike implements Solitaire<KlondikePilesEnum> {
                 return 999;
             }
         }
-        int firstOrder = possibleMovement.cards().getFirst().getOrderEnum().getOrder();
+        int firstOrder = possibleMovement.getCards().getFirst().getOrderEnum().getOrder();
         // FIXME boost same colors
         return -300_000 - firstOrder + stockMalus;
     }
