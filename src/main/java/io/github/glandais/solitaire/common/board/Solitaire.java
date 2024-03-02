@@ -24,4 +24,6 @@ public interface Solitaire<T extends PileType<T>> {
     int getScore(Movement<KlondikePilesEnum> movement, Board<T> board);
 
     List<MovementScore<T>> getFinishMovements(Board<T> board);
+
+    Object getBoardMoves(Board<T> board, List<MovementScore<T>> nodeBestMovements);
 }

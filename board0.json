@@ -1,0 +1,864 @@
+{
+  "board": {
+    "piles": {
+      "FOUNDATION_SPADE": {
+        "hidden": [],
+        "visible": [],
+        "pileType": "FOUNDATION_SPADE"
+      },
+      "FOUNDATION_HEART": {
+        "hidden": [],
+        "visible": [],
+        "pileType": "FOUNDATION_HEART"
+      },
+      "FOUNDATION_DIAMOND": {
+        "hidden": [],
+        "visible": [],
+        "pileType": "FOUNDATION_DIAMOND"
+      },
+      "FOUNDATION_CLUB": {
+        "hidden": [],
+        "visible": [],
+        "pileType": "FOUNDATION_CLUB"
+      },
+      "STOCK": {
+        "hidden": [
+          "QUEEN_SPADE",
+          "SEVEN_HEART",
+          "SEVEN_DIAMOND",
+          "TEN_HEART",
+          "FOUR_SPADE",
+          "JACK_SPADE",
+          "KING_SPADE",
+          "THREE_DIAMOND",
+          "SIX_SPADE",
+          "TWO_DIAMOND",
+          "NINE_CLUB",
+          "FIVE_CLUB",
+          "KING_HEART",
+          "THREE_CLUB",
+          "HEIGHT_SPADE",
+          "HEIGHT_CLUB",
+          "TEN_SPADE",
+          "JACK_DIAMOND",
+          "JACK_CLUB",
+          "SIX_HEART",
+          "TEN_DIAMOND",
+          "QUEEN_CLUB",
+          "ACE_DIAMOND",
+          "FOUR_HEART"
+        ],
+        "visible": [],
+        "pileType": "STOCK"
+      },
+      "TABLEAU_1": {
+        "hidden": [],
+        "visible": [
+          "QUEEN_HEART"
+        ],
+        "pileType": "TABLEAU_1"
+      },
+      "TABLEAU_2": {
+        "hidden": [
+          "HEIGHT_HEART"
+        ],
+        "visible": [
+          "HEIGHT_DIAMOND"
+        ],
+        "pileType": "TABLEAU_2"
+      },
+      "TABLEAU_3": {
+        "hidden": [
+          "ACE_CLUB",
+          "THREE_SPADE"
+        ],
+        "visible": [
+          "SIX_CLUB"
+        ],
+        "pileType": "TABLEAU_3"
+      },
+      "TABLEAU_4": {
+        "hidden": [
+          "NINE_SPADE",
+          "SIX_DIAMOND",
+          "QUEEN_DIAMOND"
+        ],
+        "visible": [
+          "SEVEN_CLUB"
+        ],
+        "pileType": "TABLEAU_4"
+      },
+      "TABLEAU_5": {
+        "hidden": [
+          "KING_DIAMOND",
+          "FIVE_HEART",
+          "NINE_DIAMOND",
+          "KING_CLUB"
+        ],
+        "visible": [
+          "FIVE_DIAMOND"
+        ],
+        "pileType": "TABLEAU_5"
+      },
+      "TABLEAU_6": {
+        "hidden": [
+          "SEVEN_SPADE",
+          "TWO_HEART",
+          "ACE_HEART",
+          "ACE_SPADE",
+          "NINE_HEART"
+        ],
+        "visible": [
+          "THREE_HEART"
+        ],
+        "pileType": "TABLEAU_6"
+      },
+      "TABLEAU_7": {
+        "hidden": [
+          "TWO_CLUB",
+          "FOUR_CLUB",
+          "FIVE_SPADE",
+          "JACK_HEART",
+          "TEN_CLUB",
+          "FOUR_DIAMOND"
+        ],
+        "visible": [
+          "TWO_SPADE"
+        ],
+        "pileType": "TABLEAU_7"
+      }
+    }
+  },
+  "moves": [
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "FOUR_HEART"
+      ],
+      "score": 0
+    },
+    {
+      "from": "TABLEAU_4",
+      "to": "TABLEAU_2",
+      "cards": [
+        "SEVEN_CLUB"
+      ],
+      "score": 992200
+    },
+    {
+      "from": "TABLEAU_5",
+      "to": "TABLEAU_3",
+      "cards": [
+        "FIVE_DIAMOND"
+      ],
+      "score": 944100
+    },
+    {
+      "from": "TABLEAU_1",
+      "to": "TABLEAU_5",
+      "cards": [
+        "QUEEN_HEART"
+      ],
+      "score": 847100
+    },
+    {
+      "from": "TABLEAU_5",
+      "to": "TABLEAU_1",
+      "cards": [
+        "KING_CLUB",
+        "QUEEN_HEART"
+      ],
+      "score": 786000
+    },
+    {
+      "from": "TABLEAU_7",
+      "to": "TABLEAU_6",
+      "cards": [
+        "TWO_SPADE"
+      ],
+      "score": 746900
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "FOUR_HEART"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "FOUNDATION_DIAMOND",
+      "cards": [
+        "ACE_DIAMOND"
+      ],
+      "score": -1000000000
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "QUEEN_CLUB"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "TEN_DIAMOND"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "TABLEAU_2",
+      "cards": [
+        "SIX_HEART"
+      ],
+      "score": 692800
+    },
+    {
+      "from": "STOCK",
+      "to": "TABLEAU_1",
+      "cards": [
+        "JACK_CLUB"
+      ],
+      "score": 687400
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "JACK_DIAMOND"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "TEN_SPADE"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "TABLEAU_5",
+      "cards": [
+        "HEIGHT_CLUB"
+      ],
+      "score": 690300
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "HEIGHT_SPADE"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "TABLEAU_7",
+      "cards": [
+        "THREE_CLUB"
+      ],
+      "score": 695200
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "KING_HEART"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "TABLEAU_2",
+      "cards": [
+        "FIVE_CLUB"
+      ],
+      "score": 692800
+    },
+    {
+      "from": "TABLEAU_7",
+      "to": "TABLEAU_2",
+      "cards": [
+        "FOUR_DIAMOND",
+        "THREE_CLUB"
+      ],
+      "score": 643700
+    },
+    {
+      "from": "TABLEAU_5",
+      "to": "TABLEAU_7",
+      "cards": [
+        "NINE_DIAMOND",
+        "HEIGHT_CLUB"
+      ],
+      "score": 588300
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "NINE_CLUB"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "FOUNDATION_DIAMOND",
+      "cards": [
+        "TWO_DIAMOND"
+      ],
+      "score": -1000000000
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "SIX_SPADE"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "THREE_DIAMOND"
+      ],
+      "score": 594300
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "KING_SPADE"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "TABLEAU_4",
+      "cards": [
+        "JACK_SPADE"
+      ],
+      "score": 586200
+    },
+    {
+      "from": "STOCK",
+      "to": "TABLEAU_3",
+      "cards": [
+        "FOUR_SPADE"
+      ],
+      "score": 593100
+    },
+    {
+      "from": "TABLEAU_6",
+      "to": "TABLEAU_3",
+      "cards": [
+        "THREE_HEART",
+        "TWO_SPADE"
+      ],
+      "score": 543700
+    },
+    {
+      "from": "STOCK",
+      "to": "TABLEAU_1",
+      "cards": [
+        "TEN_HEART"
+      ],
+      "score": 536500
+    },
+    {
+      "from": "STOCK",
+      "to": "TABLEAU_7",
+      "cards": [
+        "SEVEN_DIAMOND"
+      ],
+      "score": 539300
+    },
+    {
+      "from": "TABLEAU_3",
+      "to": "TABLEAU_7",
+      "cards": [
+        "SIX_CLUB",
+        "FIVE_DIAMOND",
+        "FOUR_SPADE",
+        "THREE_HEART",
+        "TWO_SPADE"
+      ],
+      "score": 490600
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "SEVEN_HEART"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "QUEEN_SPADE"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "FOUR_HEART"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "QUEEN_CLUB"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "TABLEAU_4",
+      "cards": [
+        "TEN_DIAMOND"
+      ],
+      "score": 486200
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "JACK_DIAMOND"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "TEN_SPADE"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "TABLEAU_6",
+      "cards": [
+        "HEIGHT_SPADE"
+      ],
+      "score": 488100
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "KING_HEART"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "TABLEAU_1",
+      "cards": [
+        "NINE_CLUB"
+      ],
+      "score": 486900
+    },
+    {
+      "from": "TABLEAU_2",
+      "to": "TABLEAU_1",
+      "cards": [
+        "HEIGHT_DIAMOND",
+        "SEVEN_CLUB",
+        "SIX_HEART",
+        "FIVE_CLUB",
+        "FOUR_DIAMOND",
+        "THREE_CLUB"
+      ],
+      "score": 438300
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "SIX_SPADE"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "THREE_DIAMOND"
+      ],
+      "score": 443300
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "KING_SPADE"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "TABLEAU_6",
+      "cards": [
+        "SEVEN_HEART"
+      ],
+      "score": 438900
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "QUEEN_SPADE"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "FOUR_HEART"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "QUEEN_CLUB"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "JACK_DIAMOND"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "TEN_SPADE"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "KING_HEART"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "TABLEAU_6",
+      "cards": [
+        "SIX_SPADE"
+      ],
+      "score": 439700
+    },
+    {
+      "from": "TABLEAU_5",
+      "to": "TABLEAU_6",
+      "cards": [
+        "FIVE_HEART"
+      ],
+      "score": 290500
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "THREE_DIAMOND"
+      ],
+      "score": 292500
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "KING_SPADE"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "TABLEAU_5",
+      "cards": [
+        "QUEEN_SPADE"
+      ],
+      "score": 283400
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "FOUR_HEART"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "QUEEN_CLUB"
+      ],
+      "score": 0
+    },
+    {
+      "from": "STOCK",
+      "to": "TABLEAU_5",
+      "cards": [
+        "JACK_DIAMOND"
+      ],
+      "score": 284000
+    },
+    {
+      "from": "TABLEAU_7",
+      "to": "TABLEAU_5",
+      "cards": [
+        "TEN_CLUB",
+        "NINE_DIAMOND",
+        "HEIGHT_CLUB",
+        "SEVEN_DIAMOND",
+        "SIX_CLUB",
+        "FIVE_DIAMOND",
+        "FOUR_SPADE",
+        "THREE_HEART",
+        "TWO_SPADE"
+      ],
+      "score": 235200
+    },
+    {
+      "from": "STOCK",
+      "to": "TABLEAU_7",
+      "cards": [
+        "TEN_SPADE"
+      ],
+      "score": 235100
+    },
+    {
+      "from": "TABLEAU_6",
+      "to": "TABLEAU_7",
+      "cards": [
+        "NINE_HEART",
+        "HEIGHT_SPADE",
+        "SEVEN_HEART",
+        "SIX_SPADE",
+        "FIVE_HEART"
+      ],
+      "score": 185800
+    },
+    {
+      "from": "TABLEAU_6",
+      "to": "FOUNDATION_SPADE",
+      "cards": [
+        "ACE_SPADE"
+      ],
+      "score": -1000000000
+    },
+    {
+      "from": "TABLEAU_5",
+      "to": "FOUNDATION_SPADE",
+      "cards": [
+        "TWO_SPADE"
+      ],
+      "score": -1000000000
+    },
+    {
+      "from": "TABLEAU_6",
+      "to": "FOUNDATION_HEART",
+      "cards": [
+        "ACE_HEART"
+      ],
+      "score": -1000000000
+    },
+    {
+      "from": "TABLEAU_6",
+      "to": "FOUNDATION_HEART",
+      "cards": [
+        "TWO_HEART"
+      ],
+      "score": -1000000000
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "KING_HEART"
+      ],
+      "score": 32200
+    },
+    {
+      "from": "TABLEAU_3",
+      "to": "FOUNDATION_SPADE",
+      "cards": [
+        "THREE_SPADE"
+      ],
+      "score": 32200
+    },
+    {
+      "from": "TABLEAU_3",
+      "to": "FOUNDATION_CLUB",
+      "cards": [
+        "ACE_CLUB"
+      ],
+      "score": -1000000000
+    },
+    {
+      "from": "STOCK",
+      "to": "FOUNDATION_DIAMOND",
+      "cards": [
+        "THREE_DIAMOND"
+      ],
+      "score": -1000000000
+    },
+    {
+      "from": "TABLEAU_5",
+      "to": "FOUNDATION_HEART",
+      "cards": [
+        "THREE_HEART"
+      ],
+      "score": -1000000000
+    },
+    {
+      "from": "STOCK",
+      "to": "TABLEAU_3",
+      "cards": [
+        "KING_SPADE"
+      ],
+      "score": -117700
+    },
+    {
+      "from": "TABLEAU_4",
+      "to": "TABLEAU_3",
+      "cards": [
+        "QUEEN_DIAMOND",
+        "JACK_SPADE",
+        "TEN_DIAMOND"
+      ],
+      "score": -166900
+    },
+    {
+      "from": "TABLEAU_4",
+      "to": "TABLEAU_6",
+      "cards": [
+        "SIX_DIAMOND"
+      ],
+      "score": -211000
+    },
+    {
+      "from": "TABLEAU_4",
+      "to": "TABLEAU_3",
+      "cards": [
+        "NINE_SPADE"
+      ],
+      "score": -214100
+    },
+    {
+      "from": "TABLEAU_2",
+      "to": "TABLEAU_3",
+      "cards": [
+        "HEIGHT_HEART"
+      ],
+      "score": -212600
+    },
+    {
+      "from": "TABLEAU_6",
+      "to": "TABLEAU_3",
+      "cards": [
+        "SEVEN_SPADE",
+        "SIX_DIAMOND"
+      ],
+      "score": -211600
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "FOUR_HEART"
+      ],
+      "score": -208600
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "QUEEN_CLUB"
+      ],
+      "score": -216600
+    },
+    {
+      "from": "STOCK",
+      "to": "TABLEAU_2",
+      "cards": [
+        "KING_HEART"
+      ],
+      "score": -317700
+    },
+    {
+      "from": "STOCK",
+      "to": "STOCK",
+      "cards": [
+        "FOUR_HEART"
+      ],
+      "score": -308700
+    },
+    {
+      "from": "STOCK",
+      "to": "TABLEAU_2",
+      "cards": [
+        "QUEEN_CLUB"
+      ],
+      "score": -316800
+    },
+    {
+      "from": "TABLEAU_7",
+      "to": "TABLEAU_2",
+      "cards": [
+        "JACK_HEART",
+        "TEN_SPADE",
+        "NINE_HEART",
+        "HEIGHT_SPADE",
+        "SEVEN_HEART",
+        "SIX_SPADE",
+        "FIVE_HEART"
+      ],
+      "score": -365900
+    },
+    {
+      "from": "TABLEAU_7",
+      "to": "TABLEAU_3",
+      "cards": [
+        "FIVE_SPADE"
+      ],
+      "score": -410300
+    },
+    {
+      "from": "TABLEAU_7",
+      "to": "TABLEAU_2",
+      "cards": [
+        "FOUR_CLUB"
+      ],
+      "score": -100000000
+    }
+  ]
+}

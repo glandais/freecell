@@ -15,6 +15,7 @@ import io.github.glandais.solitaire.klondike.enums.FoundationPilesEnum;
 import io.github.glandais.solitaire.klondike.enums.KlondikePilesEnum;
 import io.github.glandais.solitaire.klondike.enums.PileTypeEnum;
 import io.github.glandais.solitaire.klondike.enums.TableauPilesEnum;
+import io.github.glandais.solitaire.klondike.serde.BoardMoves;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -277,6 +278,11 @@ public class Klondike implements Solitaire<KlondikePilesEnum> {
             }
         } while (!possibleMovements.isEmpty());
         return movements;
+    }
+
+    @Override
+    public Object getBoardMoves(Board<KlondikePilesEnum> board, List<MovementScore<KlondikePilesEnum>> moves) {
+        return new BoardMoves(board, moves);
     }
 
 }

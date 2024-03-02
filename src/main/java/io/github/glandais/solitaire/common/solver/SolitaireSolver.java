@@ -1,5 +1,7 @@
 package io.github.glandais.solitaire.common.solver;
 
+import com.google.common.hash.BloomFilter;
+import com.google.common.hash.Funnels;
 import io.github.glandais.solitaire.common.Logger;
 import io.github.glandais.solitaire.common.board.Board;
 import io.github.glandais.solitaire.common.board.PileType;
@@ -8,8 +10,10 @@ import io.github.glandais.solitaire.common.execution.CardAction;
 import io.github.glandais.solitaire.common.move.Movement;
 import io.github.glandais.solitaire.common.move.MovementScore;
 import io.github.glandais.solitaire.common.printer.SolitairePrinter;
+import io.github.glandais.solitaire.klondike.serde.Serde;
 import lombok.SneakyThrows;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -20,7 +24,7 @@ public class SolitaireSolver<T extends PileType<T>> {
     private final Solitaire<T> solitaire;
     private final SolitairePrinter<T> debugPrinter;
     private Board<T> board;
-    private final Map<String, Integer> states = new TreeMap<>();
+    private BloomFilter<String> states;
 
     int level = 0;
     int bestLevel = 100_000;
@@ -37,116 +41,76 @@ public class SolitaireSolver<T extends PileType<T>> {
     long loops = 0;
     long movements = 0;
     long rollbacks = 0;
-    long newStates = 0;
-    long existingStates = 0;
+    long statesPut = 0;
     Map<Integer, AtomicLong> movementsPerLevel = new HashMap<>();
 
     public SolitaireSolver(Solitaire<T> solitaire, Board<T> board, SolitairePrinter<T> debugPrinter) {
         this.solitaire = solitaire;
         this.board = board;
         this.debugPrinter = debugPrinter;
+        resetStates();
+    }
+
+    private void resetStates() {
+        states = BloomFilter.create(
+                Funnels.stringFunnel(StandardCharsets.UTF_8),
+                10_000_000,
+                0.01);
+        statesPut = 0;
     }
 
     Map<Integer, AtomicLong> nodeCountPerLevel = new HashMap<>();
     int nodeCount = 0;
-    int nodeBestScore = 1_000_000;
-    List<MovementScore<T>> nodeBestMovements;
+    int nodeBestFinishedLevel = 1_000_000;
+    List<MovementScore<T>> nodeBestFinishMovements;
     List<MovementScore<T>> nodeMovements = new ArrayList<>();
 
-    public class Node<N extends PileType<N>> {
+    public void recurse(int maxLevel) {
+        nodeCountPerLevel = new HashMap<>();
+        nodeCount = 0;
+        resetStates();
+        nodeBestFinishedLevel = 1_000_000;
+        nodeBestFinishMovements = null;
+        nodeMovements = new ArrayList<>();
+        recurse(0, maxLevel, "root");
+    }
 
-        final int nodeLevel;
-        final String tree;
+    public void recurse(int nodeLevel, int maxLevel, String tree) {
+        nodeCountPerLevel.computeIfAbsent(nodeLevel, l -> new AtomicLong()).incrementAndGet();
+        nodeCount++;
+        if (nodeCount % 1_000_000 == 0) {
+            System.out.println(nodeCount + " iterations");
+            System.out.println(nodeBestFinishedLevel);
+            System.out.println(nodeCountPerLevel);
+        }
 
-        public Node(int nodeLevel, int maxLevel, String tree) {
-            if (nodeLevel == 0) {
-                nodeCountPerLevel = new HashMap<>();
-                nodeCount = 0;
-                states.clear();
-                nodeBestScore = 1_000_000;
-                nodeBestMovements = null;
-                nodeMovements = new ArrayList<>();
-            }
-            this.nodeLevel = nodeLevel;
-            this.tree = tree;
-            nodeCountPerLevel.computeIfAbsent(nodeLevel, l -> new AtomicLong()).incrementAndGet();
-            nodeCount++;
-            if (nodeCount % 100_000 == 0) {
-                System.out.println(nodeCount + " nodes");
-                System.out.println(states.size() + " states");
-                System.out.println(nodeCountPerLevel);
-            }
-
-            int score = solitaire.getScore(null, board);
-            if (score < nodeBestScore) {
-                nodeBestScore = score;
-                nodeBestMovements = new ArrayList<>(nodeMovements);
-//                System.out.println(tree);
-//                printNodeStatus();
-            }
-
-            if (nodeLevel < maxLevel) {
-                List<MovementScore<T>> levelMovements = getMovementScored();
-                int i = 0;
-                for (MovementScore<T> movement : levelMovements) {
-                    nodeMovements.add(movement);
-                    List<CardAction<T>> actions = board.applyMovement(movement);
-                    level = nodeLevel;
-                    if (!hasState()) {
-                        if (solitaire.movesToFinish(board) != Solitaire.UNSOLVED) {
-                            Logger.infoln("!!!!!!!!!!!!!!");
-                        }
-                        new Node(nodeLevel + 1, maxLevel, tree + "->" + i);
-                        i++;
-                    }
-                    board.revertMovement(actions);
-                    nodeMovements.removeLast();
+        int movesToFinish = solitaire.movesToFinish(board);
+        if (movesToFinish != Solitaire.UNSOLVED && nodeLevel + movesToFinish < nodeBestFinishedLevel) {
+            nodeBestFinishedLevel = nodeLevel + movesToFinish;
+            nodeBestFinishMovements = new ArrayList<>(nodeMovements);
+            nodeBestFinishMovements.addAll(solitaire.getFinishMovements(board));
+        }
+        if (nodeLevel < maxLevel && nodeLevel < nodeBestFinishedLevel) {
+            List<MovementScore<T>> levelMovements = getMovementScored();
+            int i = 0;
+            for (MovementScore<T> movement : levelMovements) {
+                nodeMovements.add(movement);
+                List<CardAction<T>> actions = board.applyMovement(movement);
+                level = nodeLevel;
+                if (!hasState()) {
+                    recurse(nodeLevel + 1, maxLevel, tree + "->" + i);
+                    i++;
                 }
+                board.revertMovement(actions);
+                nodeMovements.removeLast();
             }
         }
     }
 
-    private void printNodeStatus() {
-        System.out.println(nodeCount + " nodes");
-        System.out.println(nodeCountPerLevel);
-        System.out.println(states.size() + " states");
-        System.out.println(nodeBestScore);
-        Board<T> copy = board.copy();
-        debugPrinter.print(copy);
-        int i = 0;
-        for (MovementScore<T> nodeBestMovement : nodeBestMovements) {
-            copy.applyMovement(nodeBestMovement);
-            Logger.infoln(i + " " + solitaire.getScore(null, copy));
-            i++;
-        }
-        debugPrinter.print(copy);
-    }
-
-    public List<MovementScore<T>> solveNodes() {
-        Comparator<Integer> comparator = Comparator.naturalOrder();
-        Map<Integer, Map<Integer, Integer>> allScores = new TreeMap<>();
-        for (int i = 1; i < 10; i++) {
-            new Node<>(0, i * 5, "root");
-
-            int j = 0;
-            Board<T> copy = board.copy();
-            for (MovementScore<T> nodeBestMovement : nodeBestMovements) {
-                copy.applyMovement(nodeBestMovement);
-                allScores.computeIfAbsent(j, k -> new TreeMap<>(comparator.reversed())).put(i * 5, solitaire.getScore(null, copy));
-                j++;
-            }
-
-            for (Map.Entry<Integer, Map<Integer, Integer>> entry : allScores.entrySet()) {
-                System.out.println(entry.getKey() + " : " + entry.getValue());
-            }
-            System.out.println("*****************");
-        }
-//        int maxLevel = 20;
-//        System.out.println("************************");
-//        Node<T> root = new Node<>(0, maxLevel, "root");
-//        printNodeStatus();
-//        System.out.println("************************");
-        return List.of();
+    public void solveNodes() {
+        recurse(111);
+        Serde.save("board.json", solitaire.getBoardMoves(board, nodeBestFinishMovements));
+        System.out.println("*****************");
     }
 
     public List<MovementScore<T>> solve() {
@@ -245,7 +209,7 @@ public class SolitaireSolver<T extends PileType<T>> {
 
         bestMovements.addAll(solitaire.getFinishMovements(board));
 
-        states.values().removeIf(l -> l > level);
+//        states.values().removeIf(l -> l > level);
 
         Logger.infoln("****************");
         Logger.infoln("New best level : " + bestLevel + " at iteration " + movements);
@@ -272,9 +236,7 @@ public class SolitaireSolver<T extends PileType<T>> {
         Logger.infoln("loops : " + loops);
         Logger.infoln("moves : " + movements);
         Logger.infoln("rollbacks : " + rollbacks);
-        Logger.infoln("newStates : " + newStates);
-        Logger.infoln("existingStates : " + existingStates);
-        Logger.infoln("states : " + states.size());
+        Logger.infoln("statesPut : " + statesPut);
         Logger.infoln("movementsPerLevel : " + movementsPerLevel);
         List<Tuple> tuples = movementsToExplore.entrySet().stream()
                 .map(e -> new Tuple(e.getKey(), e.getValue().size()))
@@ -303,13 +265,10 @@ public class SolitaireSolver<T extends PileType<T>> {
 
     public boolean hasState() {
         String state = board.computeState();
-        Integer existingLevel = states.get(state);
-        if (existingLevel == null || level < existingLevel) {
-            newStates++;
-            states.put(state, level);
+        if (states.put(state)) {
+            statesPut++;
             return false;
         }
-        existingStates++;
         return true;
     }
 
