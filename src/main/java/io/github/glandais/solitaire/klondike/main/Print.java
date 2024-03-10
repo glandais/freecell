@@ -13,6 +13,10 @@ import java.util.concurrent.Callable;
 @CommandLine.Command(name = "print", mixinStandardHelpOptions = true)
 public class Print implements Callable<Integer> {
 
+    public static void main(String[] args) {
+        new Print().call();
+    }
+
     @Override
     public Integer call() {
         BoardMoves boardMoves = Serde.load("board.json", BoardMoves.class);

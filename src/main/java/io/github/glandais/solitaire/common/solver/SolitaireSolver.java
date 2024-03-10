@@ -1,7 +1,5 @@
 package io.github.glandais.solitaire.common.solver;
 
-import com.google.common.hash.BloomFilter;
-import com.google.common.hash.Funnels;
 import io.github.glandais.solitaire.common.Logger;
 import io.github.glandais.solitaire.common.board.Board;
 import io.github.glandais.solitaire.common.board.PileType;
@@ -13,7 +11,6 @@ import io.github.glandais.solitaire.common.printer.SolitairePrinter;
 import io.github.glandais.solitaire.klondike.serde.Serde;
 import lombok.SneakyThrows;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -24,7 +21,7 @@ public class SolitaireSolver<T extends PileType<T>> {
     private final Solitaire<T> solitaire;
     private final SolitairePrinter<T> debugPrinter;
     private Board<T> board;
-    private BloomFilter<String> states;
+    private Map<String, Integer> states = new TreeMap<>();
 
     int level = 0;
     int bestLevel = 100_000;
@@ -52,10 +49,7 @@ public class SolitaireSolver<T extends PileType<T>> {
     }
 
     private void resetStates() {
-        states = BloomFilter.create(
-                Funnels.stringFunnel(StandardCharsets.UTF_8),
-                10_000_000,
-                0.01);
+        states = new TreeMap<>();
         statesPut = 0;
     }
 
@@ -265,8 +259,10 @@ public class SolitaireSolver<T extends PileType<T>> {
 
     public boolean hasState() {
         String state = board.computeState();
-        if (states.put(state)) {
+        Integer existingLevel = states.get(state);
+        if (existingLevel == null || level < existingLevel) {
             statesPut++;
+            states.put(state, level);
             return false;
         }
         return true;

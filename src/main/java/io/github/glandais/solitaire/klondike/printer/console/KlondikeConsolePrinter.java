@@ -153,7 +153,7 @@ public class KlondikeConsolePrinter implements SolitairePrinter<KlondikePilesEnu
                         label = "0";
                     }
                 } else if (i == 3 && (j == 0 || j == 2)) {
-                    label = "" + printableCard.card().getOrderEnum().getLabel();
+                    label = printableCard.card().getOrderEnum().getLabel();
                 }
                 Logger.info(ansi().bgBright(Ansi.Color.WHITE).fgBright(printableCard.card().getColorEnum() == ColorEnum.RED ? Ansi.Color.RED : Ansi.Color.BLACK).a(label).reset());
             }
