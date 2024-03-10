@@ -6,13 +6,13 @@ import io.github.glandais.solitaire.common.cards.CardEnum;
 import io.github.glandais.solitaire.common.move.Movement;
 import io.github.glandais.solitaire.common.move.MovementScore;
 import io.github.glandais.solitaire.common.printer.SolitairePrinter;
-import io.github.glandais.solitaire.klondike.Klondike;
 import io.github.glandais.solitaire.klondike.enums.KlondikePilesEnum;
 import io.github.glandais.solitaire.klondike.serde.Serde;
 import javafx.application.Platform;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 import lombok.SneakyThrows;
 
 import java.security.SecureRandom;
@@ -122,6 +122,7 @@ public class KlondikeGuiPrinter implements SolitairePrinter<KlondikePilesEnum> {
         if (code == KeyCode.SPACE) {
             paused = !paused;
         }
+        playableBoard.keyReleased(code);
     }
 
     private void updateReplay(float v) {
@@ -242,9 +243,9 @@ public class KlondikeGuiPrinter implements SolitairePrinter<KlondikePilesEnum> {
         Platform.exit();
     }
 
-    public void mouseClicked(double x, double y, int clickCount) {
+    public void mouseClicked(double x, double y, MouseButton mouseButton, int clickCount) {
         if (playable) {
-            playableBoard.mouseClicked(x, y, clickCount);
+            playableBoard.mouseClicked(x, y, mouseButton, clickCount);
         }
     }
 
@@ -266,15 +267,4 @@ public class KlondikeGuiPrinter implements SolitairePrinter<KlondikePilesEnum> {
         }
     }
 
-    public void undo() {
-        if (playable) {
-            playableBoard.undo();
-        }
-    }
-
-    public void redo() {
-        if (playable) {
-            playableBoard.redo();
-        }
-    }
 }

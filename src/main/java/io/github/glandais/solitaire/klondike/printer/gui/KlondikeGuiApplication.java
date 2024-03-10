@@ -38,13 +38,7 @@ public class KlondikeGuiApplication extends Application {
         root.getChildren().add(canvas);
         Scene scene = new Scene(root, Constants.WIDTH, Constants.HEIGHT);
         scene.setOnMouseClicked(e -> {
-            if (e.getButton() == MouseButton.BACK) {
-                klondikeGuiPrinter.undo();
-            } else if (e.getButton() == MouseButton.FORWARD) {
-                klondikeGuiPrinter.redo();
-            } else if (e.getButton() == MouseButton.PRIMARY) {
-                klondikeGuiPrinter.mouseClicked(e.getX(), e.getY(), e.getClickCount());
-            }
+            klondikeGuiPrinter.mouseClicked(e.getX(), e.getY(), e.getButton(), e.getClickCount());
         });
         scene.setOnMousePressed(e -> {
             if (e.getButton() == MouseButton.PRIMARY) {

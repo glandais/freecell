@@ -5,7 +5,6 @@ import io.github.glandais.solitaire.common.board.Board;
 import io.github.glandais.solitaire.common.board.PileType;
 import io.github.glandais.solitaire.common.board.Solitaire;
 import io.github.glandais.solitaire.common.execution.CardAction;
-import io.github.glandais.solitaire.common.move.Movement;
 import io.github.glandais.solitaire.common.move.MovementScore;
 import io.github.glandais.solitaire.common.printer.SolitairePrinter;
 import io.github.glandais.solitaire.klondike.serde.Serde;
@@ -13,8 +12,6 @@ import lombok.SneakyThrows;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
-
-import static io.github.glandais.solitaire.common.board.Solitaire.ERASE_OTHER_MOVEMENTS;
 
 public class SolitaireSolver<T extends PileType<T>> {
 
@@ -85,7 +82,7 @@ public class SolitaireSolver<T extends PileType<T>> {
             nodeBestFinishMovements.addAll(solitaire.getFinishMovements(board));
         }
         if (nodeLevel < maxLevel && nodeLevel < nodeBestFinishedLevel) {
-            List<MovementScore<T>> levelMovements = getMovementScored();
+            List<MovementScore<T>> levelMovements = solitaire.getOrderedMovements(board);
             int i = 0;
             for (MovementScore<T> movement : levelMovements) {
                 nodeMovements.add(movement);
@@ -123,7 +120,11 @@ public class SolitaireSolver<T extends PileType<T>> {
                     levelMovements = new ArrayList<>();
                 } else {
                     // get possible moves for current level
-                    levelMovements = getMovementScored();
+                    levelMovements = solitaire.getOrderedMovements(board);
+                    if (Logger.DEBUG) {
+                        debugPrinter.print(board);
+                        Logger.debug("orderedMovements : " + levelMovements);
+                    }
                 }
                 // track possible moves
                 movementsToExplore.put(level, levelMovements);
@@ -146,7 +147,9 @@ public class SolitaireSolver<T extends PileType<T>> {
                         // rollback actions
                         board.revertMovement(actions);
                     } else {
-                        incMovements();
+                        // inc counters
+                        movements++;
+                        movementsPerLevel.computeIfAbsent(level, i -> new AtomicLong(0)).incrementAndGet();
                         // go deeper :
                         // add movement to stack
                         movementsStack.add(movement);
@@ -175,25 +178,6 @@ public class SolitaireSolver<T extends PileType<T>> {
         return bestMovements;
     }
 
-    private List<MovementScore<T>> getMovementScored() {
-        List<Movement<T>> possibleMovements = board.computePossibleMovements();
-        return getOrderedMovements(possibleMovements);
-    }
-
-    private List<MovementScore<T>> getOrderedMovements(List<Movement<T>> possibleMovements) {
-        List<MovementScore<T>> orderedMovements = solitaire.getMovementScores(board, possibleMovements);
-        orderedMovements.sort(Comparator.comparing(MovementScore::getScore));
-        if (!orderedMovements.isEmpty() && orderedMovements.getFirst().getScore() == ERASE_OTHER_MOVEMENTS) {
-            orderedMovements.removeIf(m -> m.getScore() != ERASE_OTHER_MOVEMENTS);
-        }
-
-        if (Logger.DEBUG) {
-            debugPrinter.print(board);
-            Logger.debug("orderedMovements : " + orderedMovements);
-        }
-        return orderedMovements;
-    }
-
     private void newBestLevel(MovementScore<T> movement, int movesToFinish) {
         level++;
         // track best
@@ -203,7 +187,7 @@ public class SolitaireSolver<T extends PileType<T>> {
 
         bestMovements.addAll(solitaire.getFinishMovements(board));
 
-//        states.values().removeIf(l -> l > level);
+        states.values().removeIf(l -> l > level);
 
         Logger.infoln("****************");
         Logger.infoln("New best level : " + bestLevel + " at iteration " + movements);
@@ -218,11 +202,6 @@ public class SolitaireSolver<T extends PileType<T>> {
     @SneakyThrows
     private void sleep(int ms) {
         Thread.sleep(ms);
-    }
-
-    private void incMovements() {
-        movements++;
-        movementsPerLevel.computeIfAbsent(level, i -> new AtomicLong(0)).incrementAndGet();
     }
 
     private void printStatus() {
@@ -246,12 +225,16 @@ public class SolitaireSolver<T extends PileType<T>> {
     private void rollback() {
         // discard level
         movementsToExplore.remove(level);
-        // discard movement
-        movementsStack.removeLast();
-        // discard actions
-        List<CardAction<T>> actions = actionsStack.removeLast();
-        // revert actions
-        board.revertMovement(actions);
+        if (!movementsStack.isEmpty()) {
+            // discard movement
+            movementsStack.removeLast();
+        }
+        if (!actionsStack.isEmpty()) {
+            // discard actions
+            List<CardAction<T>> actions = actionsStack.removeLast();
+            // revert actions
+            board.revertMovement(actions);
+        }
         // decrease level
         level = level - 1;
         rollbacks++;

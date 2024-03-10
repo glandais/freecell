@@ -45,7 +45,10 @@ public class TableauPile implements PlayablePile<KlondikePilesEnum> {
         if (movableStack.from() == pile.pileType()) {
             return Optional.empty();
         }
-        if (movableStack.from() == KlondikePilesEnum.STOCK && board.getPile(movableStack.from()).visible().isEmpty()) {
+        CardEnum cardEnum = movableStack.cards().getFirst();
+        if (movableStack.from() == KlondikePilesEnum.STOCK &&
+                !board.getPile(movableStack.from()).hidden().isEmpty() &&
+                board.getPile(movableStack.from()).hidden().getLast() == cardEnum) {
             return Optional.empty();
         }
         if (!isPossible(pile, movableStack)) {
@@ -55,22 +58,6 @@ public class TableauPile implements PlayablePile<KlondikePilesEnum> {
             return acceptFromTableau(board, pile, movableStack);
         }
         return Optional.of(new Movement<>(movableStack, pile.pileType()));
-    }
-
-    private Optional<Movement<KlondikePilesEnum>> acceptFromTableau(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, MovableStack<KlondikePilesEnum> movableStack) {
-        // accept only full stacks
-        if (movableStack.cards().size() != board.getPile(movableStack.from()).visible().size()) {
-            return Optional.empty();
-        }
-        // do not move a king starting stack without hidden cards
-        if (
-                movableStack.cards().getFirst().getOrderEnum() == OrderEnum.KING &&
-                        board.getPile(movableStack.from()).hidden().isEmpty()
-        ) {
-            return Optional.empty();
-        } else {
-            return Optional.of(new Movement<>(movableStack, pile.pileType()));
-        }
     }
 
     private boolean isPossible(Pile<KlondikePilesEnum> pile, MovableStack<KlondikePilesEnum> movableStack) {
@@ -90,6 +77,22 @@ public class TableauPile implements PlayablePile<KlondikePilesEnum> {
             int lastOrder = last.getOrderEnum().getOrder();
             int firstOrder = first.getOrderEnum().getOrder();
             return firstOrder + 1 == lastOrder;
+        }
+    }
+
+    private Optional<Movement<KlondikePilesEnum>> acceptFromTableau(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, MovableStack<KlondikePilesEnum> movableStack) {
+        // accept only full stacks
+        if (movableStack.cards().size() != board.getPile(movableStack.from()).visible().size()) {
+            return Optional.empty();
+        }
+        // do not move a king starting stack without hidden cards
+        if (
+                movableStack.cards().getFirst().getOrderEnum() == OrderEnum.KING &&
+                        board.getPile(movableStack.from()).hidden().isEmpty()
+        ) {
+            return Optional.empty();
+        } else {
+            return Optional.of(new Movement<>(movableStack, pile.pileType()));
         }
     }
 

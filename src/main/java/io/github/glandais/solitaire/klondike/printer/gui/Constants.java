@@ -15,6 +15,7 @@ public interface Constants {
     float TOP_Y = 150;
     int SPACE = 40;
     float SPACE_FOUNDATION = 10;
-    float SPACE_STACK = 5;
+    float SPACE_STOCK_VISIBLE = 2;
+    float SPACE_STOCK_HIDDEN = 5;
 
 }

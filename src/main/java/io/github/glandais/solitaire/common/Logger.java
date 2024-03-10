@@ -52,6 +52,8 @@ public class Logger {
             info(movement.getCards());
             info(" ");
             info(movement.getScore());
+            info(" ");
+            info(movement.getDebug());
         } else if (s instanceof Move<?> movement) {
             info(movement.getFrom());
             info("->");

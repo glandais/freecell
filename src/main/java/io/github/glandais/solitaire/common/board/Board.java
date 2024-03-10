@@ -47,7 +47,35 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
                 actions.addAll(to.getActions(this, pileTo, move));
             }
             applyActions(actions);
+
+//            check();
+
             return actions;
+        }
+    }
+
+    private void check() {
+        Map<CardEnum, String> places = new EnumMap<>(CardEnum.class);
+        int i;
+        for (Map.Entry<T, Pile<T>> entry : piles.entrySet()) {
+            i = 0;
+            for (CardEnum cardEnum : entry.getValue().visible()) {
+                if (places.containsKey(cardEnum)) {
+                    Logger.infoln("invalid");
+                }
+                places.put(cardEnum, entry.getKey().name() + "-visible-" + i);
+                i++;
+            }
+            for (CardEnum cardEnum : entry.getValue().hidden()) {
+                if (places.containsKey(cardEnum)) {
+                    Logger.infoln("invalid");
+                }
+                places.put(cardEnum, entry.getKey().name() + "-hidden-" + i);
+                i++;
+            }
+        }
+        if (places.size() != 52) {
+            Logger.infoln("invalid");
         }
     }
 
@@ -101,7 +129,7 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
                 movementOptional.ifPresent(movements::add);
             }
         }
-        
+
         return movements;
     }
 

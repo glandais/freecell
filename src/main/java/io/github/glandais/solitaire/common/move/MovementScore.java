@@ -17,14 +17,15 @@ public class MovementScore<T extends PileType<T>> implements Move<T> {
     T to;
     List<CardEnum> cards;
     int score;
+    Object debug;
 
-    public MovementScore(Movement<T> movement, int score) {
-        this(movement.getFrom(), movement.getTo(), movement.getCards(), score);
+    public MovementScore(Movement<T> movement, int score, Object debug) {
+        this(movement.getFrom(), movement.getTo(), movement.getCards(), score, debug);
     }
 
     @Override
     public String toString() {
-        return from + " → " + to + " (" + cards + ") - " + score;
+        return from + " → " + to + " (" + cards + ") - " + score + " " + debug;
     }
 
 }

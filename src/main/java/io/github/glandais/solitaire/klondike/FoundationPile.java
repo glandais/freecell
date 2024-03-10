@@ -34,10 +34,12 @@ public class FoundationPile implements PlayablePile<KlondikePilesEnum> {
     public Optional<Movement<KlondikePilesEnum>> accept(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, MovableStack<KlondikePilesEnum> movableStack) {
         // single incoming card
         if (movableStack.cards().size() == 1) {
-            if (movableStack.from() == KlondikePilesEnum.STOCK && board.getPile(movableStack.from()).visible().isEmpty()) {
+            CardEnum cardEnum = movableStack.cards().getFirst();
+            if (movableStack.from() == KlondikePilesEnum.STOCK &&
+                    !board.getPile(movableStack.from()).hidden().isEmpty() &&
+                    board.getPile(movableStack.from()).hidden().getLast() == cardEnum) {
                 return Optional.empty();
             }
-            CardEnum cardEnum = movableStack.cards().getFirst();
             // correct suite
             if (cardEnum.getSuiteEnum() == this.suiteEnum) {
                 int acceptableOrder;

@@ -67,15 +67,22 @@ public class KlondikeConsolePrinter implements SolitairePrinter<KlondikePilesEnu
             }
         }
         Pile<KlondikePilesEnum> stock = board.getPile(KlondikePilesEnum.STOCK);
+        int di = 0;
         if (!stock.visible().isEmpty()) {
-            CardEnum visible = stock.visible().getFirst();
-            printableCards.add(new PrintableCard(8 * (cardWidth + 1), 0, 0, false, visible, false));
+            if (Logger.DEBUG) {
+                for (CardEnum visible : stock.visible()) {
+                    printableCards.add(new PrintableCard(8 * (cardWidth + 1) + di, 0, di, false, visible, false));
+                    di++;
+                }
+            } else {
+                CardEnum last = stock.visible().getLast();
+                printableCards.add(new PrintableCard(8 * (cardWidth + 1) + di, 0, di, false, last, false));
+            }
         } else {
             printableCards.add(new PrintableCard(8 * (cardWidth + 1), 0, 0, true, null, false));
         }
-        int di = 0;
         for (CardEnum hidden : stock.hidden()) {
-            printableCards.add(new PrintableCard(9 * (cardWidth + 1) + di, 0, -di, false, hidden, true));
+            printableCards.add(new PrintableCard(9 * (cardWidth + 1) + di, 0, -di, false, hidden, !Logger.DEBUG));
             di++;
         }
         for (TableauPilesEnum tableauPilesEnum : TableauPilesEnum.values()) {
@@ -127,6 +134,7 @@ public class KlondikeConsolePrinter implements SolitairePrinter<KlondikePilesEnu
     private void printCard(PrintableCard printableCard, int i, int j) {
         if (printableCard == null) {
             Logger.info(" ");
+            return;
         }
         if (printableCard.emptyStack()) {
             Logger.info(ansi().bg(Ansi.Color.WHITE).a(" ").reset());
@@ -143,7 +151,7 @@ public class KlondikeConsolePrinter implements SolitairePrinter<KlondikePilesEnu
                 String label = " ";
                 if (
                         (i == 0 && (j == 0 || j == 2)) ||
-                                (i == 2 && j == 1)
+                                (i == 3 && j == 1)
                 ) {
                     label = printableCard.card().getSuiteEnum().getLabel();
                 } else if (printableCard.card().getOrderEnum() == OrderEnum.TEN) {
