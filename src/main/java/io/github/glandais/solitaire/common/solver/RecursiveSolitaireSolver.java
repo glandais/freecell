@@ -20,7 +20,7 @@ public class RecursiveSolitaireSolver<T extends PileType<T>> {
     private static final boolean DEBUG = false;
 
     private final Solitaire<T> solitaire;
-    private final Board<T> initialBoard;
+    private final Board<T> board;
     private final int maxComputeMs;
     private final SolitairePrinter<T> debugPrinter;
 
@@ -36,13 +36,12 @@ public class RecursiveSolitaireSolver<T extends PileType<T>> {
 
     public RecursiveSolitaireSolver(Solitaire<T> solitaire, Board<T> board, int maxComputeMs, SolitairePrinter<T> debugPrinter) {
         this.solitaire = solitaire;
-        this.initialBoard = board;
+        this.board = board;
         this.maxComputeMs = maxComputeMs;
         this.debugPrinter = debugPrinter;
     }
 
     public List<MovementScore<T>> solve() {
-        Board<T> board = this.initialBoard;//.copy();
         exploredPerLevel = new TreeMap<>();
         exploringPerLevel = new TreeMap<>();
         explored = 0;
@@ -56,24 +55,6 @@ public class RecursiveSolitaireSolver<T extends PileType<T>> {
         printStatus();
 
         return bestMovements;
-    }
-
-    private void printStatus() {
-        Logger.infoln("Ellapsed : " + (System.currentTimeMillis() - start) + "ms");
-        Logger.infoln(explored + " iterations");
-        Logger.infoln("bestFinishedLevel : " + bestLevel);
-        String exploreState = exploredPerLevel.entrySet().stream()
-                .map(e -> {
-                    String s = e.getKey() + "=" + e.getValue();
-                    Exploring exploring = exploringPerLevel.get(e.getKey());
-                    if (exploring != null) {
-                        s = s + "(" + exploring + ")";
-                    }
-                    return s;
-                })
-                .collect(Collectors.joining(", "));
-        Logger.infoln("exploreState : " + exploreState);
-        Logger.infoln(states);
     }
 
     protected void explore(Board<T> board, int level, int maxLevel, String tree) {
@@ -95,18 +76,7 @@ public class RecursiveSolitaireSolver<T extends PileType<T>> {
 
         int movesToFinish = solitaire.movesToFinish(board);
         if (movesToFinish != Solitaire.UNSOLVED) {
-            if (level + movesToFinish < bestLevel) {
-                bestLevel = level + movesToFinish;
-                bestMovements = new ArrayList<>(movements);
-                bestMovements.addAll(solitaire.getFinishMovements(board));
-
-                Logger.infoln("****************");
-                printStatus();
-                for (MovementScore<T> bestMovement : bestMovements) {
-                    Logger.infoln(bestMovement);
-                }
-                Logger.infoln("****************");
-            }
+            checkBestLevel(board, level, movesToFinish);
             return;
         }
 
@@ -130,9 +100,10 @@ public class RecursiveSolitaireSolver<T extends PileType<T>> {
                 exploring.i++;
                 movements.add(movement);
                 List<CardAction<T>> actions = board.applyMovement(movement);
-                explore(board, level + 1, maxLevel, tree + "->" + i++);
+                explore(board, level + 1, maxLevel, tree + "->" + i);
                 board.revertMovement(actions);
                 movements.removeLast();
+                i++;
             }
             exploringPerLevel.remove(level);
             if (DEBUG) {
@@ -140,6 +111,39 @@ public class RecursiveSolitaireSolver<T extends PileType<T>> {
                 Logger.infoln("END level : " + level);
             }
         }
+    }
+
+    private void checkBestLevel(Board<T> board, int level, int movesToFinish) {
+        if (level + movesToFinish < bestLevel) {
+            bestLevel = level + movesToFinish;
+            bestMovements = new ArrayList<>(movements);
+            bestMovements.addAll(solitaire.getFinishMovements(board));
+
+            Logger.infoln("****************");
+            printStatus();
+            for (MovementScore<T> bestMovement : bestMovements) {
+                Logger.infoln(bestMovement);
+            }
+            Logger.infoln("****************");
+        }
+    }
+
+    private void printStatus() {
+        Logger.infoln("Ellapsed : " + (System.currentTimeMillis() - start) + "ms");
+        Logger.infoln(explored + " iterations");
+        Logger.infoln("bestFinishedLevel : " + bestLevel);
+        String exploreState = exploredPerLevel.entrySet().stream()
+                .map(e -> {
+                    String s = e.getKey() + "=" + e.getValue();
+                    Exploring exploring = exploringPerLevel.get(e.getKey());
+                    if (exploring != null) {
+                        s = s + "(" + exploring + ")";
+                    }
+                    return s;
+                })
+                .collect(Collectors.joining(", "));
+        Logger.infoln("exploreState : " + exploreState);
+        Logger.infoln(states);
     }
 
 }
