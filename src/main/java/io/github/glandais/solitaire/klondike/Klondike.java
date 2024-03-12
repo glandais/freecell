@@ -105,7 +105,6 @@ public class Klondike implements Solitaire<KlondikePilesEnum> {
             return possibleMovements.stream().map(m -> new MovementScore<>(m, 0, null)).collect(Collectors.toList());
         }
         return possibleMovements.stream().map(m -> getMovementScoreWithBoardScore(board, m)).collect(Collectors.toList());
-//        return getMovementScores2(board, possibleMovements);
     }
 
     private MovementScore<KlondikePilesEnum> getMovementScoreWithBoardScore(Board<KlondikePilesEnum> board, Movement<KlondikePilesEnum> movement) {

@@ -2,7 +2,7 @@ package io.github.glandais.solitaire.klondike.main;
 
 import io.github.glandais.solitaire.common.board.Board;
 import io.github.glandais.solitaire.common.move.MovementScore;
-import io.github.glandais.solitaire.common.solver.SolitaireSolver;
+import io.github.glandais.solitaire.common.solver.RecursiveSolitaireSolver;
 import io.github.glandais.solitaire.klondike.Klondike;
 import io.github.glandais.solitaire.klondike.enums.KlondikePilesEnum;
 import io.github.glandais.solitaire.klondike.printer.console.KlondikeConsolePrinter;
@@ -41,7 +41,7 @@ public class Solve implements Callable<Integer> {
         } else {
             guiSolitairePrinter.print(board.copy());
         }
-        SolitaireSolver<KlondikePilesEnum> solitaireSolver = new SolitaireSolver<>(Klondike.INSTANCE, board, klondikeConsolePrinter);
+        RecursiveSolitaireSolver<KlondikePilesEnum> solitaireSolver = new RecursiveSolitaireSolver<>(Klondike.INSTANCE, board, 60_000, klondikeConsolePrinter);
         List<MovementScore<KlondikePilesEnum>> moves = solitaireSolver.solve();
         if (moves != null) {
             Serde.save("board.json", new BoardMoves(board, moves));

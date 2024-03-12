@@ -5,6 +5,7 @@ import io.github.glandais.solitaire.common.cards.ColorEnum;
 import io.github.glandais.solitaire.common.move.MovableStack;
 import io.github.glandais.solitaire.common.move.Move;
 import io.github.glandais.solitaire.common.move.MovementScore;
+import io.github.glandais.solitaire.common.solver.States;
 import lombok.experimental.UtilityClass;
 import org.fusesource.jansi.Ansi;
 
@@ -60,6 +61,10 @@ public class Logger {
             info(movement.getTo());
             info(" ");
             info(movement.getCards());
+        } else if (s instanceof States<?> states) {
+            infoln("statesPut : " + states.getStatesPut());
+            infoln("statesPresent : " + states.getStatesPresent());
+            info("statesRemoved : " + states.getStatesRemoved());
         } else {
             System.out.print(s);
         }

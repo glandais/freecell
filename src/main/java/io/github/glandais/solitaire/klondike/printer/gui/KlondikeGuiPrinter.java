@@ -122,7 +122,9 @@ public class KlondikeGuiPrinter implements SolitairePrinter<KlondikePilesEnum> {
         if (code == KeyCode.SPACE) {
             paused = !paused;
         }
-        playableBoard.keyReleased(code);
+        if (playable) {
+            playableBoard.keyReleased(code);
+        }
     }
 
     private void updateReplay(float v) {
@@ -139,7 +141,8 @@ public class KlondikeGuiPrinter implements SolitairePrinter<KlondikePilesEnum> {
                     tick = newTick;
                     if (newTick < moves.size()) {
                         this.printableBoardFrom = this.printableBoardTo;
-                        Logger.infoln(Serde.toJson(this.board));
+//                        Logger.infoln(Serde.toJson(this.board));
+                        Logger.infoln("tick : " + tick);
                         Logger.infoln("possibleMovements");
                         List<Movement<KlondikePilesEnum>> possibleMovements = this.board.computePossibleMovements();
                         for (Movement<KlondikePilesEnum> possibleMovement : possibleMovements) {

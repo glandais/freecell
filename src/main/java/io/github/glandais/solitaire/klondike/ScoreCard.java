@@ -147,7 +147,7 @@ public class ScoreCard {
 
         if (maxFoundation > 0) {
             if (maxFoundation - minFoundation <= 2) {
-                if (movement != null && movement.getTo().getPileTypeEnum() == PileTypeEnum.FOUNDATION) {
+                if (movement.getTo().getPileTypeEnum() == PileTypeEnum.FOUNDATION) {
                     score = ERASE_OTHER_MOVEMENTS;
                     return;
                 }
@@ -180,7 +180,7 @@ public class ScoreCard {
         }
         if (DEBUG) debug = debug + "\n" + "hiddenTotal : +" + hiddenTotal + " * 50_000";
         score = score + hiddenTotal * 50_000;
-        if (movement != null && movement.getTo().getPileTypeEnum() == PileTypeEnum.TABLEAU) {
+        if (movement.getTo().getPileTypeEnum() == PileTypeEnum.TABLEAU) {
             int firstStackOrder = movement.getCards().getFirst().getOrderEnum().getOrder();
             if (DEBUG) debug = debug + "\n" + "firstStackOrder : -" + firstStackOrder + " * 1000";
             score = score - firstStackOrder * 1000;

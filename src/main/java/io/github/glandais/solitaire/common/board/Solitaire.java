@@ -5,6 +5,7 @@ import io.github.glandais.solitaire.common.move.MovementScore;
 import io.github.glandais.solitaire.klondike.enums.KlondikePilesEnum;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public interface Solitaire<T extends PileType<T>> {
         List<MovementScore<T>> orderedMovements = getMovementScores(board, possibleMovements);
         orderedMovements.sort(Comparator.comparing(MovementScore::getScore));
         if (!orderedMovements.isEmpty() && orderedMovements.getFirst().getScore() == ERASE_OTHER_MOVEMENTS) {
-            orderedMovements.removeIf(m -> m.getScore() != ERASE_OTHER_MOVEMENTS);
+            return new ArrayList<>(List.of(orderedMovements.getFirst()));
         }
         return orderedMovements;
     }
