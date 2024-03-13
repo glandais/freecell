@@ -14,11 +14,9 @@ import io.github.glandais.solitaire.klondike.enums.TableauPilesEnum;
 import io.github.glandais.solitaire.klondike.serde.BoardMoves;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class Klondike implements Solitaire<KlondikePilesEnum> {
 
@@ -52,27 +50,25 @@ public class Klondike implements Solitaire<KlondikePilesEnum> {
 
     @Override
     public int movesToFinish(Board<KlondikePilesEnum> board) {
-        synchronized (this) {
-            Pile stock = board.getPile(KlondikePilesEnum.STOCK);
-            if (!stock.hidden().isEmpty()) {
-                return UNSOLVED;
-            }
-            if (!stock.visible().isEmpty()) {
-                return UNSOLVED;
-            }
-            for (TableauPilesEnum tableauPilesEnum : TableauPilesEnum.values()) {
-                stock = board.getPile(tableauPilesEnum.getKlondikePilesEnum());
-                if (!stock.hidden().isEmpty()) {
-                    return UNSOLVED;
-                }
-            }
-            return Arrays.stream(TableauPilesEnum.values())
-                    .map(TableauPilesEnum::getKlondikePilesEnum)
-                    .map(board::getPile)
-                    .map(Pile::visible)
-                    .mapToInt(List::size)
-                    .sum();
+        Pile<KlondikePilesEnum> pile = board.getPile(KlondikePilesEnum.STOCK);
+        if (!pile.hidden().isEmpty()) {
+            return UNSOLVED;
         }
+        if (!pile.visible().isEmpty()) {
+            return UNSOLVED;
+        }
+        for (TableauPilesEnum tableauPilesEnum : TableauPilesEnum.values()) {
+            pile = board.getPile(tableauPilesEnum.getKlondikePilesEnum());
+            if (!pile.hidden().isEmpty()) {
+                return UNSOLVED;
+            }
+        }
+        int s = 0;
+        for (TableauPilesEnum tableauPilesEnum : TableauPilesEnum.values()) {
+            pile = board.getPile(tableauPilesEnum.getKlondikePilesEnum());
+            s = s + pile.visible().size();
+        }
+        return s;
     }
 
     @Override
@@ -93,17 +89,26 @@ public class Klondike implements Solitaire<KlondikePilesEnum> {
 
     @Override
     public List<MovementScore<KlondikePilesEnum>> getMovementScores(Board<KlondikePilesEnum> board, List<Movement<KlondikePilesEnum>> possibleMovements) {
+        if (possibleMovements.isEmpty()) {
+            return List.of();
+        }
         // filter useless movements
         Pile<KlondikePilesEnum> stock = board.getPile(KlondikePilesEnum.STOCK);
         if (stock.visible().isEmpty() && !stock.hidden().isEmpty()) {
-            possibleMovements = possibleMovements.stream()
-                    .filter(m -> m.getFrom() == KlondikePilesEnum.STOCK && m.getTo() == KlondikePilesEnum.STOCK)
-                    .collect(Collectors.toList());
+            for (Movement<KlondikePilesEnum> m : possibleMovements) {
+                if (m.getFrom() == KlondikePilesEnum.STOCK && m.getTo() == KlondikePilesEnum.STOCK) {
+                    return List.of(new MovementScore<>(m, 0, null));
+                }
+            }
         }
-        if (possibleMovements.size() <= 1) {
-            return possibleMovements.stream().map(m -> new MovementScore<>(m, 0, null)).collect(Collectors.toList());
+        if (possibleMovements.size() == 1) {
+            return List.of(new MovementScore<>(possibleMovements.getFirst(), 0, null));
         }
-        return possibleMovements.stream().map(m -> getMovementScoreWithBoardScore(board, m)).collect(Collectors.toList());
+        List<MovementScore<KlondikePilesEnum>> result = new ArrayList<>(possibleMovements.size());
+        for (Movement<KlondikePilesEnum> m : possibleMovements) {
+            result.add(getMovementScoreWithBoardScore(board, m));
+        }
+        return result;
     }
 
     private MovementScore<KlondikePilesEnum> getMovementScoreWithBoardScore(Board<KlondikePilesEnum> board, Movement<KlondikePilesEnum> movement) {
@@ -117,13 +122,13 @@ public class Klondike implements Solitaire<KlondikePilesEnum> {
     }
 
     public MovementScore<KlondikePilesEnum> getScore(Movement<KlondikePilesEnum> movement, Board<KlondikePilesEnum> board) {
-        ScoreCard scoreCard = new ScoreCard(this, board, movement);
+        ScoreCardResult scoreCardResult = ScoreCard.getScore(this, board, movement);
 
-        int score = scoreCard.getScore();
+        int score = scoreCardResult.score();
         if (Logger.DEBUG) {
-            Logger.infoln(score + " " + scoreCard.getDebug());
+            Logger.infoln(score + " " + scoreCardResult.debug());
         }
-        return new MovementScore<>(movement, score, scoreCard.getDebug());
+        return new MovementScore<>(movement, score, scoreCardResult.debug());
     }
 
     @Override

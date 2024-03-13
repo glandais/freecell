@@ -62,7 +62,7 @@ public class SolitaireSolver<T extends PileType<T>> {
                     levelMovements = new ArrayList<>();
                 } else {
                     // get possible moves for current level
-                    levelMovements = solitaire.getOrderedMovements(board);
+                    levelMovements = new ArrayList<>(solitaire.getOrderedMovements(board));
                     if (Logger.DEBUG) {
                         debugPrinter.print(board);
                         Logger.debug("orderedMovements : " + levelMovements);

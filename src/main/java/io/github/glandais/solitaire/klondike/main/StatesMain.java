@@ -32,7 +32,8 @@ public class StatesMain {
 //                klondikeConsolePrinter.print(board);
                 states.hasState(board, 0);
                 System.out.println(states.getStatesPresent());
-                System.out.println(states.getStatesPut());
+                System.out.println(states.getStatesNew());
+                System.out.println(states.getStatesBetter());
             }
         }
     }

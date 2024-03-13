@@ -23,7 +23,7 @@ public class Debug implements Callable<Integer> {
                 new RecursiveSolitaireSolver<>(
                         Klondike.INSTANCE,
                         board,
-                        120_000,
+                        10_000,
                         new KlondikeConsolePrinter()
                 );
         solitaireSolver.solve();

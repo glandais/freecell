@@ -12,48 +12,25 @@ import io.github.glandais.solitaire.klondike.enums.KlondikePilesEnum;
 import io.github.glandais.solitaire.klondike.enums.PileTypeEnum;
 import io.github.glandais.solitaire.klondike.enums.TableauPilesEnum;
 import lombok.Getter;
+import lombok.experimental.UtilityClass;
 
 import java.util.List;
 
 import static io.github.glandais.solitaire.common.board.Solitaire.ERASE_OTHER_MOVEMENTS;
 import static io.github.glandais.solitaire.common.board.Solitaire.UNSOLVED;
 
+@UtilityClass
 public class ScoreCard {
 
     public static final boolean DEBUG = false;
 
-    final Movement<KlondikePilesEnum> movement;
-
-    boolean finished;
-
-    boolean noStockVisibleAndCanPick;
-
-    int minFoundation;
-    int maxFoundation;
-
-    int kingSuiteNoHidden;
-    int kingSuiteOnHidden;
-    int emptyTableau;
-
-    int[] hiddenCount;
-    int[] visibleCount;
-    CardEnum[] suiteStart;
-    CardEnum[] suiteEnd;
-    int[] suiteColor;
-
-    @Getter
-    int score;
-    @Getter
-    String debug;
-
-    public ScoreCard(Klondike klondike, Board<KlondikePilesEnum> board, Movement<KlondikePilesEnum> movement) {
-        this.movement = movement;
-        finished = klondike.movesToFinish(board) < UNSOLVED;
+    public ScoreCardResult getScore(Klondike klondike, Board<KlondikePilesEnum> board, Movement<KlondikePilesEnum> movement) {
+        boolean finished = klondike.movesToFinish(board) < UNSOLVED;
         Pile<KlondikePilesEnum> stock = board.getPile(KlondikePilesEnum.STOCK);
-        noStockVisibleAndCanPick = stock.visible().isEmpty() && !stock.hidden().isEmpty();
+        boolean noStockVisibleAndCanPick = stock.visible().isEmpty() && !stock.hidden().isEmpty();
 
-        minFoundation = 100;
-        maxFoundation = 0;
+        int minFoundation = 100;
+        int maxFoundation = 0;
         for (FoundationPilesEnum foundationPilesEnum : FoundationPilesEnum.values()) {
             Pile<KlondikePilesEnum> pile = board.getPile(foundationPilesEnum.getKlondikePilesEnum());
             if (!pile.visible().isEmpty()) {
@@ -68,14 +45,14 @@ public class ScoreCard {
             minFoundation = 0;
         }
 
-        kingSuiteNoHidden = 0;
-        kingSuiteOnHidden = 0;
-        emptyTableau = 0;
-        hiddenCount = new int[7];
-        visibleCount = new int[7];
-        suiteStart = new CardEnum[7];
-        suiteEnd = new CardEnum[7];
-        suiteColor = new int[7];
+        int kingSuiteNoHidden = 0;
+        int kingSuiteOnHidden = 0;
+        int emptyTableau = 0;
+        int[] hiddenCount = new int[7];
+        int[] visibleCount = new int[7];
+//        CardEnum[] suiteStart = new CardEnum[7];
+//        CardEnum[] suiteEnd = new CardEnum[7];
+        int[] suiteColor = new int[7];
         int i = 0;
         for (TableauPilesEnum tableauPilesEnum : TableauPilesEnum.values()) {
             Pile<?> pile = board.getPile(tableauPilesEnum.getKlondikePilesEnum());
@@ -95,10 +72,10 @@ public class ScoreCard {
             }
             hiddenCount[i] = hidden.size();
             visibleCount[i] = visible.size();
-            if (!visibleEmpty) {
-                suiteStart[i] = visible.getFirst();
-                suiteEnd[i] = visible.getLast();
-            }
+//            if (!visibleEmpty) {
+//                suiteStart[i] = visible.getFirst();
+//                suiteEnd[i] = visible.getLast();
+//            }
 
             SuiteEnum lastBlack = null;
             SuiteEnum lastRed = null;
@@ -126,19 +103,14 @@ public class ScoreCard {
             i++;
         }
 
-        computeScore();
-    }
-
-    private void computeScore() {
-        debug = "";
+        String debug = "";
+        int score = 0;
         if (finished) {
             if (DEBUG) {
                 debug = debug + "\n" + "-100_000_000 as finised";
             }
-            score = -100_000_000;
-            return;
+            return new ScoreCardResult(-100_000_000, debug);
         }
-        score = 0;
         if (noStockVisibleAndCanPick) {
             if (DEBUG) {
                 debug = debug + "\n" + "noStockVisibleAndCanPick : +10_000_000";
@@ -152,8 +124,7 @@ public class ScoreCard {
         if (maxFoundation > 0) {
             if (maxFoundation - minFoundation <= 2) {
                 if (movement.getTo().getPileTypeEnum() == PileTypeEnum.FOUNDATION) {
-                    score = ERASE_OTHER_MOVEMENTS;
-                    return;
+                    return new ScoreCardResult(ERASE_OTHER_MOVEMENTS, debug);
                 }
                 if (DEBUG) {
                     debug = debug + "\n" + "foundations : -50_000";
@@ -184,10 +155,10 @@ public class ScoreCard {
         int hiddenTotal = 0;
         int visibleTotal = 0;
         int suiteColorTotal = 0;
-        for (int i = 0; i < 7; i++) {
-            hiddenTotal = hiddenTotal + hiddenCount[i];
-            visibleTotal = visibleTotal + visibleCount[i];
-            suiteColorTotal = suiteColorTotal + (suiteColor[i] > 2 ? suiteColor[i] : 0);
+        for (int j = 0; j < 7; j++) {
+            hiddenTotal = hiddenTotal + hiddenCount[j];
+            visibleTotal = visibleTotal + visibleCount[j];
+            suiteColorTotal = suiteColorTotal + (suiteColor[j] > 2 ? suiteColor[j] : 0);
         }
         if (DEBUG) {
             debug = debug + "\n" + "hiddenTotal : +" + hiddenTotal + " * 50_000";
@@ -211,6 +182,7 @@ public class ScoreCard {
         if (DEBUG) {
             debug = debug + "\n" + "total : " + score;
         }
+        return new ScoreCardResult(score, debug);
     }
 
 }
