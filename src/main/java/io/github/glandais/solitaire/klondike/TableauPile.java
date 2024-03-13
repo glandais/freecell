@@ -1,6 +1,7 @@
 package io.github.glandais.solitaire.klondike;
 
 import io.github.glandais.solitaire.common.board.Board;
+import io.github.glandais.solitaire.common.board.Cards;
 import io.github.glandais.solitaire.common.board.Pile;
 import io.github.glandais.solitaire.common.board.PlayablePile;
 import io.github.glandais.solitaire.common.cards.CardEnum;
@@ -17,7 +18,6 @@ import io.github.glandais.solitaire.klondike.enums.PileTypeEnum;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class TableauPile implements PlayablePile<KlondikePilesEnum> {
 
@@ -28,11 +28,11 @@ public class TableauPile implements PlayablePile<KlondikePilesEnum> {
         List<MovableStack<KlondikePilesEnum>> movableStacks = new ArrayList<>(2);
         // all stack
         if (!pile.visible().isEmpty()) {
-            List<CardEnum> cards = new ArrayList<>(pile.visible());
+            Cards cards = pile.visible().copy();
             movableStacks.add(new MovableStack<>(pile.pileType(), cards));
         }
         if (pile.visible().size() > 1) {
-            List<CardEnum> cards = List.of(pile.visible().getLast());
+            Cards cards = Cards.of(pile.visible().getLast());
             // single card
             movableStacks.add(new MovableStack<>(pile.pileType(), cards));
         }
@@ -40,24 +40,24 @@ public class TableauPile implements PlayablePile<KlondikePilesEnum> {
     }
 
     @Override
-    public Optional<Movement<KlondikePilesEnum>> accept(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, MovableStack<KlondikePilesEnum> movableStack) {
+    public Movement<KlondikePilesEnum> accept(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, MovableStack<KlondikePilesEnum> movableStack) {
         // can't move stack to itself
         if (movableStack.from() == pile.pileType()) {
-            return Optional.empty();
+            return null;
         }
         CardEnum cardEnum = movableStack.cards().getFirst();
         if (movableStack.from() == KlondikePilesEnum.STOCK &&
-                !board.getPile(movableStack.from()).hidden().isEmpty() &&
-                board.getPile(movableStack.from()).hidden().getLast() == cardEnum) {
-            return Optional.empty();
+            !board.getPile(movableStack.from()).hidden().isEmpty() &&
+            board.getPile(movableStack.from()).hidden().getLast() == cardEnum) {
+            return null;
         }
         if (!isPossible(pile, movableStack)) {
-            return Optional.empty();
+            return null;
         }
         if (movableStack.from().getPileTypeEnum() == PileTypeEnum.TABLEAU) {
             return acceptFromTableau(board, pile, movableStack);
         }
-        return Optional.of(new Movement<>(movableStack, pile.pileType()));
+        return new Movement<>(movableStack, pile.pileType());
     }
 
     private boolean isPossible(Pile<KlondikePilesEnum> pile, MovableStack<KlondikePilesEnum> movableStack) {
@@ -80,29 +80,31 @@ public class TableauPile implements PlayablePile<KlondikePilesEnum> {
         }
     }
 
-    private Optional<Movement<KlondikePilesEnum>> acceptFromTableau(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, MovableStack<KlondikePilesEnum> movableStack) {
+    private Movement<KlondikePilesEnum> acceptFromTableau(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile,
+            MovableStack<KlondikePilesEnum> movableStack) {
         // accept only full stacks
         if (movableStack.cards().size() != board.getPile(movableStack.from()).visible().size()) {
-            return Optional.empty();
+            return null;
         }
         // do not move a king starting stack without hidden cards
         if (
                 movableStack.cards().getFirst().getOrderEnum() == OrderEnum.KING &&
-                        board.getPile(movableStack.from()).hidden().isEmpty()
+                board.getPile(movableStack.from()).hidden().isEmpty()
         ) {
-            return Optional.empty();
+            return null;
         } else {
-            return Optional.of(new Movement<>(movableStack, pile.pileType()));
+            return new Movement<>(movableStack, pile.pileType());
         }
     }
 
     @Override
     public List<CardAction<KlondikePilesEnum>> getActions(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, Move<KlondikePilesEnum> move) {
-        List<CardEnum> cards = move.getCards();
+        Cards cards = move.getCards();
         List<CardAction<KlondikePilesEnum>> actions = new ArrayList<>(cards.size() + 1);
         if (move.getFrom() == pile.pileType()) {
             // remove cards
-            for (CardEnum cardEnum : cards.reversed()) {
+            for (int i = cards.size() - 1; i >= 0; i--) {
+                CardEnum cardEnum = cards.get(i);
                 actions.add(new CardAction<>(pile.pileType(), TargetEnum.VISIBLE_LAST, ActionEnum.REMOVE, cardEnum));
             }
             // no more visible card, show last hidden if present

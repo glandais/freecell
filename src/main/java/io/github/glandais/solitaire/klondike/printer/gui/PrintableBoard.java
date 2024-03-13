@@ -1,6 +1,7 @@
 package io.github.glandais.solitaire.klondike.printer.gui;
 
 import io.github.glandais.solitaire.common.board.Board;
+import io.github.glandais.solitaire.common.board.Cards;
 import io.github.glandais.solitaire.common.board.Pile;
 import io.github.glandais.solitaire.common.cards.CardEnum;
 import io.github.glandais.solitaire.klondike.enums.FoundationPilesEnum;
@@ -138,7 +139,7 @@ public class PrintableBoard extends ArrayList<PrintableCard> {
         PrintableCard cardAt = getCardAt(x, y);
         if (cardAt != null) {
             for (KlondikePilesEnum klondikePilesEnum : KlondikePilesEnum.values()) {
-                List<CardEnum> visible = board.getPile(klondikePilesEnum).visible();
+                Cards visible = board.getPile(klondikePilesEnum).visible();
                 if (visible.contains(cardAt.getCard())) {
                     return klondikePilesEnum;
                 }

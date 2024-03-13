@@ -18,12 +18,13 @@ public class Debug implements Callable<Integer> {
 
     @Override
     public Integer call() {
+//        Board<KlondikePilesEnum> board = Klondike.INSTANCE.getBoard(321358391);
         Board<KlondikePilesEnum> board = Klondike.INSTANCE.getBoard(0);
         RecursiveSolitaireSolver<KlondikePilesEnum> solitaireSolver =
                 new RecursiveSolitaireSolver<>(
                         Klondike.INSTANCE,
                         board,
-                        10_000,
+                        -1,
                         new KlondikeConsolePrinter()
                 );
         solitaireSolver.solve();

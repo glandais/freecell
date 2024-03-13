@@ -14,11 +14,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.SequencedMap;
 
 public record Board<T extends PileType<T>>(Pile<T>[] piles) {
 
@@ -55,8 +52,9 @@ public record Board<T extends PileType<T>>(Pile<T>[] piles) {
             PlayablePile<T> to = toPileType.playablePile();
             Pile<T> pileTo = getPile(toPileType);
 
-            List<CardAction<T>> actions = new ArrayList<>(from.getActions(this, pileFrom, move));
+            List<CardAction<T>> actions = from.getActions(this, pileFrom, move);
             if (fromPileType != toPileType) {
+                actions = new ArrayList<>(actions);
                 actions.addAll(to.getActions(this, pileTo, move));
             }
             applyActions(actions);
@@ -129,17 +127,19 @@ public record Board<T extends PileType<T>>(Pile<T>[] piles) {
     }
 
     private List<Movement<T>> computePileMovements(List<MovableStack<T>> movableStacks) {
-        List<Movement<T>> movements = new ArrayList<>();
+        List<Movement<T>> movements = new ArrayList<>(movableStacks.size());
         if (Logger.DEBUG) {
             Logger.debug("movableStacks : " + movableStacks);
         }
         for (MovableStack<T> movableStack : movableStacks) {
             for (Pile<T> to : piles) {
-                Optional<Movement<T>> movementOptional = to.pileType().playablePile().accept(this, to, movableStack);
-                if (Logger.DEBUG) {
-                    movementOptional.ifPresent(Logger::debug);
+                Movement<T> movement = to.pileType().playablePile().accept(this, to, movableStack);
+                if (movement != null) {
+                    if (Logger.DEBUG) {
+                        Logger.debug(movement);
+                    }
+                    movements.add(movement);
                 }
-                movementOptional.ifPresent(movements::add);
             }
         }
 
@@ -151,14 +151,14 @@ public record Board<T extends PileType<T>>(Pile<T>[] piles) {
         int p = 0;
         for (Pile<T> pile : piles) {
             if (pile.pileType().isSwappable()) {
-                state[p] = addPile(pile);
+                state[p] = computePileState(pile);
                 p++;
             }
         }
         int swappableEnd = p;
         for (Pile<T> pile : piles) {
             if (!pile.pileType().isSwappable()) {
-                state[p] = addPile(pile);
+                state[p] = computePileState(pile);
                 p++;
             }
         }
@@ -174,9 +174,9 @@ public record Board<T extends PileType<T>>(Pile<T>[] piles) {
         return result;
     }
 
-    private byte[] addPile(Pile<T> pile) {
-        List<CardEnum> hidden = pile.hidden();
-        List<CardEnum> visible = pile.visible();
+    private byte[] computePileState(Pile<T> pile) {
+        Cards hidden = pile.hidden();
+        Cards visible = pile.visible();
         byte[] result = new byte[hidden.size() + visible.size() + 1];
         int i = 0;
         for (CardEnum cardEnum : hidden) {

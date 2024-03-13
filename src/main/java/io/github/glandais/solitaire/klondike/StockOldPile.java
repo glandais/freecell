@@ -1,6 +1,7 @@
 package io.github.glandais.solitaire.klondike;
 
 import io.github.glandais.solitaire.common.board.Board;
+import io.github.glandais.solitaire.common.board.Cards;
 import io.github.glandais.solitaire.common.board.Pile;
 import io.github.glandais.solitaire.common.board.PlayablePile;
 import io.github.glandais.solitaire.common.cards.CardEnum;
@@ -22,11 +23,11 @@ public class StockOldPile implements PlayablePile<KlondikePilesEnum> {
     public List<MovableStack<KlondikePilesEnum>> getMovableStacks(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile) {
         if (!pile.visible().isEmpty()) {
             return List.of(
-                    new MovableStack<>(KlondikePilesEnum.STOCK, List.of(pile.visible().getLast()))
+                    new MovableStack<>(KlondikePilesEnum.STOCK, Cards.of(pile.visible().getLast()))
             );
         } else if (!pile.hidden().isEmpty()) {
             return List.of(
-                    new MovableStack<>(KlondikePilesEnum.STOCK, List.of(pile.hidden().getLast()))
+                    new MovableStack<>(KlondikePilesEnum.STOCK, Cards.of(pile.hidden().getLast()))
             );
         } else {
             return List.of();
@@ -34,16 +35,16 @@ public class StockOldPile implements PlayablePile<KlondikePilesEnum> {
     }
 
     @Override
-    public Optional<Movement<KlondikePilesEnum>> accept(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, MovableStack<KlondikePilesEnum> movableStack) {
+    public Movement<KlondikePilesEnum> accept(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, MovableStack<KlondikePilesEnum> movableStack) {
         if (movableStack.from() == KlondikePilesEnum.STOCK) {
             if (pile.hidden().isEmpty()) {
-                return Optional.empty();
+                return null;
             }
             // card can be discarded/picked
-            return Optional.of(new Movement<>(movableStack, KlondikePilesEnum.STOCK));
+            return new Movement<>(movableStack, KlondikePilesEnum.STOCK);
         }
         // no card can be moved to stock pile
-        return Optional.empty();
+        return null;
     }
 
     @Override

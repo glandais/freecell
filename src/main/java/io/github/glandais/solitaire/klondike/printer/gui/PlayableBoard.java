@@ -17,6 +17,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -231,10 +232,11 @@ public class PlayableBoard {
     }
 
     private Set<CardEnum> getVisible() {
-        return board.getPileValues().stream()
-                .map(Pile::visible)
-                .flatMap(List::stream)
-                .collect(Collectors.toSet());
+        Set<CardEnum> visible = new HashSet<>();
+        for (Pile<KlondikePilesEnum> pile : board.getPileValues()) {
+            pile.visible().forEach(visible::add);
+        }
+        return visible;
     }
 
     private Movement<KlondikePilesEnum> getMovement(double x, double y) {

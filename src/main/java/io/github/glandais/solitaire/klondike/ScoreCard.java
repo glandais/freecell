@@ -1,6 +1,7 @@
 package io.github.glandais.solitaire.klondike;
 
 import io.github.glandais.solitaire.common.board.Board;
+import io.github.glandais.solitaire.common.board.Cards;
 import io.github.glandais.solitaire.common.board.Pile;
 import io.github.glandais.solitaire.common.cards.CardEnum;
 import io.github.glandais.solitaire.common.cards.ColorEnum;
@@ -56,8 +57,8 @@ public class ScoreCard {
         int i = 0;
         for (TableauPilesEnum tableauPilesEnum : TableauPilesEnum.values()) {
             Pile<?> pile = board.getPile(tableauPilesEnum.getKlondikePilesEnum());
-            List<CardEnum> visible = pile.visible();
-            List<CardEnum> hidden = pile.hidden();
+            Cards visible = pile.visible();
+            Cards hidden = pile.hidden();
             boolean visibleEmpty = visible.isEmpty();
             boolean hiddenEmpty = hidden.isEmpty();
             if (!visibleEmpty && visible.getFirst().getOrderEnum() == OrderEnum.KING) {

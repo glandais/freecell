@@ -31,14 +31,14 @@ public class FoundationPile implements PlayablePile<KlondikePilesEnum> {
     }
 
     @Override
-    public Optional<Movement<KlondikePilesEnum>> accept(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, MovableStack<KlondikePilesEnum> movableStack) {
+    public Movement<KlondikePilesEnum> accept(Board<KlondikePilesEnum> board, Pile<KlondikePilesEnum> pile, MovableStack<KlondikePilesEnum> movableStack) {
         // single incoming card
         if (movableStack.cards().size() == 1) {
             CardEnum cardEnum = movableStack.cards().getFirst();
             if (movableStack.from() == KlondikePilesEnum.STOCK &&
                     !board.getPile(movableStack.from()).hidden().isEmpty() &&
                     board.getPile(movableStack.from()).hidden().getLast() == cardEnum) {
-                return Optional.empty();
+                return null;
             }
             // correct suite
             if (cardEnum.getSuiteEnum() == this.suiteEnum) {
@@ -50,11 +50,11 @@ public class FoundationPile implements PlayablePile<KlondikePilesEnum> {
                 }
                 // correct order
                 if (cardEnum.getOrderEnum().getOrder() == acceptableOrder) {
-                    return Optional.of(new Movement<>(movableStack, pile.pileType()));
+                    return new Movement<>(movableStack, pile.pileType());
                 }
             }
         }
-        return Optional.empty();
+        return null;
     }
 
     @Override

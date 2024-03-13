@@ -1,5 +1,6 @@
 package io.github.glandais.solitaire.common.move;
 
+import io.github.glandais.solitaire.common.board.Cards;
 import io.github.glandais.solitaire.common.board.PileType;
 import io.github.glandais.solitaire.common.cards.CardEnum;
 
@@ -10,5 +11,5 @@ public interface Move<T extends PileType<T>> {
 
     T getTo();
 
-    List<CardEnum> getCards();
+    Cards getCards();
 }

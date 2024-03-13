@@ -10,9 +10,9 @@ public record CardAction<T extends PileType<T>>(T pileType, TargetEnum target, A
         if (actionEnum == ActionEnum.ADD) {
             switch (target) {
                 case HIDDEN_FIRST -> pile.hidden().addFirst(card);
-                case HIDDEN_LAST -> pile.hidden().addLast(card);
+                case HIDDEN_LAST -> pile.hidden().add(card);
                 case VISIBLE_FIRST -> pile.visible().addFirst(card);
-                case VISIBLE_LAST -> pile.visible().addLast(card);
+                case VISIBLE_LAST -> pile.visible().add(card);
             }
         } else {
             if (target == TargetEnum.HIDDEN_FIRST || target == TargetEnum.HIDDEN_LAST) {
@@ -33,9 +33,9 @@ public record CardAction<T extends PileType<T>>(T pileType, TargetEnum target, A
         } else {
             switch (target) {
                 case HIDDEN_FIRST -> pile.hidden().addFirst(card);
-                case HIDDEN_LAST -> pile.hidden().addLast(card);
+                case HIDDEN_LAST -> pile.hidden().add(card);
                 case VISIBLE_FIRST -> pile.visible().addFirst(card);
-                case VISIBLE_LAST -> pile.visible().addLast(card);
+                case VISIBLE_LAST -> pile.visible().add(card);
             }
         }
     }

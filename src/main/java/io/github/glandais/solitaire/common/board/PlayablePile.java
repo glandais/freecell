@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface PlayablePile<T extends PileType<T>> {
     List<MovableStack<T>> getMovableStacks(Board<T> board, Pile<T> pile);
 
-    Optional<Movement<T>> accept(Board<T> board, Pile<T> pile, MovableStack<T> movableStack);
+    Movement<T> accept(Board<T> board, Pile<T> pile, MovableStack<T> movableStack);
 
     List<CardAction<T>> getActions(Board<T> board, Pile<T> pile, Move<T> move);
 }

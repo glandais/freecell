@@ -168,7 +168,7 @@ public class RecursiveSolitaireSolver<T extends PileType<T>> {
     }
 
     private void printStatus() {
-        Logger.infoln("Elapsed : " + (System.currentTimeMillis() - start) + "ms");
+        Logger.infoln("Elapsed : " + (System.currentTimeMillis() - start) + "ms / " + maxComputeMs + "ms");
         Logger.infoln(explored + " iterations");
         Logger.infoln("exploredPerLevel : " + exploredPerLevel);
         Logger.infoln("bestFinishedLevel : " + bestLevel);
