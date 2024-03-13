@@ -1,6 +1,5 @@
 package io.github.glandais.solitaire.klondike;
 
-import io.github.glandais.solitaire.common.Logger;
 import io.github.glandais.solitaire.common.board.Board;
 import io.github.glandais.solitaire.common.board.Pile;
 import io.github.glandais.solitaire.common.cards.CardEnum;
@@ -104,7 +103,8 @@ public class ScoreCard {
             SuiteEnum lastBlack = null;
             SuiteEnum lastRed = null;
             int tableauSuiteColor = 0;
-            for (CardEnum cardEnum : visible.reversed()) {
+            for (int j = visible.size() - 1; j >= 0; j--) {
+                CardEnum cardEnum = visible.get(j);
                 SuiteEnum suiteEnum = cardEnum.getSuiteEnum();
                 if (suiteEnum.getColorEnum() == ColorEnum.BLACK) {
                     if (lastBlack == null) {
@@ -132,13 +132,17 @@ public class ScoreCard {
     private void computeScore() {
         debug = "";
         if (finished) {
-            if (DEBUG) debug = debug + "\n" + "-100_000_000 as finised";
+            if (DEBUG) {
+                debug = debug + "\n" + "-100_000_000 as finised";
+            }
             score = -100_000_000;
             return;
         }
         score = 0;
         if (noStockVisibleAndCanPick) {
-            if (DEBUG) debug = debug + "\n" + "noStockVisibleAndCanPick : +10_000_000";
+            if (DEBUG) {
+                debug = debug + "\n" + "noStockVisibleAndCanPick : +10_000_000";
+            }
             // don't do that !
             score = score + 10_000_000;
         }
@@ -151,11 +155,14 @@ public class ScoreCard {
                     score = ERASE_OTHER_MOVEMENTS;
                     return;
                 }
-                if (DEBUG) debug = debug + "\n" + "foundations : -50_000";
+                if (DEBUG) {
+                    debug = debug + "\n" + "foundations : -50_000";
+                }
                 score = score - 50_000;
             } else {
-                if (DEBUG)
+                if (DEBUG) {
                     debug = debug + "\n" + "foundations : -" + 10_000 + " (" + minFoundation + "/" + maxFoundation + ")";
+                }
                 score = score - 10_000;
             }
         }
@@ -163,11 +170,15 @@ public class ScoreCard {
         // 400_000 for kings with no hidden
 
         // I love kings at top of a tableau
-        if (DEBUG) debug = debug + "\n" + "kingSuiteNoHidden : -" + kingSuiteNoHidden + " * 100_000";
+        if (DEBUG) {
+            debug = debug + "\n" + "kingSuiteNoHidden : -" + kingSuiteNoHidden + " * 100_000";
+        }
         score = score - 100_000 * kingSuiteNoHidden;
         int movableKings = Math.min(emptyTableau, kingSuiteOnHidden);
         // I love to move kings at top of a tableau
-        if (DEBUG) debug = debug + "\n" + "movableKings : -" + movableKings + " * 90_000";
+        if (DEBUG) {
+            debug = debug + "\n" + "movableKings : -" + movableKings + " * 90_000";
+        }
         score = score - 90_000 * movableKings;
 
         int hiddenTotal = 0;
@@ -178,18 +189,28 @@ public class ScoreCard {
             visibleTotal = visibleTotal + visibleCount[i];
             suiteColorTotal = suiteColorTotal + (suiteColor[i] > 2 ? suiteColor[i] : 0);
         }
-        if (DEBUG) debug = debug + "\n" + "hiddenTotal : +" + hiddenTotal + " * 50_000";
+        if (DEBUG) {
+            debug = debug + "\n" + "hiddenTotal : +" + hiddenTotal + " * 50_000";
+        }
         score = score + hiddenTotal * 50_000;
         if (movement.getTo().getPileTypeEnum() == PileTypeEnum.TABLEAU) {
             int firstStackOrder = movement.getCards().getFirst().getOrderEnum().getOrder();
-            if (DEBUG) debug = debug + "\n" + "firstStackOrder : -" + firstStackOrder + " * 1000";
+            if (DEBUG) {
+                debug = debug + "\n" + "firstStackOrder : -" + firstStackOrder + " * 1000";
+            }
             score = score - firstStackOrder * 1000;
         }
-        if (DEBUG) debug = debug + "\n" + "visibleTotal : -" + visibleTotal + " * 100";
+        if (DEBUG) {
+            debug = debug + "\n" + "visibleTotal : -" + visibleTotal + " * 100";
+        }
         score = score - visibleTotal * 100;
-        if (DEBUG) debug = debug + "\n" + "suiteColorTotal : -" + suiteColorTotal + " * 10";
+        if (DEBUG) {
+            debug = debug + "\n" + "suiteColorTotal : -" + suiteColorTotal + " * 10";
+        }
         score = score - suiteColorTotal * 100;
-        if (DEBUG) debug = debug + "\n" + "total : " + score;
+        if (DEBUG) {
+            debug = debug + "\n" + "total : " + score;
+        }
     }
 
 }

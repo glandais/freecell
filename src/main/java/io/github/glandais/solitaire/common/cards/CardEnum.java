@@ -95,7 +95,7 @@ public enum CardEnum {
 
     @Override
     public String toString() {
-        return label;
+        return longLabel;
     }
 
 }

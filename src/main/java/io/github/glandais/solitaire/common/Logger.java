@@ -62,6 +62,7 @@ public class Logger {
             info(" ");
             info(movement.getCards());
         } else if (s instanceof States<?> states) {
+            infoln("statesSize : " + states.getStatesSize());
             infoln("statesPut : " + states.getStatesPut());
             infoln("statesPresent : " + states.getStatesPresent());
             info("statesRemoved : " + states.getStatesRemoved());

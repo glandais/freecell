@@ -7,6 +7,7 @@ import io.github.glandais.solitaire.common.board.Solitaire;
 import io.github.glandais.solitaire.common.execution.CardAction;
 import io.github.glandais.solitaire.common.move.MovementScore;
 import io.github.glandais.solitaire.common.printer.SolitairePrinter;
+import io.github.glandais.solitaire.klondike.serde.Serde;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ public class RecursiveSolitaireSolver<T extends PileType<T>> {
     private static final boolean DEBUG = false;
 
     private final Solitaire<T> solitaire;
+    private final Board<T> originalBoard;
     private final Board<T> board;
     private final int maxComputeMs;
     private final SolitairePrinter<T> debugPrinter;
@@ -36,6 +38,7 @@ public class RecursiveSolitaireSolver<T extends PileType<T>> {
 
     public RecursiveSolitaireSolver(Solitaire<T> solitaire, Board<T> board, int maxComputeMs, SolitairePrinter<T> debugPrinter) {
         this.solitaire = solitaire;
+        this.originalBoard = board.copy();
         this.board = board;
         this.maxComputeMs = maxComputeMs;
         this.debugPrinter = debugPrinter;
@@ -52,20 +55,20 @@ public class RecursiveSolitaireSolver<T extends PileType<T>> {
         start = System.currentTimeMillis();
         explore(board, 0, 200, "root");
 
-        printStatus();
+        printStatus("");
 
         return bestMovements;
     }
 
     protected void explore(Board<T> board, int level, int maxLevel, String tree) {
-        if (System.currentTimeMillis() - start > maxComputeMs) {
+        if (maxComputeMs > 0 && System.currentTimeMillis() - start > maxComputeMs) {
             return;
         }
 
         exploredPerLevel.computeIfAbsent(level, l -> new AtomicLong()).incrementAndGet();
         explored++;
         if (explored % 200_000 == 0) {
-            printStatus();
+            printStatus(tree);
         }
         if (states.hasState(board, level)) {
             if (DEBUG) {
@@ -76,7 +79,7 @@ public class RecursiveSolitaireSolver<T extends PileType<T>> {
 
         int movesToFinish = solitaire.movesToFinish(board);
         if (movesToFinish != Solitaire.UNSOLVED) {
-            checkBestLevel(board, level, movesToFinish);
+            checkBestLevel(board, level, movesToFinish, tree);
             return;
         }
 
@@ -113,24 +116,27 @@ public class RecursiveSolitaireSolver<T extends PileType<T>> {
         }
     }
 
-    private void checkBestLevel(Board<T> board, int level, int movesToFinish) {
+    private void checkBestLevel(Board<T> board, int level, int movesToFinish, String tree) {
         if (level + movesToFinish < bestLevel) {
             bestLevel = level + movesToFinish;
             bestMovements = new ArrayList<>(movements);
             bestMovements.addAll(solitaire.getFinishMovements(board));
+            states.discardStates(level);
 
             Logger.infoln("****************");
-            printStatus();
+            printStatus(tree);
             for (MovementScore<T> bestMovement : bestMovements) {
                 Logger.infoln(bestMovement);
             }
             Logger.infoln("****************");
+            Serde.save("board-" + bestLevel + ".json", solitaire.getBoardMoves(originalBoard, bestMovements));
         }
     }
 
-    private void printStatus() {
+    private void printStatus(String tree) {
         Logger.infoln("Ellapsed : " + (System.currentTimeMillis() - start) + "ms");
         Logger.infoln(explored + " iterations");
+        Logger.infoln(tree);
         Logger.infoln("bestFinishedLevel : " + bestLevel);
         String exploreState = exploredPerLevel.entrySet().stream()
                 .map(e -> {

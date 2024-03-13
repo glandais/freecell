@@ -5,9 +5,6 @@ import io.github.glandais.solitaire.common.board.Board;
 import io.github.glandais.solitaire.common.board.Pile;
 import io.github.glandais.solitaire.common.board.Solitaire;
 import io.github.glandais.solitaire.common.cards.CardEnum;
-import io.github.glandais.solitaire.common.cards.ColorEnum;
-import io.github.glandais.solitaire.common.cards.OrderEnum;
-import io.github.glandais.solitaire.common.cards.SuiteEnum;
 import io.github.glandais.solitaire.common.execution.CardAction;
 import io.github.glandais.solitaire.common.move.Movement;
 import io.github.glandais.solitaire.common.move.MovementScore;
@@ -16,7 +13,11 @@ import io.github.glandais.solitaire.klondike.enums.KlondikePilesEnum;
 import io.github.glandais.solitaire.klondike.enums.TableauPilesEnum;
 import io.github.glandais.solitaire.klondike.serde.BoardMoves;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class Klondike implements Solitaire<KlondikePilesEnum> {
@@ -26,19 +27,18 @@ public class Klondike implements Solitaire<KlondikePilesEnum> {
     @Override
     public Board<KlondikePilesEnum> getBoard(long seed) {
         Logger.infoln("Board seed : " + seed);
-        SequencedMap<KlondikePilesEnum, Pile<KlondikePilesEnum>> piles = new LinkedHashMap<>();
+        List<Pile<KlondikePilesEnum>> piles = new ArrayList<>();
         for (FoundationPilesEnum foundationPilesEnum : FoundationPilesEnum.values()) {
-            piles.put(foundationPilesEnum.getKlondikePilesEnum(), new Pile<>(foundationPilesEnum.getKlondikePilesEnum()));
+            piles.add(new Pile<>(foundationPilesEnum.getKlondikePilesEnum()));
         }
-        piles.put(KlondikePilesEnum.STOCK, new Pile<>(KlondikePilesEnum.STOCK));
-        for (TableauPilesEnum tableauPilesEnum : TableauPilesEnum.values()) {
-            piles.put(tableauPilesEnum.getKlondikePilesEnum(), new Pile<>(tableauPilesEnum.getKlondikePilesEnum()));
-        }
+        Pile<KlondikePilesEnum> stock = new Pile<>(KlondikePilesEnum.STOCK);
+        piles.add(stock);
         Random random = new Random(seed);
         List<CardEnum> cardEnumList = new ArrayList<>(List.of(CardEnum.values()));
         Collections.shuffle(cardEnumList, random);
         for (TableauPilesEnum tableauPilesEnum : TableauPilesEnum.values()) {
-            Pile<KlondikePilesEnum> pile = piles.get(tableauPilesEnum.getKlondikePilesEnum());
+            Pile<KlondikePilesEnum> pile = new Pile<>(tableauPilesEnum.getKlondikePilesEnum());
+            piles.add(pile);
             for (int i = 0; i < tableauPilesEnum.getHiddenCards(); i++) {
                 CardEnum cardEnum = cardEnumList.removeLast();
                 pile.hidden().add(cardEnum);
@@ -46,8 +46,7 @@ public class Klondike implements Solitaire<KlondikePilesEnum> {
             CardEnum cardEnum = cardEnumList.removeLast();
             pile.visible().add(cardEnum);
         }
-        Pile<KlondikePilesEnum> pile = piles.get(KlondikePilesEnum.STOCK);
-        pile.hidden().addAll(cardEnumList);
+        stock.hidden().addAll(cardEnumList);
         return new Board<>(piles);
     }
 

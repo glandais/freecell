@@ -19,7 +19,13 @@ public class Debug implements Callable<Integer> {
     @Override
     public Integer call() {
         Board<KlondikePilesEnum> board = Klondike.INSTANCE.getBoard(0);
-        RecursiveSolitaireSolver<KlondikePilesEnum> solitaireSolver = new RecursiveSolitaireSolver<>(Klondike.INSTANCE, board, 60_000, new KlondikeConsolePrinter());
+        RecursiveSolitaireSolver<KlondikePilesEnum> solitaireSolver =
+                new RecursiveSolitaireSolver<>(
+                        Klondike.INSTANCE,
+                        board,
+                        120_000,
+                        new KlondikeConsolePrinter()
+                );
         solitaireSolver.solve();
         /*
         Board<KlondikePilesEnum> board = Serde.loadBoard("debug.json");

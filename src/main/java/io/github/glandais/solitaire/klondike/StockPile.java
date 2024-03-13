@@ -68,7 +68,7 @@ public class StockPile implements PlayablePile<KlondikePilesEnum> {
                 if (move.getTo() == KlondikePilesEnum.STOCK) {
                     for (CardEnum card : pile.visible().reversed()) {
                         actions.add(new CardAction<>(KlondikePilesEnum.STOCK, TargetEnum.VISIBLE_LAST, ActionEnum.REMOVE, card));
-                        actions.add(new CardAction<>(KlondikePilesEnum.STOCK, TargetEnum.HIDDEN_FIRST, ActionEnum.ADD, card));
+                        actions.add(new CardAction<>(KlondikePilesEnum.STOCK, TargetEnum.HIDDEN_LAST, ActionEnum.ADD, card));
                     }
                     CardEnum first = pile.visible().getFirst();
                     actions.add(new CardAction<>(KlondikePilesEnum.STOCK, TargetEnum.HIDDEN_LAST, ActionEnum.REMOVE, first));

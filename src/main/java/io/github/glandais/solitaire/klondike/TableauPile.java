@@ -28,7 +28,7 @@ public class TableauPile implements PlayablePile<KlondikePilesEnum> {
         List<MovableStack<KlondikePilesEnum>> movableStacks = new ArrayList<>(2);
         // all stack
         if (!pile.visible().isEmpty()) {
-            List<CardEnum> cards = List.copyOf(pile.visible());
+            List<CardEnum> cards = new ArrayList<>(pile.visible());
             movableStacks.add(new MovableStack<>(pile.pileType(), cards));
         }
         if (pile.visible().size() > 1) {

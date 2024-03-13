@@ -7,28 +7,41 @@ import io.github.glandais.solitaire.common.execution.CardAction;
 import io.github.glandais.solitaire.common.move.MovableStack;
 import io.github.glandais.solitaire.common.move.Move;
 import io.github.glandais.solitaire.common.move.Movement;
+import io.github.glandais.solitaire.klondike.enums.KlondikePilesEnum;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.EnumMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.SequencedMap;
 
-public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
+public record Board<T extends PileType<T>>(Pile<T>[] piles) {
+
+    public Board(List<Pile<KlondikePilesEnum>> piles) {
+        this(piles.stream().sorted(Comparator.comparing(p -> p.pileType().ordinal()))
+                .toArray(Pile[]::new));
+    }
 
     public Pile<T> getPile(T pileType) {
-        return piles.get(pileType);
+        return piles[pileType.ordinal()];
     }
 
     @JsonIgnore
     public Collection<Pile<T>> getPileValues() {
-        return piles.values();
+        return List.of(piles);
     }
 
     public Board<T> copy() {
-        SequencedMap<T, Pile<T>> pilesCopy = new LinkedHashMap<>();
-        for (Map.Entry<T, Pile<T>> entry : piles.entrySet()) {
-            pilesCopy.put(entry.getKey(), entry.getValue().copy());
+        Pile<T>[] copy = new Pile[piles.length];
+        for (int i = 0; i < piles.length; i++) {
+            copy[i] = piles[i].copy();
         }
-        return new Board<>(pilesCopy);
+        return new Board<>(copy);
     }
 
     public List<CardAction<T>> applyMovement(Move<T> move) {
@@ -57,20 +70,20 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
     private void check() {
         Map<CardEnum, String> places = new EnumMap<>(CardEnum.class);
         int i;
-        for (Map.Entry<T, Pile<T>> entry : piles.entrySet()) {
+        for (Pile<T> pile : piles) {
             i = 0;
-            for (CardEnum cardEnum : entry.getValue().visible()) {
+            for (CardEnum cardEnum : pile.visible()) {
                 if (places.containsKey(cardEnum)) {
                     Logger.infoln("invalid");
                 }
-                places.put(cardEnum, entry.getKey().name() + "-visible-" + i);
+                places.put(cardEnum, pile.pileType().name() + "-visible-" + i);
                 i++;
             }
-            for (CardEnum cardEnum : entry.getValue().hidden()) {
+            for (CardEnum cardEnum : pile.hidden()) {
                 if (places.containsKey(cardEnum)) {
                     Logger.infoln("invalid");
                 }
-                places.put(cardEnum, entry.getKey().name() + "-hidden-" + i);
+                places.put(cardEnum, pile.pileType().name() + "-hidden-" + i);
                 i++;
             }
         }
@@ -109,7 +122,7 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
     @JsonIgnore
     public List<MovableStack<T>> getMovableStacks() {
         List<MovableStack<T>> movableStacks = new ArrayList<>();
-        for (Pile<T> from : piles.values()) {
+        for (Pile<T> from : piles) {
             movableStacks.addAll(from.pileType().playablePile().getMovableStacks(this, from));
         }
         return movableStacks;
@@ -121,7 +134,7 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
             Logger.debug("movableStacks : " + movableStacks);
         }
         for (MovableStack<T> movableStack : movableStacks) {
-            for (Pile<T> to : piles.values()) {
+            for (Pile<T> to : piles) {
                 Optional<Movement<T>> movementOptional = to.pileType().playablePile().accept(this, to, movableStack);
                 if (Logger.DEBUG) {
                     movementOptional.ifPresent(Logger::debug);
@@ -133,36 +146,47 @@ public record Board<T extends PileType<T>>(SequencedMap<T, Pile<T>> piles) {
         return movements;
     }
 
-    public String computeState() {
-        synchronized (this) {
-            List<String> orderedTiles = new ArrayList<>();
-            List<String> unorderedTiles = new ArrayList<>();
-            for (Map.Entry<T, Pile<T>> entry : piles.entrySet()) {
-                String pileState = computeState(entry.getValue());
-                if (entry.getKey().isSwappable()) {
-                    unorderedTiles.add(pileState);
-                } else {
-                    orderedTiles.add(pileState);
-                }
+    public byte[] computeState() {
+        byte[][] state = new byte[piles.length][];
+        int p = 0;
+        for (Pile<T> pile : piles) {
+            if (pile.pileType().isSwappable()) {
+                state[p] = addPile(pile);
+                p++;
             }
-            return Stream.concat(
-                            unorderedTiles.stream().sorted(),
-                            orderedTiles.stream()
-                    )
-                    .collect(Collectors.joining("|"));
         }
+        int swappableEnd = p;
+        for (Pile<T> pile : piles) {
+            if (!pile.pileType().isSwappable()) {
+                state[p] = addPile(pile);
+                p++;
+            }
+        }
+        Arrays.sort(state, 0, swappableEnd, Arrays::compare);
+        byte[] result = new byte[52 + piles.length * 2];
+        int i = 0;
+        for (byte[] bytes : state) {
+            for (byte b : bytes) {
+                result[i++] = b;
+            }
+            result[i++] = 127;
+        }
+        return result;
     }
 
-    private String computeState(Pile<T> pile) {
-        StringBuilder stringBuilder = new StringBuilder(52 * 2);
-        for (CardEnum cardEnum : pile.hidden()) {
-            stringBuilder.append(cardEnum.getSortableLabel());
+    private byte[] addPile(Pile<T> pile) {
+        List<CardEnum> hidden = pile.hidden();
+        List<CardEnum> visible = pile.visible();
+        byte[] result = new byte[hidden.size() + visible.size() + 1];
+        int i = 0;
+        for (CardEnum cardEnum : hidden) {
+            result[i++] = (byte) cardEnum.ordinal();
         }
-        stringBuilder.append(",");
-        for (CardEnum cardEnum : pile.visible()) {
-            stringBuilder.append(cardEnum.getSortableLabel());
+        result[i++] = -128;
+        for (CardEnum cardEnum : visible) {
+            result[i++] = (byte) cardEnum.ordinal();
         }
-        return stringBuilder.toString();
+        return result;
     }
 
 }

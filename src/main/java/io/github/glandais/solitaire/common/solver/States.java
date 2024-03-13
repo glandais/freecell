@@ -4,13 +4,13 @@ import io.github.glandais.solitaire.common.board.Board;
 import io.github.glandais.solitaire.common.board.PileType;
 import lombok.Getter;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class States<T extends PileType<T>> {
 
-    private final Map<String, Integer> states = new TreeMap<>();
+    private final Map<ByteArray, Integer> states = Collections.synchronizedMap(new LruCache<>(10_000_000));
     @Getter
     private long statesPut = 0;
     @Getter
@@ -19,7 +19,7 @@ public class States<T extends PileType<T>> {
     private long statesRemoved = 0;
 
     public boolean hasState(Board<T> board, int level) {
-        String state = board.computeState();
+        ByteArray state = new ByteArray(board.computeState());
         Integer existingLevel = states.get(state);
         if (existingLevel == null || level < existingLevel) {
             statesPut++;
@@ -38,5 +38,9 @@ public class States<T extends PileType<T>> {
                 statesRemoved++;
             }
         }
+    }
+
+    public int getStatesSize() {
+        return states.size();
     }
 }
