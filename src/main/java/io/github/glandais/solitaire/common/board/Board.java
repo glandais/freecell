@@ -13,6 +13,8 @@ import java.util.*;
 
 public record Board<T extends PileType<T>>(Pile<T>[] piles) {
 
+    public static final String INVALID = "invalid";
+
     public Board(List<Pile<KlondikePilesEnum>> piles) {
         this(piles.stream().sorted(Comparator.comparing(p -> p.pileType().ordinal()))
                 .toArray(Pile[]::new));
@@ -66,21 +68,21 @@ public record Board<T extends PileType<T>>(Pile<T>[] piles) {
             i = 0;
             for (CardEnum cardEnum : pile.visible()) {
                 if (places.containsKey(cardEnum)) {
-                    Logger.infoln("invalid");
+                    Logger.infoln(INVALID);
                 }
                 places.put(cardEnum, pile.pileType().name() + "-visible-" + i);
                 i++;
             }
             for (CardEnum cardEnum : pile.hidden()) {
                 if (places.containsKey(cardEnum)) {
-                    Logger.infoln("invalid");
+                    Logger.infoln(INVALID);
                 }
                 places.put(cardEnum, pile.pileType().name() + "-hidden-" + i);
                 i++;
             }
         }
         if (places.size() != 52) {
-            Logger.infoln("invalid");
+            Logger.infoln(INVALID);
         }
     }
 

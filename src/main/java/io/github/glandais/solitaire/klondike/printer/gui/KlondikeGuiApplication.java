@@ -37,9 +37,7 @@ public class KlondikeGuiApplication extends Application {
         Group root = new Group();
         root.getChildren().add(canvas);
         Scene scene = new Scene(root, Constants.WIDTH, Constants.HEIGHT);
-        scene.setOnMouseClicked(e -> {
-            klondikeGuiPrinter.mouseClicked(e.getX(), e.getY(), e.getButton(), e.getClickCount());
-        });
+        scene.setOnMouseClicked(e -> klondikeGuiPrinter.mouseClicked(e.getX(), e.getY(), e.getButton(), e.getClickCount()));
         scene.setOnMousePressed(e -> {
             if (e.getButton() == MouseButton.PRIMARY) {
                 klondikeGuiPrinter.mousePressed(e.getX(), e.getY());

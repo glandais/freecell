@@ -27,7 +27,8 @@ public class PlayableBoard {
     private final Board<KlondikePilesEnum> board;
     private final PrintableBoard printableBoard;
 
-    double dragX, dragY;
+    double dragX;
+    double dragY;
     List<DraggedCard> dragged = null;
     private MovableStack<KlondikePilesEnum> draggedStack;
     private Set<CardEnum> hideCards;
@@ -93,10 +94,6 @@ public class PlayableBoard {
                 hideCards = newVisible;
                 printableBoard.setCardsPosition();
                 board.revertMovement(actions);
-
-                if (board.getPile(KlondikePilesEnum.STOCK).visible().isEmpty() &&
-                        movement.getFrom() == KlondikePilesEnum.STOCK && movement.getTo() == KlondikePilesEnum.STOCK) {
-                }
             }
             updatePrintableBoard();
             if (!fixed) {
@@ -146,10 +143,8 @@ public class PlayableBoard {
         if (code == KeyCode.RIGHT) {
             redo();
         }
-        if (code == KeyCode.S || code == KeyCode.DOWN) {
-            if (!orderedMovements.isEmpty()) {
-                apply(orderedMovements.getFirst());
-            }
+        if (code == KeyCode.S || code == KeyCode.DOWN && !orderedMovements.isEmpty()) {
+            apply(orderedMovements.getFirst());
         }
     }
 

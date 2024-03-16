@@ -20,7 +20,7 @@ public class RecursiveSolitaireState<T extends PileType<T>> {
         this.board = board;
         this.level = level;
         this.tree = tree;
-        this.movements = new ArrayList<>();
+        this.movements = movements;
     }
 
     public RecursiveSolitaireState(io.github.glandais.solitaire.common.solver.RecursiveSolitaireState<T> parent) {
