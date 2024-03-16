@@ -9,11 +9,7 @@ import io.github.glandais.solitaire.common.move.MovementScore;
 import io.github.glandais.solitaire.common.printer.SolitairePrinter;
 import io.github.glandais.solitaire.klondike.serde.Serde;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 

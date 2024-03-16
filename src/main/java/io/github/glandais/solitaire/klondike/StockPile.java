@@ -16,7 +16,6 @@ import io.github.glandais.solitaire.klondike.enums.KlondikePilesEnum;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class StockPile implements PlayablePile<KlondikePilesEnum> {
 

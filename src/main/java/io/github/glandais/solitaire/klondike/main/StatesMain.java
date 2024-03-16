@@ -3,7 +3,6 @@ package io.github.glandais.solitaire.klondike.main;
 import io.github.glandais.solitaire.common.Logger;
 import io.github.glandais.solitaire.common.board.Board;
 import io.github.glandais.solitaire.common.move.Movement;
-import io.github.glandais.solitaire.common.solver.ByteArray;
 import io.github.glandais.solitaire.common.solver.States;
 import io.github.glandais.solitaire.klondike.Klondike;
 import io.github.glandais.solitaire.klondike.enums.KlondikePilesEnum;

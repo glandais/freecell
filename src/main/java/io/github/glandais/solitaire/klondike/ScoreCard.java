@@ -12,10 +12,7 @@ import io.github.glandais.solitaire.klondike.enums.FoundationPilesEnum;
 import io.github.glandais.solitaire.klondike.enums.KlondikePilesEnum;
 import io.github.glandais.solitaire.klondike.enums.PileTypeEnum;
 import io.github.glandais.solitaire.klondike.enums.TableauPilesEnum;
-import lombok.Getter;
 import lombok.experimental.UtilityClass;
-
-import java.util.List;
 
 import static io.github.glandais.solitaire.common.board.Solitaire.ERASE_OTHER_MOVEMENTS;
 import static io.github.glandais.solitaire.common.board.Solitaire.UNSOLVED;

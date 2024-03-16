@@ -9,13 +9,7 @@ import io.github.glandais.solitaire.common.move.Move;
 import io.github.glandais.solitaire.common.move.Movement;
 import io.github.glandais.solitaire.klondike.enums.KlondikePilesEnum;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public record Board<T extends PileType<T>>(Pile<T>[] piles) {
 

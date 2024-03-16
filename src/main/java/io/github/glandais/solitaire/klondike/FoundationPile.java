@@ -15,7 +15,6 @@ import io.github.glandais.solitaire.common.move.Movement;
 import io.github.glandais.solitaire.klondike.enums.KlondikePilesEnum;
 
 import java.util.List;
-import java.util.Optional;
 
 public class FoundationPile implements PlayablePile<KlondikePilesEnum> {
 

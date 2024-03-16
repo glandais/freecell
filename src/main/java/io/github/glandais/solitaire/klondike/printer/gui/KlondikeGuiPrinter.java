@@ -7,7 +7,6 @@ import io.github.glandais.solitaire.common.move.Movement;
 import io.github.glandais.solitaire.common.move.MovementScore;
 import io.github.glandais.solitaire.common.printer.SolitairePrinter;
 import io.github.glandais.solitaire.klondike.enums.KlondikePilesEnum;
-import io.github.glandais.solitaire.klondike.serde.Serde;
 import javafx.application.Platform;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;

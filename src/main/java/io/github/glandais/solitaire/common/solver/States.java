@@ -6,9 +6,7 @@ import io.github.glandais.solitaire.common.board.Board;
 import io.github.glandais.solitaire.common.board.PileType;
 import lombok.Getter;
 
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class States<T extends PileType<T>> {

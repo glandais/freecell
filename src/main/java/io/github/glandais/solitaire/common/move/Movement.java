@@ -2,12 +2,9 @@ package io.github.glandais.solitaire.common.move;
 
 import io.github.glandais.solitaire.common.board.Cards;
 import io.github.glandais.solitaire.common.board.PileType;
-import io.github.glandais.solitaire.common.cards.CardEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @NoArgsConstructor
